@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>燃·命 | 玩家端</title>
+    <title>燃·命 | 玩家端（Supabase）</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
@@ -37,61 +37,157 @@
         .team-row.self { background: #e8f0fe; }
         .small-dot { width: 24px; height: 24px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: middle; }
         .refresh-note { text-align: center; font-size: 0.7rem; color: #6c757d; margin-top: 20px; }
-        select, button { width: 100%; padding: 12px; border-radius: 40px; border: 1px solid #ddd; font-size: 1rem; margin-top: 8px; }
-        .btn-primary { background: #1a73e8; color: white; border: none; cursor: pointer; }
+        .status { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.6rem; margin-left: 8px; }
+        .connected { background: #e8f5e9; color: #2e7d32; }
+        .disconnected { background: #ffebee; color: #d32f2f; }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="header"><h1>🔥 燃·命</h1><div class="sub">玩家状态 · 实时同步</div></div>
-    <div class="news-bar"><div class="news-title">📢 最新快报</div><div class="news-content" id="newsContent">欢迎来到第七城区！</div><div class="news-time" id="newsTime">刚刚</div></div>
+    <div class="header">
+        <h1>🔥 燃·命 <span id="statusBadge" class="status disconnected">连接中...</span></h1>
+        <div class="sub">实时同步 · 云端版</div>
+    </div>
+    <div class="news-bar"><div class="news-title">📢 最新快报</div><div class="news-content" id="newsContent">加载中...</div><div class="news-time" id="newsTime"></div></div>
     <div id="mainContent"></div>
-    <div class="refresh-note">🔄 数据实时同步 · 中控修改后自动更新</div>
+    <div class="refresh-note">🔄 数据实时同步 · 云端自动更新</div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const STORAGE_KEY = "reignite_tracker_rbc";
-    let allPlayers = [], currentPlayer = null;
-    function loadData() { const stored = localStorage.getItem(STORAGE_KEY); if(stored) { try { allPlayers = JSON.parse(stored); } catch(e) {} } }
-    function initDemoData() { const groupsMap = { "A组": ["jw","ly","wq"],  "B组": ["zy","alice","kw"] 
-	};
-        let players = []; let id = 1;
-        for (const [group, names] of Object.entries(groupsMap)) { for (let i = 0; i < names.length; i++) { const codeNum = (i+1).toString().padStart(2,'0'); players.push({ id: id++, name: names[i], group: group, handCode: group.charAt(0)+codeNum, color: "green", rbc: 10, s1: false, s2: false, s3: false, s4: false }); } }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(players)); return players;
+    // ========== 请在这里填写你的 Supabase 配置（与admin端相同） ==========
+    const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co;
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
+    // ================================================================
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let allPlayers = [];
+    let currentPlayer = null;
+    let latestNews = null;
+    
+    function updateStatus(connected) {
+        const badge = document.getElementById('statusBadge');
+        if (connected) {
+            badge.className = 'status connected';
+            badge.innerText = '实时';
+        } else {
+            badge.className = 'status disconnected';
+            badge.innerText = '离线';
+        }
     }
-    function getProgress(p) { let done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0); return Math.round(done/4*100); }
+    
+    async function loadPlayers() {
+        const { data, error } = await supabase.from('players').select('*');
+        if (error) { updateStatus(false); return; }
+        allPlayers = data;
+        updateStatus(true);
+        if (currentPlayer) renderPlayerView();
+    }
+    
+    async function loadLatestNews() {
+        const { data, error } = await supabase.from('news').select('*').order('id', { ascending: false }).limit(1);
+        if (!error && data && data.length > 0) {
+            latestNews = data[0];
+            document.getElementById('newsContent').innerHTML = latestNews.content;
+            document.getElementById('newsTime').innerHTML = latestNews.time;
+        }
+    }
+    
+    function getProgress(p) {
+        let done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0);
+        return Math.round(done/4*100);
+    }
+    
     function renderPlayerView() {
         if(!currentPlayer) return;
-        const p = allPlayers.find(p => p.name === currentPlayer.name && p.group === currentPlayer.group);
+        const p = allPlayers.find(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
         if(!p) return;
         const colorClass = { green:"dot-green", yellow:"dot-yellow", red:"dot-red", black:"dot-black" }[p.color];
         const colorName = { green:"绿", yellow:"黄", red:"红", black:"黑" }[p.color];
         const myCardClass = p.rbc < 5 ? 'my-card warning' : 'my-card';
-        const team = allPlayers.filter(m => m.group === p.group);
+        const team = allPlayers.filter(m => m.group_name === p.group_name);
         let teamHtml = '<div class="team-header"><span>玩家</span><span>生命颜色</span><span>💰 R币</span></div>';
-        team.forEach(m => { const isSelf = m.name === p.name; const mColorClass = { green:"dot-green", yellow:"dot-yellow", red:"dot-red", black:"dot-black" }[m.color]; const mColorName = { green:"绿", yellow:"黄", red:"红", black:"黑" }[m.color]; teamHtml += `<div class="team-row ${isSelf ? 'self' : ''}"><div>${m.name} ${isSelf ? '(你)' : ''}</div><div><div class="small-dot ${mColorClass}" style="display:inline-block;"></div> ${mColorName}</div><div>💰 ${m.rbc}</div></div>`; });
+        team.forEach(m => { 
+            const isSelf = m.name === p.name; 
+            const mColorClass = { green:"dot-green", yellow:"dot-yellow", red:"dot-red", black:"dot-black" }[m.color]; 
+            const mColorName = { green:"绿", yellow:"黄", red:"红", black:"黑" }[m.color]; 
+            teamHtml += `<div class="team-row ${isSelf ? 'self' : ''}"><div>${m.name} ${isSelf ? '(你)' : ''}</div><div><div class="small-dot ${mColorClass}" style="display:inline-block;"></div> ${mColorName}</div><div>💰 ${m.rbc}</div></div>`; 
+        });
         document.getElementById('mainContent').innerHTML = `
-            <div class="${myCardClass}"><div class="my-name"><span>${p.name}</span><span class="group-badge">${p.group}</span><span class="handcode">${p.handCode}</span></div>
-            <div class="my-stats"><div class="stat-item"><div class="stat-label">生命颜色</div><div class="color-dot ${colorClass}" style="margin:0 auto;"></div><div style="margin-top:4px;">${colorName}</div></div>
-            <div class="stat-item"><div class="stat-label">💰 R币</div><div class="stat-value">${p.rbc}</div></div>
-            <div class="stat-item"><div class="stat-label">📊 进度</div><div class="stat-value">${getProgress(p)}%</div></div></div>
-            ${p.rbc < 5 ? '<div class="warning-text">⚠️ 生存警告！R币不足5，快去赚R币！</div>' : ''}</div>
-            <div class="section-title">👥 我的组员</div><div class="team-grid">${teamHtml}</div>`;
+            <div class="${myCardClass}">
+                <div class="my-name"><span>${p.name}</span><span class="group-badge">${p.group_name}</span><span class="handcode">${p.hand_code}</span></div>
+                <div class="my-stats">
+                    <div class="stat-item"><div class="stat-label">生命颜色</div><div class="color-dot ${colorClass}" style="margin:0 auto;"></div><div style="margin-top:4px;">${colorName}</div></div>
+                    <div class="stat-item"><div class="stat-label">💰 R币</div><div class="stat-value">${p.rbc}</div></div>
+                    <div class="stat-item"><div class="stat-label">📊 进度</div><div class="stat-value">${getProgress(p)}%</div></div>
+                </div>
+                ${p.rbc < 5 ? '<div class="warning-text">⚠️ 生存警告！R币不足5，快去赚R币！</div>' : ''}
+            </div>
+            <div class="section-title">👥 我的组员</div>
+            <div class="team-grid">${teamHtml}</div>
+        `;
     }
-    function showSelector() {
-        let options = '';
-        allPlayers.forEach(p => { options += `<option value="${p.name}|${p.group}">${p.group} - ${p.name} (${p.handCode})</option>`; });
-        document.getElementById('mainContent').innerHTML = `<div style="background:white;border-radius:24px;padding:20px;"><h3>👋 选择你的角色</h3><select id="playerSelect">${options}</select><button id="confirmBtn" class="btn-primary">确认</button></div>`;
-        document.getElementById('confirmBtn').addEventListener('click', () => { const val = document.getElementById('playerSelect').value; if(val) { const [name, group] = val.split('|'); currentPlayer = { name, group }; localStorage.setItem('current_player', JSON.stringify(currentPlayer)); renderPlayerView(); } });
+    
+    // 从URL获取玩家信息
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlName = urlParams.get('name');
+    const urlGroup = urlParams.get('group');
+    if(urlName && urlGroup) {
+        currentPlayer = { name: urlName, group_name: urlGroup };
+    } else {
+        // 显示简单的选择器
+        const stored = localStorage.getItem('current_player');
+        if(stored) {
+            try { currentPlayer = JSON.parse(stored); } catch(e) {}
+        }
     }
-    function loadNews() { const news = localStorage.getItem('reignite_news'); if(news) { try { const n = JSON.parse(news); document.getElementById('newsContent').innerHTML = n.content; document.getElementById('newsTime').innerHTML = n.time; } catch(e) {} } }
-    loadData(); if(!allPlayers || allPlayers.length===0) allPlayers = initDemoData();
-    const urlParams = new URLSearchParams(window.location.search); const urlName = urlParams.get('name'); const urlGroup = urlParams.get('group');
-    if(urlName && urlGroup) { currentPlayer = { name: urlName, group: urlGroup }; localStorage.setItem('current_player', JSON.stringify(currentPlayer)); }
-    else { const stored = localStorage.getItem('current_player'); if(stored) { try { currentPlayer = JSON.parse(stored); } catch(e) {} } }
-    if(currentPlayer && allPlayers.find(p => p.name===currentPlayer.name && p.group===currentPlayer.group)) { renderPlayerView(); loadNews(); }
-    else { showSelector(); }
-    window.addEventListener('storage', (e) => { if(e.key === STORAGE_KEY || e.key === 'reignite_news') { loadData(); if(currentPlayer) { renderPlayerView(); } loadNews(); } });
-    setInterval(() => { loadData(); if(currentPlayer) renderPlayerView(); loadNews(); }, 3000);
+    
+    // 设置实时订阅
+    function setupRealtime() {
+        supabase.channel('players-channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, 
+                () => { loadPlayers(); })
+            .subscribe();
+        supabase.channel('news-channel')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, 
+                () => { loadLatestNews(); })
+            .subscribe();
+    }
+    
+    // 初始化
+    loadPlayers();
+    loadLatestNews();
+    setupRealtime();
+    
+    // 如果有当前玩家，存储并渲染
+    if(currentPlayer) {
+        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
+        setTimeout(() => { if(allPlayers.length) renderPlayerView(); }, 500);
+    } else {
+        // 显示选择器
+        setTimeout(() => {
+            if(allPlayers.length) {
+                let options = '<option value="">请选择...</option>';
+                allPlayers.forEach(p => { options += `<option value="${p.name}|${p.group_name}">${p.group_name} - ${p.name}</option>`; });
+                document.getElementById('mainContent').innerHTML = `
+                    <div style="background:white;border-radius:24px;padding:20px;">
+                        <h3>👋 选择你的角色</h3>
+                        <select id="playerSelect" style="width:100%;padding:12px;border-radius:12px;margin:12px 0;">${options}</select>
+                        <button id="confirmBtn" style="width:100%;padding:12px;background:#1a73e8;color:white;border:none;border-radius:40px;">确认</button>
+                    </div>
+                `;
+                document.getElementById('confirmBtn').addEventListener('click', () => {
+                    const val = document.getElementById('playerSelect').value;
+                    if(val) {
+                        const [name, group] = val.split('|');
+                        currentPlayer = { name, group_name: group };
+                        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
+                        renderPlayerView();
+                    }
+                });
+            }
+        }, 800);
+    }
 </script>
 </body>
 </html>
