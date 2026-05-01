@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燃·命 | 玩家端</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 1.8rem; color: #1a1a2e; }
+        .sub { color: #6c757d; font-size: 0.8rem; }
+        .news-bar { background: linear-gradient(135deg, #1e2a3e, #2d3a4e); color: white; border-radius: 20px; padding: 14px 18px; margin-bottom: 20px; }
+        .news-title { font-size: 0.7rem; opacity: 0.7; margin-bottom: 6px; }
+        .news-content { font-size: 1rem; font-weight: 500; }
+        .news-time { font-size: 0.65rem; opacity: 0.6; margin-top: 8px; text-align: right; }
+        .my-card { background: white; border-radius: 28px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 8px solid #4caf50; }
+        .my-card.warning { border-left-color: #f44336; background: #fff5f5; }
+        .my-name { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .group-badge { background: #eef2f6; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; }
+        .handcode { font-family: monospace; background: #f0f2f5; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; }
+        .my-stats { display: flex; justify-content: space-between; margin-top: 16px; gap: 12px; }
+        .stat-item { flex: 1; text-align: center; background: #f8f9fa; padding: 12px; border-radius: 20px; }
+        .stat-label { font-size: 0.7rem; color: #6c757d; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; }
+        .color-dot { width: 48px; height: 48px; border-radius: 50%; display: inline-block; margin: 0 auto; }
+        .dot-green { background: #4caf50; }
+        .dot-yellow { background: #ffc107; }
+        .dot-red { background: #f44336; }
+        .dot-black { background: #2c3e2f; }
+        .warning-text { color: #d32f2f; font-size: 0.8rem; margin-top: 12px; text-align: center; font-weight: 600; }
+        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .team-grid { background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .team-header { display: grid; grid-template-columns: 2fr 1fr 1fr; background: #1e2a3e; color: white; padding: 12px 16px; font-size: 0.8rem; }
+        .team-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 16px; border-bottom: 1px solid #edf2f7; align-items: center; }
+        .team-row.self { background: #e8f0fe; }
+        .small-dot { width: 24px; height: 24px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: middle; }
+        .refresh-note { text-align: center; font-size: 0.7rem; color: #6c757d; margin-top: 20px; }
+        select, button { width: 100%; padding: 12px; border-radius: 40px; border: 1px solid #ddd; font-size: 1rem; margin-top: 8px; }
+        .btn-primary { background: #1a73e8; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>🔥 燃·命</h1><div class="sub">玩家状态 · 实时同步</div></div>
+    <div class="news-bar"><div class="news-title">📢 最新快报</div><div class="news-content" id="newsContent">欢迎来到第七城区！</div><div class="news-time" id="newsTime">刚刚</div></div>
+    <div id="mainContent"></div>
+    <div class="refresh-note">🔄 数据实时同步 · 中控修改后自动更新</div>
+</div>
+<script>
+    const STORAGE_KEY = "reignite_tracker_rbc";
+    let allPlayers = [], currentPlayer = null;
+    function loadData() { const stored = localStorage.getItem(STORAGE_KEY); if(stored) { try { allPlayers = JSON.parse(stored); } catch(e) {} } }
+    function initDemoData() { const groupsMap = { "A组": ["jw","ly","wq"],  "B组": ["zy","alice","kw"] 
+	};
+        let players = []; let id = 1;
+        for (const [group, names] of Object.entries(groupsMap)) { for (let i = 0; i < names.length; i++) { const codeNum = (i+1).toString().padStart(2,'0'); players.push({ id: id++, name: names[i], group: group, handCode: group.charAt(0)+codeNum, color: "green", rbc: 10, s1: false, s2: false, s3: false, s4: false }); } }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(players)); return players;
+    }
+    function getProgress(p) { let done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0); return Math.round(done/4*100); }
+    function renderPlayerView() {
+        if(!currentPlayer) return;
+        const p = allPlayers.find(p => p.name === currentPlayer.name && p.group === currentPlayer.group);
+        if(!p) return;
+        const colorClass = { green:"dot-green", yellow:"dot-yellow", red:"dot-red", black:"dot-black" }[p.color];
+        const colorName = { green:"绿", yellow:"黄", red:"红", black:"黑" }[p.color];
+        const myCardClass = p.rbc < 5 ? 'my-card warning' : 'my-card';
+        const team = allPlayers.filter(m => m.group === p.group);
+        let teamHtml = '<div class="team-header"><span>玩家</span><span>生命颜色</span><span>💰 R币</span></div>';
+        team.forEach(m => { const isSelf = m.name === p.name; const mColorClass = { green:"dot-green", yellow:"dot-yellow", red:"dot-red", black:"dot-black" }[m.color]; const mColorName = { green:"绿", yellow:"黄", red:"红", black:"黑" }[m.color]; teamHtml += `<div class="team-row ${isSelf ? 'self' : ''}"><div>${m.name} ${isSelf ? '(你)' : ''}</div><div><div class="small-dot ${mColorClass}" style="display:inline-block;"></div> ${mColorName}</div><div>💰 ${m.rbc}</div></div>`; });
+        document.getElementById('mainContent').innerHTML = `
+            <div class="${myCardClass}"><div class="my-name"><span>${p.name}</span><span class="group-badge">${p.group}</span><span class="handcode">${p.handCode}</span></div>
+            <div class="my-stats"><div class="stat-item"><div class="stat-label">生命颜色</div><div class="color-dot ${colorClass}" style="margin:0 auto;"></div><div style="margin-top:4px;">${colorName}</div></div>
+            <div class="stat-item"><div class="stat-label">💰 R币</div><div class="stat-value">${p.rbc}</div></div>
+            <div class="stat-item"><div class="stat-label">📊 进度</div><div class="stat-value">${getProgress(p)}%</div></div></div>
+            ${p.rbc < 5 ? '<div class="warning-text">⚠️ 生存警告！R币不足5，快去赚R币！</div>' : ''}</div>
+            <div class="section-title">👥 我的组员</div><div class="team-grid">${teamHtml}</div>`;
+    }
+    function showSelector() {
+        let options = '';
+        allPlayers.forEach(p => { options += `<option value="${p.name}|${p.group}">${p.group} - ${p.name} (${p.handCode})</option>`; });
+        document.getElementById('mainContent').innerHTML = `<div style="background:white;border-radius:24px;padding:20px;"><h3>👋 选择你的角色</h3><select id="playerSelect">${options}</select><button id="confirmBtn" class="btn-primary">确认</button></div>`;
+        document.getElementById('confirmBtn').addEventListener('click', () => { const val = document.getElementById('playerSelect').value; if(val) { const [name, group] = val.split('|'); currentPlayer = { name, group }; localStorage.setItem('current_player', JSON.stringify(currentPlayer)); renderPlayerView(); } });
+    }
+    function loadNews() { const news = localStorage.getItem('reignite_news'); if(news) { try { const n = JSON.parse(news); document.getElementById('newsContent').innerHTML = n.content; document.getElementById('newsTime').innerHTML = n.time; } catch(e) {} } }
+    loadData(); if(!allPlayers || allPlayers.length===0) allPlayers = initDemoData();
+    const urlParams = new URLSearchParams(window.location.search); const urlName = urlParams.get('name'); const urlGroup = urlParams.get('group');
+    if(urlName && urlGroup) { currentPlayer = { name: urlName, group: urlGroup }; localStorage.setItem('current_player', JSON.stringify(currentPlayer)); }
+    else { const stored = localStorage.getItem('current_player'); if(stored) { try { currentPlayer = JSON.parse(stored); } catch(e) {} } }
+    if(currentPlayer && allPlayers.find(p => p.name===currentPlayer.name && p.group===currentPlayer.group)) { renderPlayerView(); loadNews(); }
+    else { showSelector(); }
+    window.addEventListener('storage', (e) => { if(e.key === STORAGE_KEY || e.key === 'reignite_news') { loadData(); if(currentPlayer) { renderPlayerView(); } loadNews(); } });
+    setInterval(() => { loadData(); if(currentPlayer) renderPlayerView(); loadNews(); }, 3000);
+</script>
+</body>
+</html>

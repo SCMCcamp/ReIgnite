@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燃·命 | 中控端</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+        h1 { font-size: 1.6rem; }
+        .btn { border: none; background: white; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .filter-bar { background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .group-chip { padding: 6px 16px; border-radius: 40px; background: #eef2f6; cursor: pointer; }
+        .group-chip.active { background: #1a73e8; color: white; }
+        .stats-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 20px; padding: 12px 20px; text-align: center; flex: 1; }
+        .table-wrapper { background: white; border-radius: 24px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background: #1e2a3e; color: white; padding: 12px 8px; }
+        td { padding: 10px 8px; border-bottom: 1px solid #edf2f7; }
+        .color-selector { display: flex; gap: 6px; }
+        .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
+        .dot-green { background: #4caf50; }
+        .dot-yellow { background: #ffc107; }
+        .dot-red { background: #f44336; }
+        .dot-black { background: #2c3e2f; }
+        .rbc-control { display: flex; gap: 8px; align-items: center; }
+        .rbc-btn { width: 28px; height: 28px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; }
+        .checkbox { width: 20px; height: 20px; cursor: pointer; }
+        .warning-row { background-color: #ffebee; }
+        .news-input { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: white; padding: 12px 20px; border-radius: 60px; }
+        .news-input input { flex: 1; padding: 10px 16px; border-radius: 40px; border: 1px solid #ddd; }
+        .save-hint { position: fixed; bottom: 20px; right: 20px; background: #1e2a3e; color: white; padding: 8px 16px; border-radius: 40px; opacity: 0; transition: 0.2s; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔥 中控端 · NPC操作台</h1>
+        <div><button class="btn" id="exportBtn">📎 导出</button><button class="btn" id="resetAllBtn">🔄 重置</button></div>
+    </div>
+    <div class="news-input">
+        <span>📢 快报广播：</span>
+        <input type="text" id="newsInput" placeholder="例如：霍尔木兹风暴！超市涨价！">
+        <button class="btn btn-primary" id="sendNewsBtn">发送给玩家端</button>
+    </div>
+    <div class="filter-bar">
+        <div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <div class="group-chip active" data-group="all">全部</div>
+            <div class="group-chip" data-group="A组">A组</div>
+            <div class="group-chip" data-group="B组">B组</div>
+            <div class="group-chip" data-group="C组">C组</div>
+            <div class="group-chip" data-group="D组">D组</div>
+        </div>
+    </div>
+    <div class="stats-grid" id="statsPanel"></div>
+    <div class="table-wrapper">
+        <table id="playerTable"><thead><tr><th>玩家</th><th>组</th><th>手环</th><th>颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th></tr></thead><tbody id="tableBody"></tbody></table>
+    </div>
+</div>
+<div class="save-hint" id="saveHint">✓ 已保存</div>
+<script>
+    const STORAGE_KEY = "reignite_tracker_rbc";
+    let allPlayers = [];
+    let currentGroup = "all";
+    
+    // ========== 👇👇👇 在这里替换成你的真实名单 ==========
+    const groupsMap = {
+        "A组": ["jw","ly","wq"],
+        "B组": ["zy","alice","kw"]
+        
+    };
+    // ========== 👆👆👆 替换结束 ==========
+    
+    function initData() {
+        let players = []; let id = 1;
+        for (const [group, names] of Object.entries(groupsMap)) {
+            for (let i = 0; i < names.length; i++) {
+                const codeNum = (i+1).toString().padStart(2,'0');
+                players.push({ 
+                    id: id++, 
+                    name: names[i], 
+                    group: group, 
+                    handCode: group.charAt(0)+codeNum, 
+                    color: "green", 
+                    rbc: 10, 
+                    s1: false, s2: false, s3: false, s4: false 
+                });
+            }
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+        return players;
+    }
+    
+    function loadData() { 
+        const stored = localStorage.getItem(STORAGE_KEY); 
+        if (stored) { 
+            try { allPlayers = JSON.parse(stored); } catch(e) {} 
+        } 
+        if (!allPlayers || allPlayers.length === 0) allPlayers = initData(); 
+    }
+    
+    function saveData() { 
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allPlayers)); 
+        const hint = document.getElementById('saveHint'); 
+        hint.classList.add('show'); 
+        setTimeout(() => hint.classList.remove('show'), 1000); 
+    }
+    
+    function changeRbc(p, delta) { p.rbc = Math.max(0, p.rbc + delta); saveData(); renderUI(); }
+    function setColor(p, color) { p.color = color; saveData(); renderUI(); }
+    function toggleStation(p, station) { p[station] = !p[station]; saveData(); renderUI(); }
+    function getProgress(p) { let done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0); return Math.round(done/4*100); }
+    
+    function renderUI() {
+        let filtered = currentGroup === "all" ? allPlayers : allPlayers.filter(p => p.group === currentGroup);
+        let green=0,yellow=0,red=0,black=0,totalRbc=0,warn=0;
+        filtered.forEach(p => { 
+            if(p.color==='green') green++; 
+            else if(p.color==='yellow') yellow++; 
+            else if(p.color==='red') red++; 
+            else if(p.color==='black') black++; 
+            totalRbc+=p.rbc; 
+            if(p.rbc<5) warn++; 
+        });
+        document.getElementById('statsPanel').innerHTML = `
+            <div class="stat-card">👥 ${filtered.length}</div>
+            <div class="stat-card">💰 ${totalRbc}</div>
+            <div class="stat-card">🟢 ${green}</div>
+            <div class="stat-card">🟡 ${yellow}</div>
+            <div class="stat-card">🔴 ${red}</div>
+            <div class="stat-card">⚫ ${black}</div>
+            <div class="stat-card">⚠️ ${warn}</div>
+        `;
+        const tbody = document.getElementById('tableBody'); 
+        tbody.innerHTML = '';
+        filtered.forEach(p => {
+            const row = tbody.insertRow(); 
+            if(p.rbc<5) row.classList.add('warning-row');
+            row.insertCell(0).innerText = p.name; 
+            row.insertCell(1).innerText = p.group; 
+            row.insertCell(2).innerText = p.handCode;
+            
+            const colorCell = row.insertCell(3); 
+            const cDiv = document.createElement('div'); 
+            cDiv.className = "color-selector";
+            [{v:"green",c:"dot-green"},{v:"yellow",c:"dot-yellow"},{v:"red",c:"dot-red"},{v:"black",c:"dot-black"}].forEach(c => { 
+                const dot = document.createElement('div'); 
+                dot.className = `color-dot ${c.c}`; 
+                if(p.color === c.v) dot.style.border = "2px solid #333"; 
+                dot.addEventListener('click', () => setColor(p, c.v)); 
+                cDiv.appendChild(dot); 
+            });
+            colorCell.appendChild(cDiv);
+            
+            const rbcCell = row.insertCell(4); 
+            const rbDiv = document.createElement('div'); 
+            rbDiv.className = "rbc-control"; 
+            rbDiv.innerHTML = `<button class="rbc-btn">-1</button><span style="min-width:40px;text-align:center;">${p.rbc}</span><button class="rbc-btn">+1</button>`;
+            rbDiv.children[0].addEventListener('click', () => changeRbc(p, -1)); 
+            rbDiv.children[2].addEventListener('click', () => changeRbc(p, 1)); 
+            rbcCell.appendChild(rbDiv);
+            
+            const createChk = (checked, station) => { 
+                const cb = document.createElement('input'); 
+                cb.type='checkbox'; 
+                cb.checked=checked; 
+                cb.addEventListener('change', () => toggleStation(p, station)); 
+                return cb; 
+            };
+            row.insertCell(5).appendChild(createChk(p.s1,'s1')); 
+            row.insertCell(6).appendChild(createChk(p.s2,'s2')); 
+            row.insertCell(7).appendChild(createChk(p.s3,'s3')); 
+            row.insertCell(8).appendChild(createChk(p.s4,'s4'));
+            row.insertCell(9).innerHTML = `<span style="background:#e9ecef;padding:4px 8px;border-radius:40px;">${getProgress(p)}%</span>`;
+        });
+    }
+    
+    function sendNews() { 
+        const input = document.getElementById('newsInput'); 
+        const content = input.value.trim(); 
+        if(content) { 
+            const news = { content: content, time: new Date().toLocaleTimeString() }; 
+            localStorage.setItem('reignite_news', JSON.stringify(news)); 
+            alert('快报已发送！'); 
+            input.value = ''; 
+        } 
+    }
+    
+    function exportData() { 
+        const blob = new Blob([JSON.stringify(allPlayers, null,2)], {type:"application/json"}); 
+        const a = document.createElement('a'); 
+        a.href = URL.createObjectURL(blob); 
+        a.download = `reignite_data.json`; 
+        a.click(); 
+    }
+    
+    function resetAll() { 
+        if(confirm('重置所有数据？')) { 
+            allPlayers.forEach(p => { p.color="green"; p.rbc=10; p.s1=false; p.s2=false; p.s3=false; p.s4=false; }); 
+            saveData(); 
+            renderUI(); 
+        } 
+    }
+    
+    loadData(); 
+    renderUI();
+    document.getElementById('exportBtn')?.addEventListener('click', exportData);
+    document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
+    document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
+    document.querySelectorAll('.group-chip').forEach(chip => { 
+        chip.addEventListener('click', () => { 
+            currentGroup = chip.getAttribute('data-group'); 
+            document.querySelectorAll('.group-chip').forEach(c=>c.classList.remove('active')); 
+            chip.classList.add('active'); 
+            renderUI(); 
+        }); 
+    });
+    window.addEventListener('storage', (e) => { if(e.key === STORAGE_KEY) { loadData(); renderUI(); } });
+</script>
+</body>
+</html>
