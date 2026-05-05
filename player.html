@@ -20,10 +20,10 @@
         .my-name { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .group-badge { background: #eef2f6; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; }
         .handcode { font-family: monospace; background: #f0f2f5; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; }
-        .my-stats { display: flex; justify-content: space-between; margin-top: 16px; gap: 12px; }
-        .stat-item { flex: 1; text-align: center; background: #f8f9fa; padding: 12px; border-radius: 20px; }
+        .my-stats { display: flex; justify-content: space-between; margin-top: 16px; gap: 12px; flex-wrap: wrap; }
+        .stat-item { flex: 1; text-align: center; background: #f8f9fa; padding: 12px; border-radius: 20px; min-width: 80px; }
         .stat-label { font-size: 0.7rem; color: #6c757d; }
-        .stat-value { font-size: 1.8rem; font-weight: 800; }
+        .stat-value { font-size: 1.5rem; font-weight: 800; }
         .color-dot { width: 48px; height: 48px; border-radius: 50%; display: inline-block; margin: 0 auto; }
         .dot-green { background: #4caf50; }
         .dot-yellow { background: #ffc107; }
@@ -40,6 +40,8 @@
         .status { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.6rem; margin-left: 8px; }
         .connected { background: #e8f5e9; color: #2e7d32; }
         .disconnected { background: #ffebee; color: #d32f2f; }
+        select, button { width: 100%; padding: 12px; border-radius: 40px; font-size: 1rem; margin-top: 8px; }
+        .btn-primary { background: #1a73e8; color: white; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -55,15 +57,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // ========== 请在这里填写你的 Supabase 配置（与admin端相同） ==========
-    const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co;
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-    // ================================================================
+    const SUPABASE_URL = "https://你的项目ID.supabase.co";
+    const SUPABASE_ANON_KEY = "你的anon public key";
     
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (!window._supabaseClient) {
+        window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    const supabase = window._supabaseClient;
+    
     let allPlayers = [];
     let currentPlayer = null;
-    let latestNews = null;
     
     function updateStatus(connected) {
         const badge = document.getElementById('statusBadge');
@@ -78,7 +81,7 @@
     
     async function loadPlayers() {
         const { data, error } = await supabase.from('players').select('*');
-        if (error) { updateStatus(false); return; }
+        if (error) { console.error(error); updateStatus(false); return; }
         allPlayers = data;
         updateStatus(true);
         if (currentPlayer) renderPlayerView();
@@ -87,9 +90,8 @@
     async function loadLatestNews() {
         const { data, error } = await supabase.from('news').select('*').order('id', { ascending: false }).limit(1);
         if (!error && data && data.length > 0) {
-            latestNews = data[0];
-            document.getElementById('newsContent').innerHTML = latestNews.content;
-            document.getElementById('newsTime').innerHTML = latestNews.time;
+            document.getElementById('newsContent').innerHTML = data[0].content;
+            document.getElementById('newsTime').innerHTML = data[0].time;
         }
     }
     
@@ -128,21 +130,28 @@
         `;
     }
     
-    // 从URL获取玩家信息
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlName = urlParams.get('name');
-    const urlGroup = urlParams.get('group');
-    if(urlName && urlGroup) {
-        currentPlayer = { name: urlName, group_name: urlGroup };
-    } else {
-        // 显示简单的选择器
-        const stored = localStorage.getItem('current_player');
-        if(stored) {
-            try { currentPlayer = JSON.parse(stored); } catch(e) {}
-        }
+    function showSelector() {
+        if(!allPlayers.length) { setTimeout(showSelector, 500); return; }
+        let options = '<option value="">请选择...</option>';
+        allPlayers.forEach(p => { options += `<option value="${p.name}|${p.group_name}">${p.group_name} - ${p.name}</option>`; });
+        document.getElementById('mainContent').innerHTML = `
+            <div style="background:white;border-radius:24px;padding:20px;">
+                <h3>👋 选择你的角色</h3>
+                <select id="playerSelect" style="width:100%;padding:12px;border-radius:12px;margin:12px 0;">${options}</select>
+                <button id="confirmBtn" class="btn-primary">确认</button>
+            </div>
+        `;
+        document.getElementById('confirmBtn')?.addEventListener('click', () => {
+            const val = document.getElementById('playerSelect').value;
+            if(val) {
+                const [name, group_name] = val.split('|');
+                currentPlayer = { name, group_name };
+                localStorage.setItem('current_player', JSON.stringify(currentPlayer));
+                renderPlayerView();
+            }
+        });
     }
     
-    // 设置实时订阅
     function setupRealtime() {
         supabase.channel('players-channel')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, 
@@ -154,39 +163,27 @@
             .subscribe();
     }
     
-    // 初始化
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlName = urlParams.get('name');
+    const urlGroup = urlParams.get('group');
+    if(urlName && urlGroup) {
+        currentPlayer = { name: urlName, group_name: urlGroup };
+        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
+    } else {
+        const stored = localStorage.getItem('current_player');
+        if(stored) {
+            try { currentPlayer = JSON.parse(stored); } catch(e) {}
+        }
+    }
+    
     loadPlayers();
     loadLatestNews();
     setupRealtime();
     
-    // 如果有当前玩家，存储并渲染
     if(currentPlayer) {
-        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
         setTimeout(() => { if(allPlayers.length) renderPlayerView(); }, 500);
     } else {
-        // 显示选择器
-        setTimeout(() => {
-            if(allPlayers.length) {
-                let options = '<option value="">请选择...</option>';
-                allPlayers.forEach(p => { options += `<option value="${p.name}|${p.group_name}">${p.group_name} - ${p.name}</option>`; });
-                document.getElementById('mainContent').innerHTML = `
-                    <div style="background:white;border-radius:24px;padding:20px;">
-                        <h3>👋 选择你的角色</h3>
-                        <select id="playerSelect" style="width:100%;padding:12px;border-radius:12px;margin:12px 0;">${options}</select>
-                        <button id="confirmBtn" style="width:100%;padding:12px;background:#1a73e8;color:white;border:none;border-radius:40px;">确认</button>
-                    </div>
-                `;
-                document.getElementById('confirmBtn').addEventListener('click', () => {
-                    const val = document.getElementById('playerSelect').value;
-                    if(val) {
-                        const [name, group] = val.split('|');
-                        currentPlayer = { name, group_name: group };
-                        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
-                        renderPlayerView();
-                    }
-                });
-            }
-        }, 800);
+        setTimeout(showSelector, 800);
     }
 </script>
 </body>
