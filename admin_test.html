@@ -69,12 +69,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     (function(){
-        // ===== 请替换成你的 Supabase 配置 =====
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-        // ====================================
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // 请替换成你的真实 anon key
 
-        // 单例客户端，避免重复声明
         let supabaseClient;
         if (window.__supabaseAdminClient) {
             supabaseClient = window.__supabaseAdminClient;
@@ -133,9 +130,14 @@
             if(content) {
                 const now = new Date();
                 const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-                await supabaseClient.from('news').insert([{ content, time: timeStr }]);
-                alert('快报已发送！');
-                input.value = '';
+                const { error } = await supabaseClient.from('news').insert([{ content, time: timeStr }]);
+                if (error) {
+                    console.error('发送快报失败:', error);
+                    alert('发送失败，请检查权限');
+                } else {
+                    alert('快报已发送！');
+                    input.value = '';
+                }
             }
         }
 
@@ -177,7 +179,6 @@
                 row.insertCell(1).innerText = p.group_name;
                 row.insertCell(2).innerText = p.hand_code;
 
-                // 颜色选择器
                 const colorCell = row.insertCell(3);
                 const colors = [
                     {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
@@ -194,7 +195,6 @@
                 });
                 colorCell.appendChild(cDiv);
 
-                // R币控制
                 const rbcCell = row.insertCell(4);
                 const rbDiv = document.createElement('div');
                 rbDiv.className = 'rbc-control';
@@ -203,7 +203,6 @@
                 rbDiv.children[2].onclick = () => window.changeRbc(p, 1);
                 rbcCell.appendChild(rbDiv);
 
-                // 复选框
                 const createCheck = (checked, station) => {
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
@@ -225,7 +224,6 @@
                 .subscribe();
         }
 
-        // 事件绑定
         document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
         document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
         document.querySelectorAll('.group-chip').forEach(chip => {
