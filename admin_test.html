@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>中控端 极简版</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: system-ui; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        button { margin: 4px; }
+    </style>
+</head>
+<body>
+<h2>🔥 中控端</h2>
+<div id="status">连接中...</div>
+<table id="table">
+    <thead><tr><th>姓名</th><th>组别</th><th>颜色</th><th>R币</th><th>操作</th></tr></thead>
+    <tbody></tbody>
+</table>
+
+<script>
+(function() {
+    const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
+    
+    let client;
+    if (window.__supabaseAdmin) {
+        client = window.__supabaseAdmin;
+    } else {
+        client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.__supabaseAdmin = client;
+    }
+
+    let players = [];
+
+    async function load() {
+        const { data, error } = await client.from('players').select('*');
+        if (error) {
+            document.getElementById('status').innerText = '❌ 连接失败';
+            return;
+        }
+        players = data;
+        document.getElementById('status').innerText = '✅ 已连接云端';
+        render();
+    }
+
+    async function updatePlayer(id, updates) {
+        await client.from('players').update(updates).eq('id', id);
+        load();
+    }
+
+    function render() {
+        const tbody = document.querySelector('#table tbody');
+        tbody.innerHTML = '';
+        players.forEach(p => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = p.name;
+            row.insertCell(1).innerText = p.group_name;
+            row.insertCell(2).innerText = p.color;
+            row.insertCell(3).innerText = p.rbc;
+            const cell = row.insertCell(4);
+            const upBtn = document.createElement('button');
+            upBtn.innerText = 'R币+1';
+            upBtn.onclick = () => updatePlayer(p.id, { rbc: p.rbc + 1 });
+            const downBtn = document.createElement('button');
+            downBtn.innerText = 'R币-1';
+            downBtn.onclick = () => updatePlayer(p.id, { rbc: Math.max(0, p.rbc - 1) });
+            const colorBtn = document.createElement('button');
+            colorBtn.innerText = '颜色变黄';
+            colorBtn.onclick = () => updatePlayer(p.id, { color: 'yellow' });
+            cell.append(upBtn, downBtn, colorBtn);
+        });
+    }
+
+    client.channel('public:players')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => load())
+        .subscribe();
+
+    load();
+})();
+</script>
+</body>
+</html>
