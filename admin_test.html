@@ -69,8 +69,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     (function(){
+        // ==================== 配置 ====================
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // 请替换成你的真实 anon key
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // ⚠️ 请替换成你真实的 anon key
+        // ============================================
 
         let supabaseClient;
         if (window.__supabaseAdminClient) {
@@ -83,6 +85,7 @@
         let allPlayers = [];
         let currentGroup = "all";
 
+        // 更新状态显示
         function updateStatus(connected) {
             const badge = document.getElementById('statusBadge');
             if (badge) {
@@ -91,6 +94,7 @@
             }
         }
 
+        // 加载玩家数据
         async function loadPlayers() {
             const { data, error } = await supabaseClient.from('players').select('*');
             if (error) {
@@ -103,27 +107,41 @@
             renderUI();
         }
 
+        // 更新单个玩家字段
         async function updatePlayer(id, updates) {
             const { error } = await supabaseClient.from('players').update(updates).eq('id', id);
-            if (error) console.error('更新失败:', error);
-            else {
+            if (error) {
+                console.error('更新失败:', error);
+                alert('更新失败，请检查 RLS 策略');
+            } else {
                 const hint = document.getElementById('saveHint');
                 hint.classList.add('show');
                 setTimeout(() => hint.classList.remove('show'), 1000);
             }
         }
 
+        // ----- 以下函数挂载到 window 供按钮调用 -----
         window.changeRbc = (player, delta) => {
+            console.log('changeRbc 被调用', player.name, delta);
             const newRbc = Math.max(0, player.rbc + delta);
             updatePlayer(player.id, { rbc: newRbc });
         };
-        window.setColor = (player, color) => updatePlayer(player.id, { color });
-        window.toggleStation = (player, station) => updatePlayer(player.id, { [station]: !player[station] });
+
+        window.setColor = (player, color) => {
+            console.log('setColor 被调用', player.name, color);
+            updatePlayer(player.id, { color });
+        };
+
+        window.toggleStation = (player, station) => {
+            console.log('toggleStation 被调用', player.name, station);
+            updatePlayer(player.id, { [station]: !player[station] });
+        };
 
         function getProgress(p) {
             return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100);
         }
 
+        // 发送快报
         async function sendNews() {
             const input = document.getElementById('newsInput');
             const content = input.value.trim();
@@ -133,7 +151,7 @@
                 const { error } = await supabaseClient.from('news').insert([{ content, time: timeStr }]);
                 if (error) {
                     console.error('发送快报失败:', error);
-                    alert('发送失败，请检查权限');
+                    alert('发送失败: ' + error.message);
                 } else {
                     alert('快报已发送！');
                     input.value = '';
@@ -141,6 +159,7 @@
             }
         }
 
+        // 重置所有玩家
         async function resetAll() {
             if(confirm('重置所有玩家？')) {
                 for (let p of allPlayers) {
@@ -149,6 +168,7 @@
             }
         }
 
+        // 渲染表格
         function renderUI() {
             let filtered = currentGroup === "all" ? allPlayers : allPlayers.filter(p => p.group_name === currentGroup);
             let green=0,yellow=0,red=0,black=0,totalRbc=0,warn=0;
@@ -179,6 +199,7 @@
                 row.insertCell(1).innerText = p.group_name;
                 row.insertCell(2).innerText = p.hand_code;
 
+                // 颜色选择器
                 const colorCell = row.insertCell(3);
                 const colors = [
                     {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
@@ -190,24 +211,32 @@
                     const dot = document.createElement('div');
                     dot.className = `color-dot ${c.c}`;
                     if(p.color === c.v) dot.style.border = '2px solid #333';
-                    dot.addEventListener('click', () => window.setColor(p, c.v));
+                    dot.addEventListener('click', (function(player, color) {
+                        return function() { window.setColor(player, color); };
+                    })(p, c.v));
                     cDiv.appendChild(dot);
                 });
                 colorCell.appendChild(cDiv);
 
+                // R币控制
                 const rbcCell = row.insertCell(4);
                 const rbDiv = document.createElement('div');
                 rbDiv.className = 'rbc-control';
                 rbDiv.innerHTML = `<button class="rbc-btn">-1</button><span style="min-width:40px;text-align:center;">${p.rbc}</span><button class="rbc-btn">+1</button>`;
-                rbDiv.children[0].onclick = () => window.changeRbc(p, -1);
-                rbDiv.children[2].onclick = () => window.changeRbc(p, 1);
+                const minusBtn = rbDiv.children[0];
+                const plusBtn = rbDiv.children[2];
+                minusBtn.addEventListener('click', (function(player) { return function() { window.changeRbc(player, -1); }; })(p));
+                plusBtn.addEventListener('click', (function(player) { return function() { window.changeRbc(player, 1); }; })(p));
                 rbcCell.appendChild(rbDiv);
 
+                // 站复选框
                 const createCheck = (checked, station) => {
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
                     cb.checked = checked;
-                    cb.addEventListener('change', () => window.toggleStation(p, station));
+                    cb.addEventListener('change', (function(player, station) {
+                        return function() { window.toggleStation(player, station); };
+                    })(p, station));
                     return cb;
                 };
                 row.insertCell(5).appendChild(createCheck(p.s1, 's1'));
@@ -218,12 +247,14 @@
             });
         }
 
+        // 实时订阅 players 表变化
         function setupRealtime() {
             supabaseClient.channel('players-channel')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
                 .subscribe();
         }
 
+        // 绑定UI事件
         document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
         document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
         document.querySelectorAll('.group-chip').forEach(chip => {
@@ -235,6 +266,7 @@
             });
         });
 
+        // 启动
         loadPlayers();
         setupRealtime();
     })();
