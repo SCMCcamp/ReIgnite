@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>燃·命 玩家端</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: system-ui; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .connected { background: #e8f5e9; color: #2e7d32; }
+        .disconnected { background: #ffebee; color: #d32f2f; }
+        select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 40px; border: 1px solid #ddd; }
+        button { background: #1a73e8; color: white; border: none; cursor: pointer; }
+        .my-stats { display: flex; gap: 12px; margin-top: 16px; }
+        .stat-item { flex: 1; text-align: center; background: #f5f5f5; padding: 12px; border-radius: 20px; }
+        .team-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+<div id="app">加载中...</div>
+
+<script>
+(function() {
+    // ===== 替换成你的 Supabase 配置 =====
+    const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
+    // =================================
+
+    // 单例客户端
+    let client;
+    if (window.__supabase) {
+        client = window.__supabase;
+    } else {
+        client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.__supabase = client;
+    }
+
+    let players = [];
+    let current = null;
+
+    async function loadPlayers() {
+        const { data, error } = await client.from('players').select('*');
+        if (error) {
+            document.getElementById('app').innerHTML = `<div class="card">❌ 连接失败: ${error.message}</div>`;
+            return;
+        }
+        players = data;
+        render();
+    }
+
+    function render() {
+        if (!players.length) {
+            document.getElementById('app').innerHTML = '<div class="card">加载数据中...</div>';
+            return;
+        }
+
+        // 如果没有选中玩家，显示选择器
+        if (!current) {
+            let options = '<option value="">-- 请选择 --</option>';
+            players.forEach(p => {
+                options += `<option value="${p.name}|${p.group_name}">${p.group_name} - ${p.name}</option>`;
+            });
+            document.getElementById('app').innerHTML = `
+                <div class="card">
+                    <h3>👋 选择你的角色</h3>
+                    <select id="playerSelect">${options}</select>
+                    <button id="confirmBtn">确认</button>
+                </div>
+            `;
+            document.getElementById('confirmBtn').onclick = () => {
+                const val = document.getElementById('playerSelect').value;
+                if (val) {
+                    const [name, group] = val.split('|');
+                    current = { name, group_name: group };
+                    localStorage.setItem('player', JSON.stringify(current));
+                    render();
+                }
+            };
+            return;
+        }
+
+        // 显示当前玩家信息
+        const me = players.find(p => p.name === current.name && p.group_name === current.group_name);
+        if (!me) return;
+
+        const colorName = { green:'绿', yellow:'黄', red:'红', black:'黑' }[me.color];
+        const colorClass = { green:'🟢', yellow:'🟡', red:'🔴', black:'⚫' }[me.color];
+        const progress = ((me.s1?1:0)+(me.s2?1:0)+(me.s3?1:0)+(me.s4?1:0)) * 25;
+
+        const teammates = players.filter(p => p.group_name === me.group_name);
+        let teamHtml = '<h3>👥 组员状态</h3>';
+        teammates.forEach(t => {
+            const tColor = { green:'🟢', yellow:'🟡', red:'🔴', black:'⚫' }[t.color];
+            teamHtml += `<div class="team-row"><span>${t.name} ${t.name === me.name ? '(你)' : ''}</span><span>${tColor} ${t.color}</span><span>💰 ${t.rbc}</span></div>`;
+        });
+
+        document.getElementById('app').innerHTML = `
+            <div class="card">
+                <h2>${me.name} <span style="font-size:0.8rem;">${me.group_name} · ${me.hand_code}</span></h2>
+                <div class="my-stats">
+                    <div class="stat-item">${colorClass}<br>${colorName}</div>
+                    <div class="stat-item">💰<br>${me.rbc}</div>
+                    <div class="stat-item">📊<br>${progress}%</div>
+                </div>
+                ${me.rbc < 5 ? '<div style="color:red; margin-top:12px;">⚠️ 生存警告！R币不足5</div>' : ''}
+            </div>
+            <div class="card">${teamHtml}</div>
+            <div style="text-align:center; font-size:0.7rem;">🔄 自动同步中控修改</div>
+        `;
+    }
+
+    // 实时订阅
+    client.channel('public:players')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
+        .subscribe();
+
+    // 尝试恢复上次选择的玩家
+    const saved = localStorage.getItem('player');
+    if (saved) {
+        try { current = JSON.parse(saved); } catch(e) {}
+    }
+
+    loadPlayers();
+})();
+</script>
+</body>
+</html>
