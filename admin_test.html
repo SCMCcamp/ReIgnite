@@ -2,83 +2,244 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>中控端 测试版</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燃·命 | 中控端</title>
     <style>
-        body { font-family: system-ui; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        button { margin: 4px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+        h1 { font-size: 1.6rem; }
+        .btn { background: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .filter-bar { background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .group-chip { padding: 6px 16px; border-radius: 40px; background: #eef2f6; cursor: pointer; }
+        .group-chip.active { background: #1a73e8; color: white; }
+        .stats-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 20px; padding: 12px 20px; text-align: center; flex: 1; min-width: 80px; }
+        .table-wrapper { background: white; border-radius: 24px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background: #1e2a3e; color: white; padding: 12px 8px; }
+        td { padding: 10px 8px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
+        .color-selector { display: flex; gap: 6px; }
+        .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
+        .dot-green { background: #4caf50; }
+        .dot-yellow { background: #ffc107; }
+        .dot-red { background: #f44336; }
+        .dot-black { background: #2c3e2f; }
+        .rbc-control { display: flex; align-items: center; gap: 8px; }
+        .rbc-btn { width: 28px; height: 28px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; }
+        .checkbox { width: 20px; height: 20px; cursor: pointer; }
+        .warning-row { background-color: #ffebee; }
+        .news-input { display: flex; gap: 10px; flex-wrap: wrap; background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; align-items: center; }
+        .news-input input { flex: 2; padding: 10px 16px; border-radius: 40px; border: 1px solid #ddd; }
+        .save-hint { position: fixed; bottom: 20px; right: 20px; background: #1e2a3e; color: white; padding: 8px 16px; border-radius: 40px; opacity: 0; transition: 0.2s; pointer-events: none; }
+        .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 12px; }
+        .connected { background: #e8f5e9; color: #2e7d32; }
+        .disconnected { background: #ffebee; color: #d32f2f; }
     </style>
 </head>
 <body>
-<h2>🔥 中控端</h2>
-<div id="status">连接中...</div>
-<table id="table">
-    <thead><tr><th>姓名</th><th>组别</th><th>颜色</th><th>R币</th><th>操作</th></tr></thead>
-    <tbody></tbody>
-</table>
+<div class="container">
+    <div class="header">
+        <h1>🔥 中控端 · Supabase <span id="statusBadge" class="status disconnected">连接中...</span></h1>
+        <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
+    </div>
+    <div class="news-input">
+        <span>📢 快报广播：</span>
+        <input type="text" id="newsInput" placeholder="例：霍尔木兹风暴！超市涨价！">
+        <button class="btn btn-primary" id="sendNewsBtn">发送</button>
+    </div>
+    <div class="filter-bar">
+        <div id="groupFilter">
+            <span class="group-chip active" data-group="all">全部</span>
+            <span class="group-chip" data-group="A组">A组</span>
+            <span class="group-chip" data-group="B组">B组</span>
+            <span class="group-chip" data-group="C组">C组</span>
+            <span class="group-chip" data-group="D组">D组</span>
+        </div>
+    </div>
+    <div class="stats-grid" id="statsPanel"></div>
+    <div class="table-wrapper">
+        <table><thead><tr><th>玩家</th><th>组</th><th>手环</th><th>颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th></tr></thead><tbody id="tableBody"></tbody></table>
+    </div>
+</div>
+<div class="save-hint" id="saveHint">✓ 已同步云端</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(function() {
-    const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-    
-    let client;
-    if (window.__supabaseAdmin) {
-        client = window.__supabaseAdmin;
-    } else {
-        client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        window.__supabaseAdmin = client;
-    }
+    (function(){
+        // ===== 请替换成你的 Supabase 配置 =====
+        const SUPABASE_URL = "https://你的项目ID.supabase.co";
+        const SUPABASE_ANON_KEY = "你的anon public key";
+        // ====================================
 
-    let players = [];
-
-    async function load() {
-        const { data, error } = await client.from('players').select('*');
-        if (error) {
-            document.getElementById('status').innerText = '❌ 连接失败';
-            return;
+        // 单例客户端，避免重复声明
+        let supabaseClient;
+        if (window.__supabaseAdminClient) {
+            supabaseClient = window.__supabaseAdminClient;
+        } else {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            window.__supabaseAdminClient = supabaseClient;
         }
-        players = data;
-        document.getElementById('status').innerText = '✅ 已连接云端';
-        render();
-    }
 
-    async function updatePlayer(id, updates) {
-        await client.from('players').update(updates).eq('id', id);
-        load();
-    }
+        let allPlayers = [];
+        let currentGroup = "all";
 
-    function render() {
-        const tbody = document.querySelector('#table tbody');
-        tbody.innerHTML = '';
-        players.forEach(p => {
-            const row = tbody.insertRow();
-            row.insertCell(0).innerText = p.name;
-            row.insertCell(1).innerText = p.group_name;
-            row.insertCell(2).innerText = p.color;
-            row.insertCell(3).innerText = p.rbc;
-            const cell = row.insertCell(4);
-            const upBtn = document.createElement('button');
-            upBtn.innerText = 'R币+1';
-            upBtn.onclick = () => updatePlayer(p.id, { rbc: p.rbc + 1 });
-            const downBtn = document.createElement('button');
-            downBtn.innerText = 'R币-1';
-            downBtn.onclick = () => updatePlayer(p.id, { rbc: Math.max(0, p.rbc - 1) });
-            const colorBtn = document.createElement('button');
-            colorBtn.innerText = '颜色变黄';
-            colorBtn.onclick = () => updatePlayer(p.id, { color: 'yellow' });
-            cell.append(upBtn, downBtn, colorBtn);
+        function updateStatus(connected) {
+            const badge = document.getElementById('statusBadge');
+            if (badge) {
+                badge.className = `status ${connected ? 'connected' : 'disconnected'}`;
+                badge.innerText = connected ? '● 已连接云端' : '● 离线';
+            }
+        }
+
+        async function loadPlayers() {
+            const { data, error } = await supabaseClient.from('players').select('*');
+            if (error) {
+                console.error('加载失败:', error);
+                updateStatus(false);
+                return;
+            }
+            allPlayers = data;
+            updateStatus(true);
+            renderUI();
+        }
+
+        async function updatePlayer(id, updates) {
+            const { error } = await supabaseClient.from('players').update(updates).eq('id', id);
+            if (error) console.error('更新失败:', error);
+            else {
+                const hint = document.getElementById('saveHint');
+                hint.classList.add('show');
+                setTimeout(() => hint.classList.remove('show'), 1000);
+            }
+        }
+
+        window.changeRbc = (player, delta) => {
+            const newRbc = Math.max(0, player.rbc + delta);
+            updatePlayer(player.id, { rbc: newRbc });
+        };
+        window.setColor = (player, color) => updatePlayer(player.id, { color });
+        window.toggleStation = (player, station) => updatePlayer(player.id, { [station]: !player[station] });
+
+        function getProgress(p) {
+            return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100);
+        }
+
+        async function sendNews() {
+            const input = document.getElementById('newsInput');
+            const content = input.value.trim();
+            if(content) {
+                const now = new Date();
+                const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+                await supabaseClient.from('news').insert([{ content, time: timeStr }]);
+                alert('快报已发送！');
+                input.value = '';
+            }
+        }
+
+        async function resetAll() {
+            if(confirm('重置所有玩家？')) {
+                for (let p of allPlayers) {
+                    await updatePlayer(p.id, { color: 'green', rbc: 10, s1: false, s2: false, s3: false, s4: false });
+                }
+            }
+        }
+
+        function renderUI() {
+            let filtered = currentGroup === "all" ? allPlayers : allPlayers.filter(p => p.group_name === currentGroup);
+            let green=0,yellow=0,red=0,black=0,totalRbc=0,warn=0;
+            filtered.forEach(p => {
+                if(p.color==='green') green++;
+                else if(p.color==='yellow') yellow++;
+                else if(p.color==='red') red++;
+                else if(p.color==='black') black++;
+                totalRbc += p.rbc;
+                if(p.rbc<5) warn++;
+            });
+            document.getElementById('statsPanel').innerHTML = `
+                <div class="stat-card">👥 ${filtered.length}</div>
+                <div class="stat-card">💰 ${totalRbc}</div>
+                <div class="stat-card">🟢 ${green}</div>
+                <div class="stat-card">🟡 ${yellow}</div>
+                <div class="stat-card">🔴 ${red}</div>
+                <div class="stat-card">⚫ ${black}</div>
+                <div class="stat-card">⚠️ ${warn}</div>
+            `;
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            filtered.forEach(p => {
+                const row = tbody.insertRow();
+                if(p.rbc<5) row.classList.add('warning-row');
+                row.insertCell(0).innerText = p.name;
+                row.insertCell(1).innerText = p.group_name;
+                row.insertCell(2).innerText = p.hand_code;
+
+                // 颜色选择器
+                const colorCell = row.insertCell(3);
+                const colors = [
+                    {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
+                    {v:'red',c:'dot-red'}, {v:'black',c:'dot-black'}
+                ];
+                const cDiv = document.createElement('div');
+                cDiv.className = 'color-selector';
+                colors.forEach(c => {
+                    const dot = document.createElement('div');
+                    dot.className = `color-dot ${c.c}`;
+                    if(p.color === c.v) dot.style.border = '2px solid #333';
+                    dot.addEventListener('click', () => window.setColor(p, c.v));
+                    cDiv.appendChild(dot);
+                });
+                colorCell.appendChild(cDiv);
+
+                // R币控制
+                const rbcCell = row.insertCell(4);
+                const rbDiv = document.createElement('div');
+                rbDiv.className = 'rbc-control';
+                rbDiv.innerHTML = `<button class="rbc-btn">-1</button><span style="min-width:40px;text-align:center;">${p.rbc}</span><button class="rbc-btn">+1</button>`;
+                rbDiv.children[0].onclick = () => window.changeRbc(p, -1);
+                rbDiv.children[2].onclick = () => window.changeRbc(p, 1);
+                rbcCell.appendChild(rbDiv);
+
+                // 复选框
+                const createCheck = (checked, station) => {
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.checked = checked;
+                    cb.addEventListener('change', () => window.toggleStation(p, station));
+                    return cb;
+                };
+                row.insertCell(5).appendChild(createCheck(p.s1, 's1'));
+                row.insertCell(6).appendChild(createCheck(p.s2, 's2'));
+                row.insertCell(7).appendChild(createCheck(p.s3, 's3'));
+                row.insertCell(8).appendChild(createCheck(p.s4, 's4'));
+                row.insertCell(9).innerHTML = `<span style="background:#e9ecef;padding:4px 8px;border-radius:40px;">${getProgress(p)}%</span>`;
+            });
+        }
+
+        function setupRealtime() {
+            supabaseClient.channel('players-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
+                .subscribe();
+        }
+
+        // 事件绑定
+        document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
+        document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
+        document.querySelectorAll('.group-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                currentGroup = chip.getAttribute('data-group');
+                document.querySelectorAll('.group-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                renderUI();
+            });
         });
-    }
 
-    client.channel('public:players')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => load())
-        .subscribe();
-
-    load();
-})();
+        loadPlayers();
+        setupRealtime();
+    })();
 </script>
 </body>
 </html>
