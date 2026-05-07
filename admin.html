@@ -96,7 +96,7 @@
     async function loadPlayers() {
         const { data, error } = await supabase.from('players').select('*');
         if (error) {
-            console.error('加载失败:', error);
+            console.error('加载失败呢:', error);
             updateStatus(false);
             return;
         }
