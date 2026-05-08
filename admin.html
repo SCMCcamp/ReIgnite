@@ -231,7 +231,18 @@
             newPrice = Math.max(1, Math.round(newPrice));
             priceHistory.push(newPrice);
             renderChart();
-            // 可选：保存到数据库（后续可扩展）
+            
+            async function addPricePoint(newPrice) {
+                if (isNaN(newPrice)) return;
+                newPrice = Math.max(1, Math.round(newPrice));
+                priceHistory.push(newPrice);
+                renderChart();
+                // 保存到 Supabase
+                const now = new Date();
+                const timeStr = now.toISOString();
+                const { error } = await supabaseClient.from('stock_prices').insert([{ price: newPrice, created_at: timeStr }]);
+                if (error) console.error('保存股价失败:', error);
+}
         }
 
         // 随机波动（幅度 ±10% 左右）
