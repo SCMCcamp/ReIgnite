@@ -2,189 +2,620 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>燃·命 | 玩家端（Supabase）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>RE:Ignite · 玩家端</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 20px; }
-        h1 { font-size: 1.8rem; color: #1a1a2e; }
-        .sub { color: #6c757d; font-size: 0.8rem; }
-        .news-bar { background: linear-gradient(135deg, #1e2a3e, #2d3a4e); color: white; border-radius: 20px; padding: 14px 18px; margin-bottom: 20px; }
-        .news-title { font-size: 0.7rem; opacity: 0.7; margin-bottom: 6px; }
-        .news-content { font-size: 1rem; font-weight: 500; }
-        .news-time { font-size: 0.65rem; opacity: 0.6; margin-top: 8px; text-align: right; }
-        .my-card { background: white; border-radius: 28px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 8px solid #4caf50; }
-        .my-card.warning { border-left-color: #f44336; background: #fff5f5; }
-        .my-name { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .group-badge { background: #eef2f6; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; }
-        .handcode { font-family: monospace; background: #f0f2f5; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; }
-        .my-stats { display: flex; justify-content: space-between; margin-top: 16px; gap: 12px; flex-wrap: wrap; }
-        .stat-item { flex: 1; text-align: center; background: #f8f9fa; padding: 12px; border-radius: 20px; min-width: 80px; }
-        .stat-label { font-size: 0.7rem; color: #6c757d; }
-        .stat-value { font-size: 1.5rem; font-weight: 800; }
-        .color-dot { width: 48px; height: 48px; border-radius: 50%; display: inline-block; margin: 0 auto; }
-        .dot-green { background: #4caf50; }
-        .dot-yellow { background: #ffc107; }
-        .dot-red { background: #f44336; }
-        .dot-black { background: #2c3e2f; }
-        .warning-text { color: #d32f2f; font-size: 0.8rem; margin-top: 12px; text-align: center; font-weight: 600; }
-        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .team-grid { background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .team-header { display: grid; grid-template-columns: 2fr 1fr 1fr; background: #1e2a3e; color: white; padding: 12px 16px; font-size: 0.8rem; }
-        .team-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 16px; border-bottom: 1px solid #edf2f7; align-items: center; }
-        .team-row.self { background: #e8f0fe; }
-        .small-dot { width: 24px; height: 24px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: middle; }
-        .refresh-note { text-align: center; font-size: 0.7rem; color: #6c757d; margin-top: 20px; }
-        .status { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.6rem; margin-left: 8px; }
-        .connected { background: #e8f5e9; color: #2e7d32; }
-        .disconnected { background: #ffebee; color: #d32f2f; }
-        select, button { width: 100%; padding: 12px; border-radius: 40px; font-size: 1rem; margin-top: 8px; }
-        .btn-primary { background: #1a73e8; color: white; border: none; cursor: pointer; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .sub {
+            color: #6c757d;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .connected {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .disconnected {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* 经济动态卡片 */
+        .economy-card {
+            background: linear-gradient(135deg, #fff9e6, #fff3d1);
+            border-left: 6px solid #ff9800;
+            border-radius: 28px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .economy-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #e65100;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .economy-content {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #3e2723;
+            line-height: 1.4;
+        }
+        .economy-time {
+            font-size: 0.65rem;
+            color: #8d6e63;
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        /* 快报栏位 */
+        .news-bar {
+            background: linear-gradient(135deg, #1e2a3e, #2d3a4e);
+            color: white;
+            border-radius: 28px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .news-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-bottom: 6px;
+        }
+
+        .news-content {
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .news-time {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        /* 个人状态卡片 */
+        .my-card {
+            background: white;
+            border-radius: 32px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            border-left: 8px solid #4caf50;
+            transition: all 0.2s;
+        }
+
+        .my-card.warning {
+            border-left-color: #f44336;
+            background: #fffaf9;
+        }
+
+        .my-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .group-badge {
+            background: #eef2f6;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .handcode {
+            font-family: monospace;
+            background: #f0f2f5;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .my-stats {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+            background: #f8f9fa;
+            padding: 14px 8px;
+            border-radius: 24px;
+            min-width: 90px;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #6c757d;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .color-dot {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 auto 6px;
+        }
+
+        .dot-green {
+            background: #4caf50;
+            box-shadow: 0 0 0 3px #e8f5e9;
+        }
+
+        .dot-yellow {
+            background: #ffc107;
+            box-shadow: 0 0 0 3px #fff8e1;
+        }
+
+        .dot-red {
+            background: #f44336;
+            box-shadow: 0 0 0 3px #ffebee;
+        }
+
+        .dot-black {
+            background: #2c3e2f;
+            box-shadow: 0 0 0 3px #eceff1;
+        }
+
+        .warning-text {
+            color: #d32f2f;
+            font-size: 0.85rem;
+            margin-top: 16px;
+            text-align: center;
+            font-weight: 600;
+            background: #ffebee;
+            padding: 8px;
+            border-radius: 60px;
+        }
+
+        /* 组员列表 */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-grid {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .team-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            background: #1e2a3e;
+            color: white;
+            padding: 14px 18px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .team-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            padding: 12px 18px;
+            border-bottom: 1px solid #edf2f7;
+            align-items: center;
+            text-align: center;
+            background: white;
+        }
+
+        .team-row.self {
+            background: #e8f0fe;
+        }
+
+        .small-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .refresh-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 24px;
+            padding: 12px;
+        }
+
+        select,
+        button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 60px;
+            font-size: 1rem;
+            margin-top: 12px;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #0d5cbb;
+        }
+
+        select {
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>🔥 燃·命 <span id="statusBadge" class="status disconnected">连接中...</span></h1>
-        <div class="sub">实时同步 · 云端版</div>
+        <h1>🔥 RE:Ignite <span id="statusBadge" class="status disconnected">连接中...</span></h1>
+        <div class="sub">实时同步 · 中控修改立即更新</div>
     </div>
-    <div class="news-bar"><div class="news-title">📢 最新快报</div><div class="news-content" id="newsContent">加载中...</div><div class="news-time" id="newsTime"></div></div>
+
+    <!-- 经济动态公告栏 -->
+    <div class="economy-card" id="economyCard">
+        <div class="economy-title">📊 经济动态</div>
+        <div class="economy-content" id="economyContent">加载中...</div>
+        <div class="economy-time" id="economyTime"></div>
+    </div>
+
+    <!-- 营会快报栏 -->
+    <div class="news-bar">
+        <div class="news-title">📢 营会快报</div>
+        <div class="news-content" id="newsContent">加载中...</div>
+        <div class="news-time" id="newsTime"></div>
+    </div>
+
+    <!-- 动态内容 (个人卡片 + 组员列表 或 角色选择器) -->
     <div id="mainContent"></div>
-    <div class="refresh-note">🔄 数据实时同步 · 云端自动更新</div>
+
+    <div class="refresh-note">
+        🔄 数据实时同步 · 无需刷新页面
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-    
-    if (!window._supabaseClient) {
-        window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-    const supabase = window._supabaseClient;
-    
-    let allPlayers = [];
-    let currentPlayer = null;
-    
-    function updateStatus(connected) {
-        const badge = document.getElementById('statusBadge');
-        if (connected) {
-            badge.className = 'status connected';
-            badge.innerText = '实时';
+    (function () {
+        // ==================== Supabase 配置 ====================
+        const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
+        // ======================================================
+
+        let supabaseClient;
+        if (window.__supabasePlayerClient) {
+            supabaseClient = window.__supabasePlayerClient;
         } else {
-            badge.className = 'status disconnected';
-            badge.innerText = '离线';
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            window.__supabasePlayerClient = supabaseClient;
         }
-    }
-    
-    async function loadPlayers() {
-        const { data, error } = await supabase.from('players').select('*');
-        if (error) { console.error(error); updateStatus(false); return; }
-        allPlayers = data;
-        updateStatus(true);
-        if (currentPlayer) renderPlayerView();
-    }
-    
-    async function loadLatestNews() {
-        const { data, error } = await supabase.from('news').select('*').order('id', { ascending: false }).limit(1);
-        if (!error && data && data.length > 0) {
-            document.getElementById('newsContent').innerHTML = data[0].content;
-            document.getElementById('newsTime').innerHTML = data[0].time;
-        }
-    }
-    
-    function getProgress(p) {
-        let done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0);
-        return Math.round(done/4*100);
-    }
-    
-    function renderPlayerView() {
-        if(!currentPlayer) return;
-        const p = allPlayers.find(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
-        if(!p) return;
-        const colorClass = { green:"dot-green", yellow:"dot-yellow", red:"dot-red", black:"dot-black" }[p.color];
-        const colorName = { green:"绿", yellow:"黄", red:"红", black:"黑" }[p.color];
-        const myCardClass = p.rbc < 5 ? 'my-card warning' : 'my-card';
-        const team = allPlayers.filter(m => m.group_name === p.group_name);
-        let teamHtml = '<div class="team-header"><span>玩家</span><span>生命颜色</span><span>💰 R币</span></div>';
-        team.forEach(m => { 
-            const isSelf = m.name === p.name; 
-            const mColorClass = { green:"dot-green", yellow:"dot-yellow", red:"dot-red", black:"dot-black" }[m.color]; 
-            const mColorName = { green:"绿", yellow:"黄", red:"红", black:"黑" }[m.color]; 
-            teamHtml += `<div class="team-row ${isSelf ? 'self' : ''}"><div>${m.name} ${isSelf ? '(你)' : ''}</div><div><div class="small-dot ${mColorClass}" style="display:inline-block;"></div> ${mColorName}</div><div>💰 ${m.rbc}</div></div>`; 
-        });
-        document.getElementById('mainContent').innerHTML = `
-            <div class="${myCardClass}">
-                <div class="my-name"><span>${p.name}</span><span class="group-badge">${p.group_name}</span><span class="handcode">${p.hand_code}</span></div>
-                <div class="my-stats">
-                    <div class="stat-item"><div class="stat-label">生命颜色</div><div class="color-dot ${colorClass}" style="margin:0 auto;"></div><div style="margin-top:4px;">${colorName}</div></div>
-                    <div class="stat-item"><div class="stat-label">💰 R币</div><div class="stat-value">${p.rbc}</div></div>
-                    <div class="stat-item"><div class="stat-label">📊 进度</div><div class="stat-value">${getProgress(p)}%</div></div>
-                </div>
-                ${p.rbc < 5 ? '<div class="warning-text">⚠️ 生存警告！R币不足5，快去赚R币！</div>' : ''}
-            </div>
-            <div class="section-title">👥 我的组员</div>
-            <div class="team-grid">${teamHtml}</div>
-        `;
-    }
-    
-    function showSelector() {
-        if(!allPlayers.length) { setTimeout(showSelector, 500); return; }
-        let options = '<option value="">请选择...</option>';
-        allPlayers.forEach(p => { options += `<option value="${p.name}|${p.group_name}">${p.group_name} - ${p.name}</option>`; });
-        document.getElementById('mainContent').innerHTML = `
-            <div style="background:white;border-radius:24px;padding:20px;">
-                <h3>👋 选择你的角色</h3>
-                <select id="playerSelect" style="width:100%;padding:12px;border-radius:12px;margin:12px 0;">${options}</select>
-                <button id="confirmBtn" class="btn-primary">确认</button>
-            </div>
-        `;
-        document.getElementById('confirmBtn')?.addEventListener('click', () => {
-            const val = document.getElementById('playerSelect').value;
-            if(val) {
-                const [name, group_name] = val.split('|');
-                currentPlayer = { name, group_name };
-                localStorage.setItem('current_player', JSON.stringify(currentPlayer));
-                renderPlayerView();
+
+        let allPlayers = [];
+        let currentPlayer = null;     // { name, group_name }
+
+        // 更新连接状态显示
+        function updateStatus(connected) {
+            const badge = document.getElementById('statusBadge');
+            if (badge) {
+                badge.className = `status ${connected ? 'connected' : 'disconnected'}`;
+                badge.innerText = connected ? '● 实时在线' : '离线';
             }
-        });
-    }
-    
-    function setupRealtime() {
-        supabase.channel('players-channel')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, 
-                () => { loadPlayers(); })
-            .subscribe();
-        supabase.channel('news-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, 
-                () => { loadLatestNews(); })
-            .subscribe();
-    }
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlName = urlParams.get('name');
-    const urlGroup = urlParams.get('group');
-    if(urlName && urlGroup) {
-        currentPlayer = { name: urlName, group_name: urlGroup };
-        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
-    } else {
-        const stored = localStorage.getItem('current_player');
-        if(stored) {
-            try { currentPlayer = JSON.parse(stored); } catch(e) {}
         }
-    }
-    
-    loadPlayers();
-    loadLatestNews();
-    setupRealtime();
-    
-    if(currentPlayer) {
-        setTimeout(() => { if(allPlayers.length) renderPlayerView(); }, 500);
-    } else {
-        setTimeout(showSelector, 800);
-    }
+
+        // 加载所有玩家 (按手环编号排序)
+        async function loadPlayers() {
+            const { data, error } = await supabaseClient
+                .from('players')
+                .select('*')
+                .order('hand_code', { ascending: true });
+            if (error) {
+                console.error('加载玩家失败:', error);
+                updateStatus(false);
+                return;
+            }
+            allPlayers = data;
+            updateStatus(true);
+
+            if (currentPlayer) {
+                const stillExists = allPlayers.some(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
+                if (stillExists) {
+                    renderPlayerView();
+                } else {
+                    currentPlayer = null;
+                    localStorage.removeItem('current_player');
+                    showSelector();
+                }
+            } else {
+                showSelector();
+            }
+        }
+
+        // 拉取最新一条普通快报 (news 表)
+        async function loadLatestNews() {
+            const { data, error } = await supabaseClient
+                .from('news')
+                .select('*')
+                .order('id', { ascending: false })
+                .limit(1);
+            if (!error && data && data.length > 0) {
+                document.getElementById('newsContent').innerHTML = data[0].content;
+                document.getElementById('newsTime').innerHTML = data[0].time;
+            } else if (error) {
+                console.error('加载快报失败:', error);
+            }
+        }
+
+        // 拉取经济动态 (从 economy_status 表，若无则显示默认)
+        async function loadEconomyStatus() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('economy_status')
+                    .select('*')
+                    .order('id', { ascending: false })
+                    .limit(1);
+                if (!error && data && data.length > 0) {
+                    document.getElementById('economyContent').innerHTML = data[0].content;
+                    document.getElementById('economyTime').innerHTML = data[0].time;
+                } else {
+                    // 如果没有经济动态表或数据，显示默认提示
+                    document.getElementById('economyContent').innerHTML = "正常经济 · 甜品原价";
+                    document.getElementById('economyTime').innerHTML = "---";
+                }
+            } catch (err) {
+                console.warn('经济动态表可能未创建', err);
+                document.getElementById('economyContent').innerHTML = "正常经济 · 甜品原价";
+                document.getElementById('economyTime').innerHTML = "---";
+            }
+        }
+
+        // 计算个人进度百分比
+        function getProgress(p) {
+            const done = (p.s1 ? 1 : 0) + (p.s2 ? 1 : 0) + (p.s3 ? 1 : 0) + (p.s4 ? 1 : 0);
+            return Math.round((done / 4) * 100);
+        }
+
+        // 渲染玩家个人状态 + 同组组员列表
+        function renderPlayerView() {
+            if (!currentPlayer) return;
+            const me = allPlayers.find(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
+            if (!me) {
+                showSelector();
+                return;
+            }
+
+            const colorText = { green: '绿', yellow: '黄', red: '红', black: '黑' }[me.color];
+            const dotClass = { green: 'dot-green', yellow: 'dot-yellow', red: 'dot-red', black: 'dot-black' }[me.color];
+            const isWarning = me.rbc < 5;
+
+            // 同组玩家 (按手环编号排序)
+            const teammates = allPlayers
+                .filter(m => m.group_name === me.group_name)
+                .sort((a, b) => a.hand_code.localeCompare(b.hand_code));
+
+            let teamHtml = `<div class="team-header"><span>队员</span><span>生命颜色</span><span>💰 R币</span></div>`;
+            teammates.forEach(m => {
+                const isSelf = m.name === me.name;
+                const mColorShort = { green: '绿', yellow: '黄', red: '红', black: '黑' }[m.color];
+                const mDotClass = { green: 'dot-green', yellow: 'dot-yellow', red: 'dot-red', black: 'dot-black' }[m.color];
+                teamHtml += `
+                    <div class="team-row ${isSelf ? 'self' : ''}">
+                        <div>${m.name} ${isSelf ? '(你)' : ''}</div>
+                        <div>
+                            <div class="small-dot ${mDotClass}" style="display: inline-block;"></div> ${mColorShort}
+                        </div>
+                        <div>💰 ${m.rbc}</div>
+                    </div>
+                `;
+            });
+
+            const warningBlock = isWarning ? '<div class="warning-text">⚠️ 生存警告！R币不足5，快去赚R币！</div>' : '';
+
+            const mainHtml = `
+                <div class="my-card ${isWarning ? 'warning' : ''}">
+                    <div class="my-name">
+                        <span>${me.name}</span>
+                        <span class="group-badge">${me.group_name}</span>
+                        <span class="handcode">${me.hand_code}</span>
+                    </div>
+                    <div class="my-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">生命颜色</div>
+                            <div class="color-dot ${dotClass}" style="margin: 0 auto;"></div>
+                            <div style="margin-top: 6px; font-weight: 500;">${colorText}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">💰 R币</div>
+                            <div class="stat-value">${me.rbc}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">📊 章节进度</div>
+                            <div class="stat-value">${getProgress(me)}%</div>
+                        </div>
+                    </div>
+                    ${warningBlock}
+                </div>
+                <div class="section-title">👥 同组伙伴 · 生命状态</div>
+                <div class="team-grid">${teamHtml}</div>
+            `;
+
+            document.getElementById('mainContent').innerHTML = mainHtml;
+        }
+
+        // 显示下拉选择器
+        function showSelector() {
+            if (!allPlayers.length) {
+                document.getElementById('mainContent').innerHTML = '<div style="background:white;border-radius:24px;padding:20px;text-align:center;">加载玩家名单中...</div>';
+                return;
+            }
+
+            const sorted = [...allPlayers].sort((a, b) => {
+                if (a.group_name !== b.group_name) return a.group_name.localeCompare(b.group_name);
+                return a.hand_code.localeCompare(b.hand_code);
+            });
+
+            let options = '<option value="">—— 请选择你的角色 ——</option>';
+            sorted.forEach(p => {
+                options += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name} (${p.hand_code})</option>`;
+            });
+
+            const selectorHtml = `
+                <div style="background: white; border-radius: 32px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+                    <h3 style="margin-bottom: 8px;">👋 欢迎来到第七城区</h3>
+                    <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 16px;">请在下拉菜单选择你的名字，即可查看实时状态</p>
+                    <select id="playerSelect" style="width: 100%; padding: 14px; border-radius: 60px; border: 1px solid #ccc;">${options}</select>
+                    <button id="confirmBtn" class="btn-primary">确认并进入</button>
+                </div>
+            `;
+            document.getElementById('mainContent').innerHTML = selectorHtml;
+
+            const confirmBtn = document.getElementById('confirmBtn');
+            if (confirmBtn) {
+                confirmBtn.onclick = () => {
+                    const val = document.getElementById('playerSelect').value;
+                    if (val) {
+                        const [name, group_name] = val.split('|');
+                        currentPlayer = { name, group_name };
+                        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
+                        renderPlayerView();
+                    } else {
+                        alert('请先选择你的名字');
+                    }
+                };
+            }
+        }
+
+        // 实时订阅 (players, news, economy_status 三表)
+        function setupRealtime() {
+            // players 表变化
+            supabaseClient.channel('players-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => {
+                    console.log('▲ 收到 players 更新，刷新数据');
+                    loadPlayers();
+                })
+                .subscribe();
+
+            // news 表变化 (普通快报)
+            supabaseClient.channel('news-channel')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, (payload) => {
+                    console.log('📢 收到新快报:', payload);
+                    if (payload.new) {
+                        document.getElementById('newsContent').innerHTML = payload.new.content;
+                        document.getElementById('newsTime').innerHTML = payload.new.time;
+                    }
+                })
+                .subscribe();
+
+            // economy_status 表变化 (经济动态)
+            supabaseClient.channel('economy-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'economy_status' }, () => {
+                    console.log('💰 经济动态更新');
+                    loadEconomyStatus();
+                })
+                .subscribe();
+        }
+
+        // 初始化：尝试从 URL 参数或 localStorage 读取当前玩家
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlName = urlParams.get('name');
+        const urlGroup = urlParams.get('group');
+        if (urlName && urlGroup) {
+            currentPlayer = { name: urlName, group_name: urlGroup };
+            localStorage.setItem('current_player', JSON.stringify(currentPlayer));
+        } else {
+            const stored = localStorage.getItem('current_player');
+            if (stored) {
+                try {
+                    currentPlayer = JSON.parse(stored);
+                } catch (e) { }
+            }
+        }
+
+        // 启动所有数据流
+        loadPlayers();
+        loadLatestNews();
+        loadEconomyStatus();
+        setupRealtime();
+    })();
 </script>
 </body>
 </html>
