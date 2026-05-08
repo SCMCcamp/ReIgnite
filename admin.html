@@ -48,7 +48,7 @@
         .stat-card:hover { background: #e9ecef; }
         
         .table-wrapper { background: white; border-radius: 24px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th, td { text-align: center; vertical-align: middle; padding: 12px 8px; }
         th { background: #1e2a3e; color: white; }
         td { border-bottom: 1px solid #edf2f7; }
@@ -83,9 +83,9 @@
     <div class="control-panels">
         <div class="panel">
             <div class="panel-title">📢 快报广播</div>
-            <input type="text" id="newsInput" placeholder="输入快报内容，例如：霍尔木兹风暴！超市涨价！">
+            <input type="text" id="newsInput" placeholder="输入快报内容">
             <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
-            <div class="latest-item" id="latestNewsContainer">
+            <div class="latest-item">
                 <div class="latest-label">📌 最新快报</div>
                 <div class="latest-content" id="latestNewsContent">暂无</div>
                 <div class="latest-time" id="latestNewsTime"></div>
@@ -99,9 +99,9 @@
                 <button class="quick-btn" data-preset="inflation">📈 通胀</button>
                 <button class="quick-btn" data-preset="deflation">📉 通缩</button>
             </div>
-            <input type="text" id="economyInput" placeholder="或自定义经济动态，例如：甜品涨价2R币">
+            <input type="text" id="economyInput" placeholder="或自定义经济动态">
             <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
-            <div class="latest-item" id="latestEconomyContainer">
+            <div class="latest-item">
                 <div class="latest-label">📌 最新经济动态</div>
                 <div class="latest-content" id="latestEconomyContent">暂无</div>
                 <div class="latest-time" id="latestEconomyTime"></div>
@@ -127,9 +127,7 @@
                 <button id="manualSetPriceBtn">✏️ 设置股价</button>
                 <span style="margin-left: auto;">当前价格: <strong id="currentPrice">--</strong> R币</span>
             </div>
-            <div style="font-size:0.7rem; margin-top:12px; text-align:center; color:#6c757d;">
-                可手动输入、随机波动或根据经济动态调整 | 每30分钟自动随机波动一次
-            </div>
+            <div style="font-size:0.7rem; margin-top:12px; text-align:center; color:#6c757d;">每30分钟自动随机波动一次</div>
         </div>
     </div>
 
@@ -150,7 +148,8 @@
     <div class="stats-grid" id="statsPanel"></div>
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th></tr></thead>
+            <thead><tr><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th></tr>
+            </thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
@@ -263,10 +262,11 @@
             autoTimer = setInterval(() => { randomFluctuation(); }, 30 * 60 * 1000);
         }
 
-        // 玩家数据
+        // 玩家数据（不再使用 hand_code）
         async function loadPlayers() {
-            const { data, error } = await supabaseClient.from('players').select('*').order('group_name').order('hand_code');
+            const { data, error } = await supabaseClient.from('players').select('*').order('group_name');
             if (error) { console.error(error); updateStatus(false); return; }
+            // 去重（按名字+组别）
             const map = new Map();
             for (const p of data) { const key = `${p.name}|${p.group_name}`; if (!map.has(key)) map.set(key, p); }
             uniquePlayers = Array.from(map.values());
@@ -289,7 +289,7 @@
 
         function getProgress(p) { const done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0); return Math.round(done/4*100); }
 
-        // 快报和经济动态
+        // 快报与经济动态
         async function loadLatestNews() {
             const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
             if (!error && data && data.length) {
@@ -474,7 +474,6 @@
             });
         }
 
-        // 实时订阅
         function setupRealtime() {
             supabaseClient.channel('players-channel')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
