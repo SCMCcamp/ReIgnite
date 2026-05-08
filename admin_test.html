@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Re:Ignite | 中控端</title>
+    <title>RE:Ignite · 中控端</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
@@ -42,7 +42,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>🔥 中控端 · Re:Ignite <span id="statusBadge" class="status disconnected">连接中...</span></h1>
+        <h1>🔥 RE:Ignite · 中控端 <span id="statusBadge" class="status disconnected">连接中...</span></h1>
         <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
     </div>
     <div class="news-input">
@@ -75,10 +75,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     (function(){
-        // ==================== ⚠️ 请替换成你自己的配置 ====================
+        // ==================== ⚠️ 替换成你的 Supabase 配置 ====================
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // 替换成你真实的 anon key
-        // ============================================================
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // 请替换成真实的 anon key
+        // ================================================================
 
         let supabaseClient;
         if (window.__supabaseAdminClient) {
@@ -88,7 +88,8 @@
             window.__supabaseAdminClient = supabaseClient;
         }
 
-        let allPlayers = [];
+        let rawPlayers = [];      // 原始数据（可能重复）
+        let uniquePlayers = [];   // 去重后的数据（每个玩家唯一）
         let currentGroup = "all";
 
         function updateStatus(connected) {
@@ -99,8 +100,21 @@
             }
         }
 
+        // 去重函数：按 name + group_name 合并，保留第一条记录（或合并数据，但假设重复记录数据一致）
+        function deduplicatePlayers(players) {
+            const map = new Map();
+            for (const p of players) {
+                const key = `${p.name}|${p.group_name}`;
+                if (!map.has(key)) {
+                    map.set(key, p);
+                } else {
+                    console.warn(`发现重复玩家: ${p.name} (${p.group_name}), 已忽略额外记录 id=${p.id}`);
+                }
+            }
+            return Array.from(map.values());
+        }
+
         async function loadPlayers() {
-            // 按组别 + 手环编号排序，保证顺序固定
             const { data, error } = await supabaseClient
                 .from('players')
                 .select('*')
@@ -111,12 +125,16 @@
                 updateStatus(false);
                 return;
             }
-            allPlayers = data;
+            rawPlayers = data || [];
+            uniquePlayers = deduplicatePlayers(rawPlayers);
             updateStatus(true);
             renderUI();
         }
 
         async function updatePlayer(id, updates) {
+            // 注意：这里更新时使用原始数据中的 id（去重后的玩家对应的原始 id）
+            // 由于可能有重复记录，我们只更新一条（按理说应该只保留一份正确数据，但为了安全，更新所有同名的玩家？）
+            // 更好的方案：只更新 uniquePlayers 中保留的那条记录的 id。
             const { error } = await supabaseClient.from('players').update(updates).eq('id', id);
             if (error) {
                 console.error('更新失败:', error);
@@ -125,23 +143,23 @@
                 const hint = document.getElementById('saveHint');
                 hint.classList.add('show');
                 setTimeout(() => hint.classList.remove('show'), 1000);
-                await loadPlayers(); // 刷新界面
+                await loadPlayers(); // 刷新
             }
         }
 
         window.changeRbc = (player, delta) => {
-            console.log('changeRbc 被调用', player.name, delta);
+            console.log('changeRbc', player.name, delta);
             const newRbc = Math.max(0, player.rbc + delta);
             updatePlayer(player.id, { rbc: newRbc });
         };
 
         window.setColor = (player, color) => {
-            console.log('setColor 被调用', player.name, color);
+            console.log('setColor', player.name, color);
             updatePlayer(player.id, { color });
         };
 
         window.toggleStation = (player, station) => {
-            console.log('toggleStation 被调用', player.name, station);
+            console.log('toggleStation', player.name, station);
             updatePlayer(player.id, { [station]: !player[station] });
         };
 
@@ -169,7 +187,7 @@
 
         async function resetAll() {
             if(confirm('重置所有玩家？')) {
-                for (let p of allPlayers) {
+                for (let p of uniquePlayers) {
                     await updatePlayer(p.id, { color: 'green', rbc: 10, s1: false, s2: false, s3: false, s4: false });
                 }
                 await loadPlayers();
@@ -177,7 +195,7 @@
         }
 
         function renderUI() {
-            let filtered = currentGroup === "all" ? allPlayers : allPlayers.filter(p => p.group_name === currentGroup);
+            let filtered = currentGroup === "all" ? uniquePlayers : uniquePlayers.filter(p => p.group_name === currentGroup);
             let green=0,yellow=0,red=0,black=0,totalRbc=0,warn=0;
             filtered.forEach(p => {
                 if(p.color==='green') green++;
@@ -206,7 +224,6 @@
                 row.insertCell(1).innerText = p.group_name;
                 row.insertCell(2).innerText = p.hand_code;
 
-                // 颜色选择器
                 const colorCell = row.insertCell(3);
                 const colors = [
                     {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
@@ -225,7 +242,6 @@
                 });
                 colorCell.appendChild(cDiv);
 
-                // R币控制
                 const rbcCell = row.insertCell(4);
                 const rbDiv = document.createElement('div');
                 rbDiv.className = 'rbc-control';
@@ -236,7 +252,6 @@
                 plusBtn.addEventListener('click', (function(player) { return function() { window.changeRbc(player, 1); }; })(p));
                 rbcCell.appendChild(rbDiv);
 
-                // 站复选框
                 const createCheck = (checked, station) => {
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
