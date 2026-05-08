@@ -20,8 +20,8 @@
         .my-name { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .group-badge { background: #eef2f6; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; }
         .handcode { font-family: monospace; background: #f0f2f5; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; }
-        .my-stats { display: flex; justify-content: space-between; margin-top: 16px; gap: 12px; }
-        .stat-item { flex: 1; text-align: center; background: #f8f9fa; padding: 12px; border-radius: 20px; }
+        .my-stats { display: flex; justify-content: space-between; margin-top: 16px; gap: 12px; flex-wrap: wrap; }
+        .stat-item { flex: 1; text-align: center; background: #f8f9fa; padding: 12px; border-radius: 20px; min-width: 80px; }
         .stat-label { font-size: 0.7rem; color: #6c757d; }
         .stat-value { font-size: 1.5rem; font-weight: 800; }
         .color-dot { width: 48px; height: 48px; border-radius: 50%; display: inline-block; margin: 0 auto; }
@@ -48,7 +48,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>🔥 燃·命 <span id="statusBadge" class="status disconnected">连接中...</span></h1>
+        <h1>🔥 Re:Ignite <span id="statusBadge" class="status disconnected">连接中...</span></h1>
         <div class="sub">实时同步 · 云端版</div>
     </div>
     <div class="news-bar">
@@ -63,8 +63,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     (function(){
+        // ==================== ⚠️ 请替换成你自己的配置 ====================
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // 请替换成你的真实 anon key
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // 替换成你真实的 anon key
+        // ============================================================
 
         let supabaseClient;
         if (window.__supabasePlayerClient) {
@@ -86,7 +88,7 @@
         }
 
         async function loadPlayers() {
-            const { data, error } = await supabaseClient.from('players').select('*');
+            const { data, error } = await supabaseClient.from('players').select('*').order('hand_code', { ascending: true });
             if (error) {
                 console.error('加载玩家失败:', error);
                 updateStatus(false);
@@ -94,7 +96,12 @@
             }
             allPlayers = data;
             updateStatus(true);
-            if (currentPlayer) renderPlayerView();
+            if (currentPlayer) {
+                renderPlayerView();
+            } else {
+                // 没有选中玩家时，显示选择器
+                showSelector();
+            }
         }
 
         async function loadLatestNews() {
@@ -108,16 +115,21 @@
         }
 
         function getProgress(p) {
-            return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100);
+            const done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0);
+            return Math.round(done/4*100);
         }
 
         function renderPlayerView() {
             if (!currentPlayer) return;
             const p = allPlayers.find(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
-            if (!p) return;
+            if (!p) {
+                // 如果找不到，可能玩家已删除，重新选择
+                showSelector();
+                return;
+            }
             const colorName = { green:'绿', yellow:'黄', red:'红', black:'黑' }[p.color];
             const myCardClass = p.rbc < 5 ? 'my-card warning' : 'my-card';
-            const teammates = allPlayers.filter(m => m.group_name === p.group_name);
+            const teammates = allPlayers.filter(m => m.group_name === p.group_name).sort((a,b)=>a.hand_code.localeCompare(b.hand_code));
             let teamHtml = '<div class="team-header"><span>玩家</span><span>生命颜色</span><span>💰 R币</span></div>';
             teammates.forEach(m => {
                 const isSelf = m.name === p.name;
@@ -146,32 +158,36 @@
         }
 
         function showSelector() {
-            if (!allPlayers.length) { setTimeout(showSelector, 500); return; }
+            if (!allPlayers.length) {
+                document.getElementById('mainContent').innerHTML = '<div style="background:white;border-radius:24px;padding:20px;">加载玩家数据中...</div>';
+                return;
+            }
             let options = '<option value="">请选择...</option>';
-            allPlayers.forEach(p => {
+            // 按组别 + 手环编号排序显示
+            const sortedPlayers = [...allPlayers].sort((a,b)=>a.group_name.localeCompare(b.group_name) || a.hand_code.localeCompare(b.hand_code));
+            sortedPlayers.forEach(p => {
                 options += `<option value="${p.name}|${p.group_name}">${p.group_name} - ${p.name} (${p.hand_code})</option>`;
             });
             document.getElementById('mainContent').innerHTML = `
                 <div style="background:white;border-radius:24px;padding:20px;">
                     <h3>👋 选择你的角色</h3>
-                    <select id="playerSelect">${options}</select>
+                    <select id="playerSelect" style="width:100%;padding:12px;border-radius:12px;margin:12px 0;">${options}</select>
                     <button id="confirmBtn" class="btn-primary">确认</button>
                 </div>
             `;
             document.getElementById('confirmBtn').onclick = () => {
                 const val = document.getElementById('playerSelect').value;
                 if (val) {
-                    const [name, group] = val.split('|');
-                    currentPlayer = { name, group_name: group };
+                    const [name, group_name] = val.split('|');
+                    currentPlayer = { name, group_name };
                     localStorage.setItem('current_player', JSON.stringify(currentPlayer));
                     renderPlayerView();
                 }
             };
         }
 
-        // 实时订阅：players 表 和 news 表
+        // 实时订阅
         function setupRealtime() {
-            // players 订阅
             supabaseClient.channel('players-channel')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => {
                     console.log('players 表有变化，重新加载');
@@ -182,11 +198,9 @@
                     console.log('players 订阅状态:', status);
                 });
 
-            // news 订阅（关键！）
             supabaseClient.channel('news-channel')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, (payload) => {
                     console.log('收到新快报:', payload);
-                    // 立即更新快报栏
                     const newNews = payload.new;
                     document.getElementById('newsContent').innerHTML = newNews.content;
                     document.getElementById('newsTime').innerHTML = newNews.time;
@@ -197,7 +211,7 @@
                 });
         }
 
-        // URL参数直接定位玩家
+        // 获取URL参数或存储的玩家
         const urlParams = new URLSearchParams(window.location.search);
         const urlName = urlParams.get('name');
         const urlGroup = urlParams.get('group');
@@ -211,22 +225,9 @@
             }
         }
 
-        // 启动
         loadPlayers();
         loadLatestNews();
         setupRealtime();
-
-        if (currentPlayer) {
-            // 等待数据加载完成再渲染
-            let interval = setInterval(() => {
-                if (allPlayers.length) {
-                    clearInterval(interval);
-                    renderPlayerView();
-                }
-            }, 200);
-        } else {
-            setTimeout(showSelector, 800);
-        }
     })();
 </script>
 </body>
