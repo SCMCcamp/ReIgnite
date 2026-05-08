@@ -133,13 +133,16 @@
         </div>
     </div>
 
+    <!-- 筛选栏：6组 + 全部 -->
     <div class="filter-bar">
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <span class="group-chip active" data-group="all">全部</span>
-            <span class="group-chip" data-group="A组">A组</span>
-            <span class="group-chip" data-group="B组">B组</span>
-            <span class="group-chip" data-group="C组">C组</span>
-            <span class="group-chip" data-group="D组">D组</span>
+            <span class="group-chip" data-group="尼西米">尼西米</span>
+            <span class="group-chip" data-group="以利亚">以利亚</span>
+            <span class="group-chip" data-group="约拿">约拿</span>
+            <span class="group-chip" data-group="基甸">基甸</span>
+            <span class="group-chip" data-group="拿单">拿单</span>
+            <span class="group-chip" data-group="撒母耳">撒母耳</span>
         </div>
         <span id="clearFilterBtn" class="clear-filter">✖ 清除颜色筛选</span>
     </div>
@@ -178,7 +181,6 @@
         let currentNewsId = null;
         let currentEconomyId = null;
 
-        // 提示消息（替代 alert）
         function showToast(msg, isError = false) {
             const toast = document.getElementById('toastMsg');
             toast.innerText = msg;
@@ -187,7 +189,7 @@
             setTimeout(() => { toast.style.opacity = '0'; }, 2000);
         }
 
-        // ---------- 股票相关 ----------
+        // 股票相关
         async function savePriceToDB(price) {
             const { error } = await supabaseClient.from('stock_prices').insert([{ price }]);
             if (error) console.error('保存股价失败:', error);
@@ -261,7 +263,7 @@
             autoTimer = setInterval(() => { randomFluctuation(); }, 30 * 60 * 1000);
         }
 
-        // ---------- 玩家数据 ----------
+        // 玩家数据
         async function loadPlayers() {
             const { data, error } = await supabaseClient.from('players').select('*').order('group_name').order('hand_code');
             if (error) { console.error(error); updateStatus(false); return; }
@@ -287,7 +289,7 @@
 
         function getProgress(p) { const done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0); return Math.round(done/4*100); }
 
-        // ---------- 快报和经济动态（含删除）----------
+        // 快报和经济动态
         async function loadLatestNews() {
             const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
             if (!error && data && data.length) {
@@ -347,7 +349,6 @@
             else {
                 showToast('快报已发送');
                 document.getElementById('newsInput').value = '';
-                // 实时订阅会自动更新
             }
         }
 
@@ -360,7 +361,6 @@
                 showToast('经济动态已发布');
                 await adjustPriceByEconomy(content);
                 document.getElementById('economyInput').value = '';
-                // 实时订阅会自动更新最新经济动态
             }
         }
 
@@ -377,7 +377,7 @@
             }
         }
 
-        // ---------- UI 渲染 ----------
+        // UI 渲染
         function renderStatsAndFilters() {
             const stats = { total: uniquePlayers.length, green:0, yellow:0, orange:0, red:0, black:0, warn:0 };
             for (let p of uniquePlayers) {
@@ -504,7 +504,6 @@
             }
         }
 
-        // 绑定事件
         function bindEvents() {
             document.getElementById('sendNewsBtn').addEventListener('click', sendNews);
             document.getElementById('setEconomyBtn').addEventListener('click', () => {
