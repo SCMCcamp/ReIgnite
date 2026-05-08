@@ -17,13 +17,43 @@
         .panel { flex: 1; background: white; border-radius: 28px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .panel-title { font-weight: 600; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #1a73e8; padding-left: 12px; }
         .panel input, .panel textarea { width: 100%; padding: 10px 14px; border-radius: 60px; border: 1px solid #ddd; margin-bottom: 12px; font-size: 0.9rem; }
-        .button-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .button-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .quick-btn { background: #eef2f6; border: none; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
         .quick-btn:hover { background: #d0d7de; }
         .latest-item { background: #f8f9fa; border-radius: 20px; padding: 10px 14px; margin-top: 12px; font-size: 0.85rem; border-left: 3px solid #1a73e8; }
         .latest-label { font-weight: 600; color: #1e2a3e; margin-bottom: 4px; font-size: 0.7rem; text-transform: uppercase; }
         .latest-content { word-break: break-word; }
         .latest-time { font-size: 0.65rem; color: #6c757d; text-align: right; margin-top: 4px; }
+        
+        /* 折叠股票面板 */
+        .collapsible-section {
+            background: white;
+            border-radius: 28px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            background: white;
+            transition: 0.1s;
+        }
+        .collapsible-header:hover { background: #f8f9fa; }
+        .collapsible-content {
+            padding: 0 20px 20px 20px;
+            display: none;
+            border-top: 1px solid #edf2f7;
+        }
+        .collapsible-content.expanded { display: block; }
+        .chart-controls button, .manual-controls button { background: #eef2f6; border: none; padding: 6px 14px; border-radius: 40px; cursor: pointer; margin-right: 8px; }
+        .manual-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .manual-controls input { width: 100px; padding: 6px 12px; border-radius: 40px; border: 1px solid #ccc; }
+        canvas { max-height: 280px; width: 100%; margin-top: 16px; }
         
         .filter-bar { background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         .group-chip { padding: 6px 16px; border-radius: 40px; background: #eef2f6; cursor: pointer; }
@@ -42,12 +72,11 @@
         td { border-bottom: 1px solid #edf2f7; }
         .warning-row { background-color: #ffebee; }
         
-        /* 颜色选择器 */
         .color-selector { display: flex; gap: 6px; justify-content: center; }
         .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
         .dot-green { background: #4caf50; }
         .dot-yellow { background: #ffc107; }
-        .dot-orange { background: #ff9800; }  /* 新增橙色 */
+        .dot-orange { background: #ff9800; }
         .dot-red { background: #f44336; }
         .dot-black { background: #2c3e2f; }
         
@@ -59,6 +88,7 @@
         .connected { background: #e8f5e9; color: #2e7d32; }
         .disconnected { background: #ffebee; color: #d32f2f; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -73,7 +103,7 @@
             <div class="panel-title">📢 快报广播</div>
             <input type="text" id="newsInput" placeholder="输入快报内容，例如：霍尔木兹风暴！超市涨价！">
             <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
-            <div class="latest-item" id="latestNews">
+            <div class="latest-item">
                 <div class="latest-label">📌 最新快报</div>
                 <div class="latest-content" id="latestNewsContent">暂无</div>
                 <div class="latest-time" id="latestNewsTime"></div>
@@ -89,10 +119,34 @@
             </div>
             <input type="text" id="economyInput" placeholder="或自定义经济动态，例如：甜品涨价2R币">
             <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
-            <div class="latest-item" id="latestEconomy">
+            <div class="latest-item">
                 <div class="latest-label">📌 最新经济动态</div>
                 <div class="latest-content" id="latestEconomyContent">暂无</div>
                 <div class="latest-time" id="latestEconomyTime"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 折叠股票面板 -->
+    <div class="collapsible-section">
+        <div class="collapsible-header" id="stockHeader">
+            <span>📈 RE:Set股 · 实时价格走势 (点击展开/收起)</span>
+            <span>▼</span>
+        </div>
+        <div class="collapsible-content" id="stockContent">
+            <div class="chart-controls" style="margin-bottom: 12px;">
+                <button id="addRandomPriceBtn">🎲 随机波动 + 记录</button>
+                <button id="syncEconomyBtn">📉 根据当前经济动态调整</button>
+            </div>
+            <canvas id="priceChart" width="800" height="230"></canvas>
+            <div class="manual-controls">
+                <span>手动设置股价：</span>
+                <input type="number" id="manualPriceInput" step="1" placeholder="输入数字">
+                <button id="manualSetPriceBtn">✏️ 设置股价</button>
+                <span style="margin-left: auto;">当前价格: <strong id="currentPrice">--</strong> R币</span>
+            </div>
+            <div style="font-size:0.7rem; margin-top:12px; text-align:center; color:#6c757d;">
+                可手动输入股价、随机波动或根据经济动态自动调整 | 每30分钟自动随机波动一次
             </div>
         </div>
     </div>
@@ -112,7 +166,7 @@
     <div class="table-wrapper">
         <table>
             <thead>
-                <tr><th>玩家</th><th>组别</th><th>生命颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th>
+                <tr><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -137,90 +191,94 @@
 
         let uniquePlayers = [];
         let currentGroup = "all";
-        let currentColorFilter = null;  // 'green', 'yellow', 'orange', 'red', 'black', 'warn'
+        let currentColorFilter = null;
 
-        function updateStatus(connected) {
-            const badge = document.getElementById('statusBadge');
-            if (badge) {
-                badge.className = `status ${connected ? 'connected' : 'disconnected'}`;
-                badge.innerText = connected ? '● 已连接云端' : '● 离线';
-            }
+        // ---------- K线图数据 (RE:Set股) 起始股价 5 ----------
+        let priceHistory = [5];   // 初始价格改为 5
+        let chart = null;
+        let autoTimer = null;      // 自动调整定时器
+
+        function renderChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            if (chart) chart.destroy();
+            const labels = priceHistory.map((_, idx) => `点${idx+1}`);
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'RE:Set股 价格 (R币)',
+                        data: priceHistory,
+                        borderColor: '#ff9800',
+                        backgroundColor: 'rgba(255,152,0,0.1)',
+                        tension: 0.2,
+                        fill: true,
+                        pointBackgroundColor: '#ff9800',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw} R币` } } }
+                }
+            });
+            document.getElementById('currentPrice').innerText = priceHistory[priceHistory.length-1];
         }
 
-        // 加载最新快报并显示
+        function addPricePoint(newPrice) {
+            if (isNaN(newPrice)) return;
+            newPrice = Math.max(1, Math.round(newPrice));
+            priceHistory.push(newPrice);
+            renderChart();
+            // 可选：保存到数据库（后续可扩展）
+        }
+
+        // 随机波动（幅度 ±10% 左右）
+        function randomFluctuation() {
+            let lastPrice = priceHistory[priceHistory.length-1];
+            let change = (Math.random() - 0.5) * 0.2;  // -10% ~ +10%
+            let newPrice = lastPrice * (1 + change);
+            newPrice = Math.max(1, Math.round(newPrice));
+            addPricePoint(newPrice);
+        }
+
+        // 根据经济动态调整价格（通胀涨、通缩跌）
+        function adjustPriceByEconomy(content) {
+            let lastPrice = priceHistory[priceHistory.length-1];
+            let changePercent = 0;
+            if (content.includes('通胀') || content.includes('涨价')) changePercent = (Math.random() * 10 + 5) / 100;
+            else if (content.includes('通缩') || content.includes('降价')) changePercent = -(Math.random() * 10 + 5) / 100;
+            else changePercent = (Math.random() * 4 - 2) / 100;
+            let newPrice = lastPrice * (1 + changePercent);
+            newPrice = Math.max(1, Math.round(newPrice));
+            addPricePoint(newPrice);
+        }
+
+        // 每30分钟自动调整一次（随机波动）
+        function startAutoAdjust() {
+            if (autoTimer) clearInterval(autoTimer);
+            autoTimer = setInterval(() => {
+                console.log("每30分钟自动调整股价");
+                randomFluctuation();
+            }, 30 * 60 * 1000); // 30分钟
+        }
+
+        // ---------- Supabase 数据操作 ----------
         async function loadLatestNews() {
-            const { data, error } = await supabaseClient
-                .from('news')
-                .select('*')
-                .order('id', { ascending: false })
-                .limit(1);
-            if (!error && data && data.length > 0) {
+            const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
+            if (!error && data && data.length) {
                 document.getElementById('latestNewsContent').innerText = data[0].content;
                 document.getElementById('latestNewsTime').innerText = data[0].time;
-            } else {
-                document.getElementById('latestNewsContent').innerText = '暂无';
-                document.getElementById('latestNewsTime').innerText = '';
             }
         }
 
-        // 加载最新经济动态
         async function loadLatestEconomy() {
-            const { data, error } = await supabaseClient
-                .from('economy_status')
-                .select('*')
-                .order('id', { ascending: false })
-                .limit(1);
-            if (!error && data && data.length > 0) {
+            const { data, error } = await supabaseClient.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
+            if (!error && data && data.length) {
                 document.getElementById('latestEconomyContent').innerText = data[0].content;
                 document.getElementById('latestEconomyTime').innerText = data[0].time;
-            } else {
-                document.getElementById('latestEconomyContent').innerText = '暂无';
-                document.getElementById('latestEconomyTime').innerText = '';
             }
-        }
-
-        function deduplicatePlayers(players) {
-            const map = new Map();
-            for (const p of players) {
-                const key = `${p.name}|${p.group_name}`;
-                if (!map.has(key)) map.set(key, p);
-            }
-            return Array.from(map.values());
-        }
-
-        async function loadPlayers() {
-            const { data, error } = await supabaseClient
-                .from('players')
-                .select('*')
-                .order('group_name', { ascending: true })
-                .order('hand_code', { ascending: true });
-            if (error) { console.error(error); updateStatus(false); return; }
-            uniquePlayers = deduplicatePlayers(data || []);
-            updateStatus(true);
-            renderUI();
-        }
-
-        async function updatePlayer(id, updates) {
-            const { error } = await supabaseClient.from('players').update(updates).eq('id', id);
-            if (!error) {
-                document.getElementById('saveHint').classList.add('show');
-                setTimeout(() => document.getElementById('saveHint').classList.remove('show'), 1000);
-                await loadPlayers();
-            } else {
-                alert('更新失败: ' + error.message);
-            }
-        }
-
-        window.changeRbc = (player, delta) => {
-            const newVal = Math.max(0, player.rbc + delta);
-            updatePlayer(player.id, { rbc: newVal });
-        };
-        window.setColor = (player, color) => updatePlayer(player.id, { color });
-        window.toggleStation = (player, station) => updatePlayer(player.id, { [station]: !player[station] });
-
-        function getProgress(p) {
-            const done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0);
-            return Math.round(done/4*100);
         }
 
         async function sendNews() {
@@ -231,9 +289,9 @@
             const { error } = await supabaseClient.from('news').insert([{ content, time: timeStr }]);
             if (error) alert('发送失败: ' + error.message);
             else {
-                alert('快报已发送！');
+                alert('快报已发送');
                 document.getElementById('newsInput').value = '';
-                loadLatestNews();  // 刷新最新快报显示
+                await loadLatestNews();
             }
         }
 
@@ -242,10 +300,11 @@
             const now = new Date();
             const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
             const { error } = await supabaseClient.from('economy_status').insert([{ content, time: timeStr }]);
-            if (error) alert('发布经济动态失败: ' + error.message);
+            if (error) alert('发布失败: ' + error.message);
             else {
                 alert('经济动态已发布');
                 await loadLatestEconomy();
+                adjustPriceByEconomy(content);
                 document.getElementById('economyInput').value = '';
             }
         }
@@ -256,13 +315,39 @@
             deflation: "📉 通缩来临！超市甜品降价2R币，R币获取翻倍"
         };
 
-        async function resetAll() {
-            if(confirm('重置所有玩家？')) {
-                for (let p of uniquePlayers) {
-                    await updatePlayer(p.id, { color: 'green', rbc: 10, s1: false, s2: false, s3: false, s4: false });
-                }
-                await loadPlayers();
+        // 玩家数据操作
+        async function loadPlayers() {
+            const { data, error } = await supabaseClient.from('players').select('*').order('group_name').order('hand_code');
+            if (error) { console.error(error); updateStatus(false); return; }
+            const map = new Map();
+            for (const p of data) {
+                const key = `${p.name}|${p.group_name}`;
+                if (!map.has(key)) map.set(key, p);
             }
+            uniquePlayers = Array.from(map.values());
+            updateStatus(true);
+            renderUI();
+        }
+
+        async function updatePlayer(id, updates) {
+            const { error } = await supabaseClient.from('players').update(updates).eq('id', id);
+            if (!error) {
+                document.getElementById('saveHint').classList.add('show');
+                setTimeout(() => document.getElementById('saveHint').classList.remove('show'), 1000);
+                await loadPlayers();
+            } else alert('更新失败: ' + error.message);
+        }
+
+        window.changeRbc = (player, delta) => updatePlayer(player.id, { rbc: Math.max(0, player.rbc + delta) });
+        window.setColor = (player, color) => {
+            const allowed = ['green','yellow','orange','red','black'];
+            if (allowed.includes(color)) updatePlayer(player.id, { color });
+        };
+        window.toggleStation = (player, station) => updatePlayer(player.id, { [station]: !player[station] });
+
+        function getProgress(p) {
+            const done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0);
+            return Math.round(done/4*100);
         }
 
         function renderStatsAndFilters() {
@@ -310,34 +395,19 @@
                 if (chip.getAttribute('data-group') === currentGroup) chip.classList.add('active');
                 else chip.classList.remove('active');
             });
-            document.querySelectorAll('.stat-card').forEach(card => {
-                const filterVal = card.getAttribute('data-filter');
-                if ((currentColorFilter === null && filterVal === 'all') || (currentColorFilter !== null && filterVal === currentColorFilter)) {
-                    card.classList.add('active-filter');
-                } else {
-                    card.classList.remove('active-filter');
-                }
-            });
-
             const filtered = getFilteredPlayers();
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             filtered.forEach(p => {
                 const row = tbody.insertRow();
                 if(p.rbc < 5) row.classList.add('warning-row');
-                // 玩家姓名
                 row.insertCell(0).innerText = p.name;
-                // 组别
                 row.insertCell(1).innerText = p.group_name;
-                
-                // 生命颜色（颜色选择器，带橙色）
+                // 颜色选择器 (含橙色)
                 const colorCell = row.insertCell(2);
                 const colors = [
-                    {v:'green', c:'dot-green', label:'绿'},
-                    {v:'yellow', c:'dot-yellow', label:'黄'},
-                    {v:'orange', c:'dot-orange', label:'橙'},
-                    {v:'red', c:'dot-red', label:'红'},
-                    {v:'black', c:'dot-black', label:'黑'}
+                    {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
+                    {v:'orange',c:'dot-orange'}, {v:'red',c:'dot-red'}, {v:'black',c:'dot-black'}
                 ];
                 const cDiv = document.createElement('div');
                 cDiv.className = 'color-selector';
@@ -349,7 +419,7 @@
                     cDiv.appendChild(dot);
                 });
                 colorCell.appendChild(cDiv);
-                
+
                 // R币控制
                 const rbcCell = row.insertCell(3);
                 const rbDiv = document.createElement('div');
@@ -358,7 +428,7 @@
                     <button class="rbc-btn">-5</button>
                     <button class="rbc-btn">-2</button>
                     <button class="rbc-btn">-1</button>
-                    <span style="min-width:40px;text-align:center;font-weight:bold;">${p.rbc}</span>
+                    <span style="min-width:40px;text-align:center;">${p.rbc}</span>
                     <button class="rbc-btn">+1</button>
                     <button class="rbc-btn">+2</button>
                     <button class="rbc-btn">+5</button>
@@ -371,8 +441,7 @@
                 btns[5].onclick = () => window.changeRbc(p, 2);
                 btns[6].onclick = () => window.changeRbc(p, 5);
                 rbcCell.appendChild(rbDiv);
-                
-                // 站复选框
+
                 const createCheck = (checked, station) => {
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
@@ -400,35 +469,82 @@
                 .subscribe();
         }
 
-        document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
-        document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
-        document.getElementById('clearFilterBtn')?.addEventListener('click', () => { currentColorFilter = null; renderUI(); });
-        document.getElementById('setEconomyBtn')?.addEventListener('click', () => {
-            const custom = document.getElementById('economyInput').value.trim();
-            if (custom) publishEconomy(custom);
-            else alert('请输入经济动态内容或点击快捷按钮填充');
-        });
+        function updateStatus(connected) {
+            const badge = document.getElementById('statusBadge');
+            if (badge) {
+                badge.className = `status ${connected ? 'connected' : 'disconnected'}`;
+                badge.innerText = connected ? '● 已连接云端' : '● 离线';
+            }
+        }
 
-        document.querySelectorAll('.quick-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const presetKey = btn.getAttribute('data-preset');
-                if (presetKey && presetMap[presetKey]) {
-                    document.getElementById('economyInput').value = presetMap[presetKey];
+        // 折叠/展开逻辑
+        function initCollapsible() {
+            const header = document.getElementById('stockHeader');
+            const content = document.getElementById('stockContent');
+            let isExpanded = false;
+            header.addEventListener('click', () => {
+                isExpanded = !isExpanded;
+                if (isExpanded) {
+                    content.classList.add('expanded');
+                    header.querySelector('span:last-child').innerHTML = '▲';
+                } else {
+                    content.classList.remove('expanded');
+                    header.querySelector('span:last-child').innerHTML = '▼';
                 }
             });
-        });
+        }
 
-        document.querySelectorAll('.group-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                currentGroup = chip.getAttribute('data-group');
-                renderUI();
+        // 绑定事件
+        function bindEvents() {
+            document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
+            document.getElementById('setEconomyBtn')?.addEventListener('click', () => {
+                const custom = document.getElementById('economyInput').value.trim();
+                if (custom) publishEconomy(custom);
+                else alert('请输入经济动态内容');
             });
-        });
+            document.getElementById('clearFilterBtn')?.addEventListener('click', () => { currentColorFilter = null; renderUI(); });
+            document.getElementById('resetAllBtn')?.addEventListener('click', async () => {
+                if(confirm('重置所有玩家？')) {
+                    for (let p of uniquePlayers) await updatePlayer(p.id, { color: 'green', rbc: 10, s1: false, s2: false, s3: false, s4: false });
+                    await loadPlayers();
+                }
+            });
+            document.getElementById('addRandomPriceBtn')?.addEventListener('click', randomFluctuation);
+            document.getElementById('syncEconomyBtn')?.addEventListener('click', async () => {
+                const latestEconomy = document.getElementById('latestEconomyContent').innerText;
+                if (latestEconomy && latestEconomy !== '暂无') adjustPriceByEconomy(latestEconomy);
+                else alert('暂无经济动态，请先发布一条经济状况');
+            });
+            document.getElementById('manualSetPriceBtn')?.addEventListener('click', () => {
+                const inputVal = parseFloat(document.getElementById('manualPriceInput').value);
+                if (isNaN(inputVal)) alert('请输入有效的数字');
+                else addPricePoint(inputVal);
+                document.getElementById('manualPriceInput').value = '';
+            });
 
+            document.querySelectorAll('.quick-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const presetKey = btn.getAttribute('data-preset');
+                    if (presetKey && presetMap[presetKey]) document.getElementById('economyInput').value = presetMap[presetKey];
+                });
+            });
+            document.querySelectorAll('.group-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    currentGroup = chip.getAttribute('data-group');
+                    renderUI();
+                });
+            });
+        }
+
+        // 启动
         loadPlayers();
         loadLatestNews();
         loadLatestEconomy();
         setupRealtime();
+        renderChart();
+        startAutoAdjust();       // 启动30分钟自动调整
+        initCollapsible();
+        bindEvents();
     })();
 </script>
 </body>
