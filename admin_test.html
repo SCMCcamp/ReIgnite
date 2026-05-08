@@ -10,13 +10,15 @@
         .container { max-width: 1600px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
         h1 { font-size: 1.6rem; }
-        .btn { background: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
+        .btn { background: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; transition: 0.2s; }
         .btn-primary { background: #1a73e8; color: white; }
-        .filter-bar { background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .filter-bar { background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         .group-chip { padding: 6px 16px; border-radius: 40px; background: #eef2f6; cursor: pointer; }
         .group-chip.active { background: #1a73e8; color: white; }
         .stats-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: white; border-radius: 20px; padding: 12px 20px; text-align: center; flex: 1; min-width: 80px; }
+        .stat-card { background: white; border-radius: 20px; padding: 12px 20px; text-align: center; flex: 1; min-width: 80px; cursor: pointer; transition: 0.1s; }
+        .stat-card.active-filter { background: #e3f2fd; box-shadow: 0 0 0 2px #1a73e8; }
+        .stat-card:hover { background: #e9ecef; }
         .table-wrapper { background: white; border-radius: 24px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #1e2a3e; color: white; padding: 12px 8px; }
@@ -27,8 +29,9 @@
         .dot-yellow { background: #ffc107; }
         .dot-red { background: #f44336; }
         .dot-black { background: #2c3e2f; }
-        .rbc-control { display: flex; align-items: center; gap: 8px; }
-        .rbc-btn { width: 28px; height: 28px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; }
+        .rbc-control { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .rbc-btn { width: 36px; height: 32px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; }
+        .rbc-btn.special { background: #1a73e8; color: white; }
         .checkbox { width: 20px; height: 20px; cursor: pointer; }
         .warning-row { background-color: #ffebee; }
         .news-input { display: flex; gap: 10px; flex-wrap: wrap; background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; align-items: center; }
@@ -37,6 +40,7 @@
         .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 12px; }
         .connected { background: #e8f5e9; color: #2e7d32; }
         .disconnected { background: #ffebee; color: #d32f2f; }
+        .clear-filter { margin-left: 12px; font-size: 0.8rem; background: #e9ecef; padding: 4px 12px; border-radius: 40px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -51,12 +55,16 @@
         <button class="btn btn-primary" id="sendNewsBtn">发送</button>
     </div>
     <div class="filter-bar">
-        <div id="groupFilter">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <span>📌 小组：</span>
             <span class="group-chip active" data-group="all">全部</span>
             <span class="group-chip" data-group="A组">A组</span>
             <span class="group-chip" data-group="B组">B组</span>
             <span class="group-chip" data-group="C组">C组</span>
             <span class="group-chip" data-group="D组">D组</span>
+        </div>
+        <div style="margin-left: auto;">
+            <span id="clearFilterBtn" class="clear-filter">✖ 清除颜色筛选</span>
         </div>
     </div>
     <div class="stats-grid" id="statsPanel"></div>
@@ -75,10 +83,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     (function(){
-        // ==================== ⚠️ 替换成你的 Supabase 配置 ====================
+        // ========== 配置 ==========
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // 请替换成真实的 anon key
-        // ================================================================
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // ⚠️ 请替换
+        // =========================
 
         let supabaseClient;
         if (window.__supabaseAdminClient) {
@@ -88,9 +96,10 @@
             window.__supabaseAdminClient = supabaseClient;
         }
 
-        let rawPlayers = [];      // 原始数据（可能重复）
-        let uniquePlayers = [];   // 去重后的数据（每个玩家唯一）
+        let rawPlayers = [];
+        let uniquePlayers = [];
         let currentGroup = "all";
+        let currentColorFilter = null;   // 'green', 'yellow', 'red', 'black', 'warn'
 
         function updateStatus(connected) {
             const badge = document.getElementById('statusBadge');
@@ -100,16 +109,12 @@
             }
         }
 
-        // 去重函数：按 name + group_name 合并，保留第一条记录（或合并数据，但假设重复记录数据一致）
         function deduplicatePlayers(players) {
             const map = new Map();
             for (const p of players) {
                 const key = `${p.name}|${p.group_name}`;
-                if (!map.has(key)) {
-                    map.set(key, p);
-                } else {
-                    console.warn(`发现重复玩家: ${p.name} (${p.group_name}), 已忽略额外记录 id=${p.id}`);
-                }
+                if (!map.has(key)) map.set(key, p);
+                else console.warn(`重复: ${p.name} (${p.group_name}) id=${p.id}`);
             }
             return Array.from(map.values());
         }
@@ -132,9 +137,6 @@
         }
 
         async function updatePlayer(id, updates) {
-            // 注意：这里更新时使用原始数据中的 id（去重后的玩家对应的原始 id）
-            // 由于可能有重复记录，我们只更新一条（按理说应该只保留一份正确数据，但为了安全，更新所有同名的玩家？）
-            // 更好的方案：只更新 uniquePlayers 中保留的那条记录的 id。
             const { error } = await supabaseClient.from('players').update(updates).eq('id', id);
             if (error) {
                 console.error('更新失败:', error);
@@ -143,23 +145,20 @@
                 const hint = document.getElementById('saveHint');
                 hint.classList.add('show');
                 setTimeout(() => hint.classList.remove('show'), 1000);
-                await loadPlayers(); // 刷新
+                await loadPlayers();
             }
         }
 
         window.changeRbc = (player, delta) => {
-            console.log('changeRbc', player.name, delta);
             const newRbc = Math.max(0, player.rbc + delta);
             updatePlayer(player.id, { rbc: newRbc });
         };
 
         window.setColor = (player, color) => {
-            console.log('setColor', player.name, color);
             updatePlayer(player.id, { color });
         };
 
         window.toggleStation = (player, station) => {
-            console.log('toggleStation', player.name, station);
             updatePlayer(player.id, { [station]: !player[station] });
         };
 
@@ -175,10 +174,8 @@
                 const now = new Date();
                 const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
                 const { error } = await supabaseClient.from('news').insert([{ content, time: timeStr }]);
-                if (error) {
-                    console.error('发送快报失败:', error);
-                    alert('发送失败: ' + error.message);
-                } else {
+                if (error) alert('发送失败: ' + error.message);
+                else {
                     alert('快报已发送！');
                     input.value = '';
                 }
@@ -194,36 +191,89 @@
             }
         }
 
-        function renderUI() {
-            let filtered = currentGroup === "all" ? uniquePlayers : uniquePlayers.filter(p => p.group_name === currentGroup);
-            let green=0,yellow=0,red=0,black=0,totalRbc=0,warn=0;
-            filtered.forEach(p => {
-                if(p.color==='green') green++;
-                else if(p.color==='yellow') yellow++;
-                else if(p.color==='red') red++;
-                else if(p.color==='black') black++;
-                totalRbc += p.rbc;
-                if(p.rbc<5) warn++;
-            });
-            document.getElementById('statsPanel').innerHTML = `
-                <div class="stat-card">👥 ${filtered.length}</div>
-                <div class="stat-card">💰 ${totalRbc}</div>
-                <div class="stat-card">🟢 ${green}</div>
-                <div class="stat-card">🟡 ${yellow}</div>
-                <div class="stat-card">🔴 ${red}</div>
-                <div class="stat-card">⚫ ${black}</div>
-                <div class="stat-card">⚠️ ${warn}</div>
+        // 统计并渲染统计卡片（可点击）
+        function renderStatsAndFilters() {
+            const stats = { total: uniquePlayers.length, green:0, yellow:0, red:0, black:0, warn:0 };
+            for (let p of uniquePlayers) {
+                if(p.color === 'green') stats.green++;
+                else if(p.color === 'yellow') stats.yellow++;
+                else if(p.color === 'red') stats.red++;
+                else if(p.color === 'black') stats.black++;
+                if(p.rbc < 5) stats.warn++;
+            }
+            const panel = document.getElementById('statsPanel');
+            panel.innerHTML = `
+                <div class="stat-card ${currentColorFilter === null ? 'active-filter' : ''}" data-filter="all">👥 ${stats.total}</div>
+                <div class="stat-card" data-filter="green">🟢 ${stats.green}</div>
+                <div class="stat-card" data-filter="yellow">🟡 ${stats.yellow}</div>
+                <div class="stat-card" data-filter="red">🔴 ${stats.red}</div>
+                <div class="stat-card" data-filter="black">⚫ ${stats.black}</div>
+                <div class="stat-card" data-filter="warn">⚠️ ${stats.warn}</div>
             `;
+            // 绑定点击事件
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const filter = card.getAttribute('data-filter');
+                    if (filter === 'all') {
+                        currentColorFilter = null;
+                    } else {
+                        currentColorFilter = filter;
+                    }
+                    renderUI();  // 重新渲染表格并高亮选中卡片
+                });
+            });
+        }
 
+        // 主渲染逻辑：先按小组筛选，再按颜色/警告筛选
+        function getFilteredPlayers() {
+            let filtered = [...uniquePlayers];
+            if (currentGroup !== "all") {
+                filtered = filtered.filter(p => p.group_name === currentGroup);
+            }
+            if (currentColorFilter) {
+                if (currentColorFilter === 'warn') {
+                    filtered = filtered.filter(p => p.rbc < 5);
+                } else {
+                    filtered = filtered.filter(p => p.color === currentColorFilter);
+                }
+            }
+            return filtered;
+        }
+
+        function renderUI() {
+            // 更新统计卡片及高亮样式
+            renderStatsAndFilters();
+            
+            // 高亮当前的组筛选按钮
+            document.querySelectorAll('.group-chip').forEach(chip => {
+                if (chip.getAttribute('data-group') === currentGroup) chip.classList.add('active');
+                else chip.classList.remove('active');
+            });
+            
+            // 高亮颜色筛选卡片
+            document.querySelectorAll('.stat-card').forEach(card => {
+                const filterVal = card.getAttribute('data-filter');
+                if ((currentColorFilter === null && filterVal === 'all') || 
+                    (currentColorFilter !== null && filterVal === currentColorFilter)) {
+                    card.classList.add('active-filter');
+                } else {
+                    card.classList.remove('active-filter');
+                }
+            });
+
+            const filtered = getFilteredPlayers();
+            // 更新统计卡片上的数字（显示的是总体的，不需要改）
+            // 表格渲染
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             filtered.forEach(p => {
                 const row = tbody.insertRow();
-                if(p.rbc<5) row.classList.add('warning-row');
+                if(p.rbc < 5) row.classList.add('warning-row');
                 row.insertCell(0).innerText = p.name;
                 row.insertCell(1).innerText = p.group_name;
                 row.insertCell(2).innerText = p.hand_code;
 
+                // 颜色选择器
                 const colorCell = row.insertCell(3);
                 const colors = [
                     {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
@@ -242,16 +292,31 @@
                 });
                 colorCell.appendChild(cDiv);
 
+                // R币控制区：+1,+2,+5 和 -1,-2,-5
                 const rbcCell = row.insertCell(4);
                 const rbDiv = document.createElement('div');
                 rbDiv.className = 'rbc-control';
-                rbDiv.innerHTML = `<button class="rbc-btn">-1</button><span style="min-width:40px;text-align:center;">${p.rbc}</span><button class="rbc-btn">+1</button>`;
-                const minusBtn = rbDiv.children[0];
-                const plusBtn = rbDiv.children[2];
-                minusBtn.addEventListener('click', (function(player) { return function() { window.changeRbc(player, -1); }; })(p));
-                plusBtn.addEventListener('click', (function(player) { return function() { window.changeRbc(player, 1); }; })(p));
+                rbDiv.innerHTML = `
+                    <button class="rbc-btn">-5</button>
+                    <button class="rbc-btn">-2</button>
+                    <button class="rbc-btn">-1</button>
+                    <span style="min-width:40px;text-align:center;font-weight:bold;">${p.rbc}</span>
+                    <button class="rbc-btn">+1</button>
+                    <button class="rbc-btn">+2</button>
+                    <button class="rbc-btn special">+5</button>
+                `;
+                const btns = rbDiv.children;
+                // 减按钮
+                btns[0].onclick = () => window.changeRbc(p, -5);
+                btns[1].onclick = () => window.changeRbc(p, -2);
+                btns[2].onclick = () => window.changeRbc(p, -1);
+                // 加按钮
+                btns[4].onclick = () => window.changeRbc(p, 1);
+                btns[5].onclick = () => window.changeRbc(p, 2);
+                btns[6].onclick = () => window.changeRbc(p, 5);
                 rbcCell.appendChild(rbDiv);
 
+                // 站复选框
                 const createCheck = (checked, station) => {
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
@@ -275,13 +340,16 @@
                 .subscribe();
         }
 
+        // 初始化事件绑定
         document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
         document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
+        document.getElementById('clearFilterBtn')?.addEventListener('click', () => {
+            currentColorFilter = null;
+            renderUI();
+        });
         document.querySelectorAll('.group-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 currentGroup = chip.getAttribute('data-group');
-                document.querySelectorAll('.group-chip').forEach(c => c.classList.remove('active'));
-                chip.classList.add('active');
                 renderUI();
             });
         });
