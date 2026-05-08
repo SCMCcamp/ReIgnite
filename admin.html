@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RE:Ignite · 中控端</title>
     <style>
-        /* 样式保持不变（略长，已保留原有样式） */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -18,13 +17,15 @@
         .panel { flex: 1; background: white; border-radius: 28px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .panel-title { font-weight: 600; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #1a73e8; padding-left: 12px; }
         .panel input, .panel textarea { width: 100%; padding: 10px 14px; border-radius: 60px; border: 1px solid #ddd; margin-bottom: 12px; font-size: 0.9rem; }
-        .button-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .button-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .quick-btn { background: #eef2f6; border: none; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
         .quick-btn:hover { background: #d0d7de; }
-        .latest-item { background: #f8f9fa; border-radius: 20px; padding: 10px 14px; margin-top: 12px; font-size: 0.85rem; border-left: 3px solid #1a73e8; }
+        .latest-item { background: #f8f9fa; border-radius: 20px; padding: 10px 14px; margin-top: 12px; font-size: 0.85rem; border-left: 3px solid #1a73e8; position: relative; }
         .latest-label { font-weight: 600; color: #1e2a3e; margin-bottom: 4px; font-size: 0.7rem; text-transform: uppercase; }
-        .latest-content { word-break: break-word; }
+        .latest-content { word-break: break-word; padding-right: 30px; }
         .latest-time { font-size: 0.65rem; color: #6c757d; text-align: right; margin-top: 4px; }
+        .delete-btn { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 1rem; cursor: pointer; color: #d32f2f; opacity: 0.6; }
+        .delete-btn:hover { opacity: 1; }
         
         .collapsible-section { background: white; border-radius: 28px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .collapsible-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; cursor: pointer; font-weight: 600; background: white; }
@@ -64,7 +65,8 @@
         .rbc-control { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
         .rbc-btn { width: 36px; height: 32px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; }
         .checkbox { width: 20px; height: 20px; cursor: pointer; }
-        .save-hint { position: fixed; bottom: 20px; right: 20px; background: #1e2a3e; color: white; padding: 8px 16px; border-radius: 40px; opacity: 0; transition: 0.2s; pointer-events: none; }
+        .save-hint, .toast-msg { position: fixed; bottom: 20px; right: 20px; background: #1e2a3e; color: white; padding: 8px 16px; border-radius: 40px; opacity: 0; transition: 0.2s; pointer-events: none; z-index: 100; }
+        .toast-msg { background: #1a73e8; }
         .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 12px; }
         .connected { background: #e8f5e9; color: #2e7d32; }
         .disconnected { background: #ffebee; color: #d32f2f; }
@@ -81,12 +83,13 @@
     <div class="control-panels">
         <div class="panel">
             <div class="panel-title">📢 快报广播</div>
-            <input type="text" id="newsInput" placeholder="输入快报内容">
+            <input type="text" id="newsInput" placeholder="输入快报内容，例如：霍尔木兹风暴！超市涨价！">
             <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
-            <div class="latest-item">
+            <div class="latest-item" id="latestNewsContainer">
                 <div class="latest-label">📌 最新快报</div>
                 <div class="latest-content" id="latestNewsContent">暂无</div>
                 <div class="latest-time" id="latestNewsTime"></div>
+                <button class="delete-btn" id="deleteNewsBtn" style="display:none;">🗑️</button>
             </div>
         </div>
         <div class="panel">
@@ -96,12 +99,13 @@
                 <button class="quick-btn" data-preset="inflation">📈 通胀</button>
                 <button class="quick-btn" data-preset="deflation">📉 通缩</button>
             </div>
-            <input type="text" id="economyInput" placeholder="或自定义经济动态">
+            <input type="text" id="economyInput" placeholder="或自定义经济动态，例如：甜品涨价2R币">
             <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
-            <div class="latest-item">
+            <div class="latest-item" id="latestEconomyContainer">
                 <div class="latest-label">📌 最新经济动态</div>
                 <div class="latest-content" id="latestEconomyContent">暂无</div>
                 <div class="latest-time" id="latestEconomyTime"></div>
+                <button class="delete-btn" id="deleteEconomyBtn" style="display:none;">🗑️</button>
             </div>
         </div>
     </div>
@@ -124,13 +128,13 @@
                 <span style="margin-left: auto;">当前价格: <strong id="currentPrice">--</strong> R币</span>
             </div>
             <div style="font-size:0.7rem; margin-top:12px; text-align:center; color:#6c757d;">
-                每30分钟自动随机波动一次 | 价格变动自动保存到数据库，玩家端实时同步
+                可手动输入、随机波动或根据经济动态调整 | 每30分钟自动随机波动一次
             </div>
         </div>
     </div>
 
     <div class="filter-bar">
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <span class="group-chip active" data-group="all">全部</span>
             <span class="group-chip" data-group="A组">A组</span>
             <span class="group-chip" data-group="B组">B组</span>
@@ -149,6 +153,7 @@
     </div>
 </div>
 <div class="save-hint" id="saveHint">✓ 已同步云端</div>
+<div class="toast-msg" id="toastMsg"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -170,8 +175,19 @@
         let priceHistory = [5];
         let chart = null;
         let autoTimer = null;
+        let currentNewsId = null;
+        let currentEconomyId = null;
 
-        // ---------- 股票数据库操作 ----------
+        // 提示消息（替代 alert）
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toastMsg');
+            toast.innerText = msg;
+            toast.style.background = isError ? '#d32f2f' : '#1a73e8';
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
+
+        // ---------- 股票相关 ----------
         async function savePriceToDB(price) {
             const { error } = await supabaseClient.from('stock_prices').insert([{ price }]);
             if (error) console.error('保存股价失败:', error);
@@ -182,7 +198,6 @@
             if (!error && data && data.length) {
                 priceHistory = data.map(row => row.price);
             } else {
-                // 如果没有数据，插入初始值5
                 await savePriceToDB(5);
                 priceHistory = [5];
             }
@@ -195,12 +210,26 @@
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: priceHistory.map((_, i) => `点${i+1}`),
-                    datasets: [{ label: 'RE:Set股 价格 (R币)', data: priceHistory, borderColor: '#ff9800', backgroundColor: 'rgba(255,152,0,0.1)', tension: 0.2, fill: true, pointBackgroundColor: '#ff9800', pointRadius: 4 }]
+                    labels: priceHistory.map((_, i) => i+1),
+                    datasets: [{
+                        label: 'RE:Set股 价格 (R币)',
+                        data: priceHistory,
+                        borderColor: '#ff9800',
+                        backgroundColor: 'rgba(255,152,0,0.1)',
+                        tension: 0.2,
+                        fill: true,
+                        pointBackgroundColor: '#ff9800',
+                        pointRadius: 4
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: true, plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw} R币` } } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: { x: { ticks: { display: false }, grid: { display: false } }, y: { ticks: { callback: (val) => val + ' R' } } },
+                    plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw} R币` } } }
+                }
             });
-            document.getElementById('currentPrice').innerText = priceHistory[priceHistory.length-1];
+            document.getElementById('currentPrice').innerText = priceHistory[priceHistory.length-1] + ' R币';
         }
 
         async function addPricePoint(newPrice) {
@@ -232,7 +261,7 @@
             autoTimer = setInterval(() => { randomFluctuation(); }, 30 * 60 * 1000);
         }
 
-        // ---------- 玩家数据操作 ----------
+        // ---------- 玩家数据 ----------
         async function loadPlayers() {
             const { data, error } = await supabaseClient.from('players').select('*').order('group_name').order('hand_code');
             if (error) { console.error(error); updateStatus(false); return; }
@@ -249,7 +278,7 @@
                 document.getElementById('saveHint').classList.add('show');
                 setTimeout(() => document.getElementById('saveHint').classList.remove('show'), 1000);
                 await loadPlayers();
-            } else alert('更新失败: ' + error.message);
+            } else showToast('更新失败: ' + error.message, true);
         }
 
         window.changeRbc = (player, delta) => updatePlayer(player.id, { rbc: Math.max(0, player.rbc + delta) });
@@ -258,12 +287,19 @@
 
         function getProgress(p) { const done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0); return Math.round(done/4*100); }
 
-        // ---------- 快报和经济 ----------
+        // ---------- 快报和经济动态（含删除）----------
         async function loadLatestNews() {
             const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
             if (!error && data && data.length) {
                 document.getElementById('latestNewsContent').innerText = data[0].content;
                 document.getElementById('latestNewsTime').innerText = data[0].time;
+                currentNewsId = data[0].id;
+                document.getElementById('deleteNewsBtn').style.display = 'block';
+            } else {
+                document.getElementById('latestNewsContent').innerText = '暂无';
+                document.getElementById('latestNewsTime').innerText = '';
+                currentNewsId = null;
+                document.getElementById('deleteNewsBtn').style.display = 'none';
             }
         }
 
@@ -272,6 +308,33 @@
             if (!error && data && data.length) {
                 document.getElementById('latestEconomyContent').innerText = data[0].content;
                 document.getElementById('latestEconomyTime').innerText = data[0].time;
+                currentEconomyId = data[0].id;
+                document.getElementById('deleteEconomyBtn').style.display = 'block';
+            } else {
+                document.getElementById('latestEconomyContent').innerText = '暂无';
+                document.getElementById('latestEconomyTime').innerText = '';
+                currentEconomyId = null;
+                document.getElementById('deleteEconomyBtn').style.display = 'none';
+            }
+        }
+
+        async function deleteLatestNews() {
+            if (!currentNewsId) return;
+            const { error } = await supabaseClient.from('news').delete().eq('id', currentNewsId);
+            if (error) showToast('删除失败: ' + error.message, true);
+            else {
+                showToast('已删除最新快报');
+                await loadLatestNews();
+            }
+        }
+
+        async function deleteLatestEconomy() {
+            if (!currentEconomyId) return;
+            const { error } = await supabaseClient.from('economy_status').delete().eq('id', currentEconomyId);
+            if (error) showToast('删除失败: ' + error.message, true);
+            else {
+                showToast('已删除最新经济动态');
+                await loadLatestEconomy();
             }
         }
 
@@ -280,20 +343,24 @@
             if (!content) return;
             const timeStr = new Date().toLocaleTimeString();
             const { error } = await supabaseClient.from('news').insert([{ content, time: timeStr }]);
-            if (error) alert('发送失败: ' + error.message);
-            else { alert('快报已发送'); document.getElementById('newsInput').value = ''; loadLatestNews(); }
+            if (error) showToast('发送失败: ' + error.message, true);
+            else {
+                showToast('快报已发送');
+                document.getElementById('newsInput').value = '';
+                // 实时订阅会自动更新
+            }
         }
 
         async function publishEconomy(content) {
             if (!content) return;
             const timeStr = new Date().toLocaleTimeString();
             const { error } = await supabaseClient.from('economy_status').insert([{ content, time: timeStr }]);
-            if (error) alert('发布失败: ' + error.message);
+            if (error) showToast('发布失败: ' + error.message, true);
             else {
-                alert('经济动态已发布');
-                loadLatestEconomy();
+                showToast('经济动态已发布');
                 await adjustPriceByEconomy(content);
                 document.getElementById('economyInput').value = '';
+                // 实时订阅会自动更新最新经济动态
             }
         }
 
@@ -321,8 +388,7 @@
                 else if(p.color === 'black') stats.black++;
                 if(p.rbc < 5) stats.warn++;
             }
-            const panel = document.getElementById('statsPanel');
-            panel.innerHTML = `
+            document.getElementById('statsPanel').innerHTML = `
                 <div class="stat-card ${currentColorFilter === null ? 'active-filter' : ''}" data-filter="all">👥 ${stats.total}</div>
                 <div class="stat-card" data-filter="green">🟢 ${stats.green}</div>
                 <div class="stat-card" data-filter="yellow">🟡 ${stats.yellow}</div>
@@ -356,6 +422,12 @@
                 if (chip.getAttribute('data-group') === currentGroup) chip.classList.add('active');
                 else chip.classList.remove('active');
             });
+            document.querySelectorAll('.stat-card').forEach(card => {
+                const filterVal = card.getAttribute('data-filter');
+                if ((currentColorFilter === null && filterVal === 'all') || (currentColorFilter !== null && filterVal === currentColorFilter)) card.classList.add('active-filter');
+                else card.classList.remove('active-filter');
+            });
+
             const filtered = getFilteredPlayers();
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
@@ -364,6 +436,7 @@
                 if(p.rbc < 5) row.classList.add('warning-row');
                 row.insertCell(0).innerText = p.name;
                 row.insertCell(1).innerText = p.group_name;
+
                 const colorCell = row.insertCell(2);
                 const colors = ['green','yellow','orange','red','black'];
                 const cDiv = document.createElement('div'); cDiv.className = 'color-selector';
@@ -371,10 +444,11 @@
                     const dot = document.createElement('div');
                     dot.className = `color-dot dot-${c}`;
                     if(p.color === c) dot.style.border = '2px solid #333';
-                    dot.addEventListener('click', () => window.setColor(p, c));
+                    dot.addEventListener('click', (function(player, color) { return function() { window.setColor(player, color); }; })(p, c));
                     cDiv.appendChild(dot);
                 });
                 colorCell.appendChild(cDiv);
+
                 const rbcCell = row.insertCell(3);
                 const rbDiv = document.createElement('div'); rbDiv.className = 'rbc-control';
                 rbDiv.innerHTML = `<button class="rbc-btn">-5</button><button class="rbc-btn">-2</button><button class="rbc-btn">-1</button><span>${p.rbc}</span><button class="rbc-btn">+1</button><button class="rbc-btn">+2</button><button class="rbc-btn">+5</button>`;
@@ -386,7 +460,12 @@
                 btns[5].onclick = () => window.changeRbc(p, 2);
                 btns[6].onclick = () => window.changeRbc(p, 5);
                 rbcCell.appendChild(rbDiv);
-                const createCheck = (s, chk) => { const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=chk; cb.onchange = () => window.toggleStation(p, s); return cb; };
+
+                const createCheck = (station, chk) => {
+                    const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=chk;
+                    cb.onchange = () => window.toggleStation(p, station);
+                    return cb;
+                };
                 row.insertCell(4).appendChild(createCheck('s1', p.s1));
                 row.insertCell(5).appendChild(createCheck('s2', p.s2));
                 row.insertCell(6).appendChild(createCheck('s3', p.s3));
@@ -395,10 +474,26 @@
             });
         }
 
+        // 实时订阅
         function setupRealtime() {
-            supabaseClient.channel('players-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers()).subscribe();
-            supabaseClient.channel('news-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews()).subscribe();
-            supabaseClient.channel('economy-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy()).subscribe();
+            supabaseClient.channel('players-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
+                .subscribe();
+            supabaseClient.channel('news-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'news' }, () => loadLatestNews())
+                .subscribe();
+            supabaseClient.channel('economy-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
+                .subscribe();
+            supabaseClient.channel('stock-channel')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, (payload) => {
+                    const newPrice = payload.new.price;
+                    if (newPrice && priceHistory[priceHistory.length-1] !== newPrice) {
+                        priceHistory.push(newPrice);
+                        renderChart();
+                    }
+                })
+                .subscribe();
         }
 
         function updateStatus(connected) {
@@ -409,7 +504,44 @@
             }
         }
 
-        // 事件绑定
+        // 绑定事件
+        function bindEvents() {
+            document.getElementById('sendNewsBtn').addEventListener('click', sendNews);
+            document.getElementById('setEconomyBtn').addEventListener('click', () => {
+                const custom = document.getElementById('economyInput').value.trim();
+                if (custom) publishEconomy(custom);
+                else showToast('请输入经济动态内容', true);
+            });
+            document.getElementById('deleteNewsBtn').addEventListener('click', deleteLatestNews);
+            document.getElementById('deleteEconomyBtn').addEventListener('click', deleteLatestEconomy);
+            document.getElementById('clearFilterBtn').addEventListener('click', () => { currentColorFilter = null; renderUI(); });
+            document.getElementById('resetAllBtn').addEventListener('click', resetAll);
+            document.getElementById('addRandomPriceBtn').addEventListener('click', randomFluctuation);
+            document.getElementById('syncEconomyBtn').addEventListener('click', async () => {
+                const econ = document.getElementById('latestEconomyContent').innerText;
+                if (econ && econ !== '暂无') await adjustPriceByEconomy(econ);
+                else showToast('暂无经济动态', true);
+            });
+            document.getElementById('manualSetPriceBtn').addEventListener('click', async () => {
+                const val = parseFloat(document.getElementById('manualPriceInput').value);
+                if (isNaN(val)) showToast('请输入有效数字', true);
+                else await addPricePoint(val);
+                document.getElementById('manualPriceInput').value = '';
+            });
+            document.querySelectorAll('.quick-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const preset = btn.getAttribute('data-preset');
+                    if (preset && presetMap[preset]) document.getElementById('economyInput').value = presetMap[preset];
+                });
+            });
+            document.querySelectorAll('.group-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    currentGroup = chip.getAttribute('data-group');
+                    renderUI();
+                });
+            });
+        }
+
         function initCollapsible() {
             const header = document.getElementById('stockHeader');
             const content = document.getElementById('stockContent');
@@ -421,47 +553,14 @@
             });
         }
 
-        document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
-        document.getElementById('setEconomyBtn')?.addEventListener('click', () => {
-            const custom = document.getElementById('economyInput').value.trim();
-            if (custom) publishEconomy(custom);
-            else alert('请输入经济动态内容');
-        });
-        document.getElementById('clearFilterBtn')?.addEventListener('click', () => { currentColorFilter = null; renderUI(); });
-        document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
-        document.getElementById('addRandomPriceBtn')?.addEventListener('click', randomFluctuation);
-        document.getElementById('syncEconomyBtn')?.addEventListener('click', async () => {
-            const econ = document.getElementById('latestEconomyContent').innerText;
-            if (econ && econ !== '暂无') await adjustPriceByEconomy(econ);
-            else alert('暂无经济动态，请先发布一条经济状况');
-        });
-        document.getElementById('manualSetPriceBtn')?.addEventListener('click', async () => {
-            const val = parseFloat(document.getElementById('manualPriceInput').value);
-            if (isNaN(val)) alert('请输入有效数字');
-            else await addPricePoint(val);
-            document.getElementById('manualPriceInput').value = '';
-        });
-        document.querySelectorAll('.quick-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const preset = btn.getAttribute('data-preset');
-                if (preset && presetMap[preset]) document.getElementById('economyInput').value = presetMap[preset];
-            });
-        });
-        document.querySelectorAll('.group-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                currentGroup = chip.getAttribute('data-group');
-                renderUI();
-            });
-        });
-
-        // 启动
         loadPlayers();
         loadLatestNews();
         loadLatestEconomy();
-        setupRealtime();
         initPriceHistoryFromDB();
+        setupRealtime();
         startAutoAdjust();
         initCollapsible();
+        bindEvents();
     })();
 </script>
 </body>
