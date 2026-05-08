@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>燃·命 | 中控端</title>
+    <title>Re:Ignite | 中控端</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
@@ -42,7 +42,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>🔥 中控端 · Supabase <span id="statusBadge" class="status disconnected">连接中...</span></h1>
+        <h1>🔥 中控端 · Re:Ignite <span id="statusBadge" class="status disconnected">连接中...</span></h1>
         <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
     </div>
     <div class="news-input">
@@ -61,7 +61,13 @@
     </div>
     <div class="stats-grid" id="statsPanel"></div>
     <div class="table-wrapper">
-        <table><thead><tr><th>玩家</th><th>组</th><th>手环</th><th>颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th></tr></thead><tbody id="tableBody"></tbody>有一定的
+        <table>
+            <thead>
+                <tr><th>玩家</th><th>组</th><th>手环</th><th>颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
     </div>
 </div>
 <div class="save-hint" id="saveHint">✓ 已同步云端</div>
@@ -94,7 +100,12 @@
         }
 
         async function loadPlayers() {
-            const { data, error } = await supabaseClient.from('players').select('*');
+            // 按组别 + 手环编号排序，保证顺序固定
+            const { data, error } = await supabaseClient
+                .from('players')
+                .select('*')
+                .order('group_name', { ascending: true })
+                .order('hand_code', { ascending: true });
             if (error) {
                 console.error('加载失败:', error);
                 updateStatus(false);
@@ -114,8 +125,7 @@
                 const hint = document.getElementById('saveHint');
                 hint.classList.add('show');
                 setTimeout(() => hint.classList.remove('show'), 1000);
-                // ✅ 关键修复：更新成功后立即重新加载数据，刷新界面
-                await loadPlayers();
+                await loadPlayers(); // 刷新界面
             }
         }
 
