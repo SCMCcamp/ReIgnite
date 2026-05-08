@@ -200,6 +200,28 @@
         <button class="btn btn-primary" id="sendNewsBtn">发送</button>
     </div>
 
+<div class="news-input" style="margin-top: 12px;">
+    <span>💰 经济动态：</span>
+    <input type="text" id="economyInput" placeholder="例：甜品涨价2R币，R币奖励减半">
+    <button class="btn btn-primary" id="setEconomyBtn">发布经济动态</button>
+</div>
+
+<script>
+    async function setEconomyStatus() {
+        const input = document.getElementById('economyInput');
+        const content = input.value.trim();
+        if (!content) return;
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        // 写入 economy_status 表（如果不存在，第一次运行会自动创建？需要先创建表）
+        const { error } = await supabaseClient.from('economy_status').insert([{ content, time: timeStr }]);
+        if (error) console.error('发布经济动态失败', error);
+        else alert('经济动态已发布');
+        input.value = '';
+    }
+    document.getElementById('setEconomyBtn')?.addEventListener('click', setEconomyStatus);
+</script>
+
     <div class="filter-bar">
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <span>📌 小组：</span>
