@@ -69,10 +69,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     (function(){
-        // ==================== 配置 ====================
+        // ==================== ⚠️ 请替换成你自己的配置 ====================
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // ⚠️ 请替换成你真实的 anon key
-        // ============================================
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // 替换成你真实的 anon key
+        // ============================================================
 
         let supabaseClient;
         if (window.__supabaseAdminClient) {
@@ -114,7 +114,7 @@
                 const hint = document.getElementById('saveHint');
                 hint.classList.add('show');
                 setTimeout(() => hint.classList.remove('show'), 1000);
-                // 关键修复：重新加载数据，刷新界面
+                // ✅ 关键修复：更新成功后立即重新加载数据，刷新界面
                 await loadPlayers();
             }
         }
@@ -162,7 +162,7 @@
                 for (let p of allPlayers) {
                     await updatePlayer(p.id, { color: 'green', rbc: 10, s1: false, s2: false, s3: false, s4: false });
                 }
-                await loadPlayers(); // 最终刷新一次
+                await loadPlayers();
             }
         }
 
