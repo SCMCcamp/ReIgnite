@@ -21,17 +21,18 @@
         .stat-card:hover { background: #e9ecef; }
         .table-wrapper { background: white; border-radius: 24px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th, td { text-align: center; }        /* 表格内容居中 */
         th { background: #1e2a3e; color: white; padding: 12px 8px; }
         td { padding: 10px 8px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
-        .color-selector { display: flex; gap: 6px; }
+        .color-selector { display: flex; gap: 6px; justify-content: center; }
         .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
         .dot-green { background: #4caf50; }
         .dot-yellow { background: #ffc107; }
         .dot-red { background: #f44336; }
         .dot-black { background: #2c3e2f; }
-        .rbc-control { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .rbc-btn { width: 36px; height: 32px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; }
-        .rbc-btn.special { background: #1a73e8; color: white; }
+        .rbc-control { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
+        .rbc-btn { width: 36px; height: 32px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; color: #1e2a3e; }
+        .rbc-btn:hover { background: #d4d9e2; }
         .checkbox { width: 20px; height: 20px; cursor: pointer; }
         .warning-row { background-color: #ffebee; }
         .news-input { display: flex; gap: 10px; flex-wrap: wrap; background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; align-items: center; }
@@ -41,6 +42,9 @@
         .connected { background: #e8f5e9; color: #2e7d32; }
         .disconnected { background: #ffebee; color: #d32f2f; }
         .clear-filter { margin-left: 12px; font-size: 0.8rem; background: #e9ecef; padding: 4px 12px; border-radius: 40px; cursor: pointer; }
+        /* 统一按钮样式：不再区分特殊颜色 */
+        .rbc-btn.special { background: #eef2f6; color: #1e2a3e; }
+        .rbc-btn.special:hover { background: #d4d9e2; }
     </style>
 </head>
 <body>
@@ -191,7 +195,6 @@
             }
         }
 
-        // 统计并渲染统计卡片（可点击）
         function renderStatsAndFilters() {
             const stats = { total: uniquePlayers.length, green:0, yellow:0, red:0, black:0, warn:0 };
             for (let p of uniquePlayers) {
@@ -210,7 +213,6 @@
                 <div class="stat-card" data-filter="black">⚫ ${stats.black}</div>
                 <div class="stat-card" data-filter="warn">⚠️ ${stats.warn}</div>
             `;
-            // 绑定点击事件
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const filter = card.getAttribute('data-filter');
@@ -219,12 +221,11 @@
                     } else {
                         currentColorFilter = filter;
                     }
-                    renderUI();  // 重新渲染表格并高亮选中卡片
+                    renderUI();
                 });
             });
         }
 
-        // 主渲染逻辑：先按小组筛选，再按颜色/警告筛选
         function getFilteredPlayers() {
             let filtered = [...uniquePlayers];
             if (currentGroup !== "all") {
@@ -241,16 +242,11 @@
         }
 
         function renderUI() {
-            // 更新统计卡片及高亮样式
             renderStatsAndFilters();
-            
-            // 高亮当前的组筛选按钮
             document.querySelectorAll('.group-chip').forEach(chip => {
                 if (chip.getAttribute('data-group') === currentGroup) chip.classList.add('active');
                 else chip.classList.remove('active');
             });
-            
-            // 高亮颜色筛选卡片
             document.querySelectorAll('.stat-card').forEach(card => {
                 const filterVal = card.getAttribute('data-filter');
                 if ((currentColorFilter === null && filterVal === 'all') || 
@@ -262,8 +258,6 @@
             });
 
             const filtered = getFilteredPlayers();
-            // 更新统计卡片上的数字（显示的是总体的，不需要改）
-            // 表格渲染
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             filtered.forEach(p => {
@@ -273,7 +267,6 @@
                 row.insertCell(1).innerText = p.group_name;
                 row.insertCell(2).innerText = p.hand_code;
 
-                // 颜色选择器
                 const colorCell = row.insertCell(3);
                 const colors = [
                     {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
@@ -292,7 +285,6 @@
                 });
                 colorCell.appendChild(cDiv);
 
-                // R币控制区：+1,+2,+5 和 -1,-2,-5
                 const rbcCell = row.insertCell(4);
                 const rbDiv = document.createElement('div');
                 rbDiv.className = 'rbc-control';
@@ -306,17 +298,14 @@
                     <button class="rbc-btn special">+5</button>
                 `;
                 const btns = rbDiv.children;
-                // 减按钮
                 btns[0].onclick = () => window.changeRbc(p, -5);
                 btns[1].onclick = () => window.changeRbc(p, -2);
                 btns[2].onclick = () => window.changeRbc(p, -1);
-                // 加按钮
                 btns[4].onclick = () => window.changeRbc(p, 1);
                 btns[5].onclick = () => window.changeRbc(p, 2);
                 btns[6].onclick = () => window.changeRbc(p, 5);
                 rbcCell.appendChild(rbDiv);
 
-                // 站复选框
                 const createCheck = (checked, station) => {
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
@@ -340,7 +329,6 @@
                 .subscribe();
         }
 
-        // 初始化事件绑定
         document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
         document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
         document.getElementById('clearFilterBtn')?.addEventListener('click', () => {
