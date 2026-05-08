@@ -8,43 +8,98 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
         .container { max-width: 1600px; margin: 0 auto; }
+        
+        /* 头部 */
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
         h1 { font-size: 1.6rem; }
         .btn { background: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; transition: 0.2s; }
         .btn-primary { background: #1a73e8; color: white; }
+        
+        /* 两个独立卡片（快报 + 经济状况） */
+        .control-panels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .panel {
+            flex: 1;
+            background: white;
+            border-radius: 28px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .panel-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 4px solid #1a73e8;
+            padding-left: 12px;
+        }
+        .panel input, .panel textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 60px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .quick-btn {
+            background: #eef2f6;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .quick-btn:hover { background: #d0d7de; }
+        
+        /* 筛选栏 */
         .filter-bar { background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         .group-chip { padding: 6px 16px; border-radius: 40px; background: #eef2f6; cursor: pointer; }
         .group-chip.active { background: #1a73e8; color: white; }
+        .clear-filter { margin-left: 12px; font-size: 0.8rem; background: #e9ecef; padding: 4px 12px; border-radius: 40px; cursor: pointer; }
+        
+        /* 统计卡片 */
         .stats-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
         .stat-card { background: white; border-radius: 20px; padding: 12px 20px; text-align: center; flex: 1; min-width: 80px; cursor: pointer; transition: 0.1s; }
         .stat-card.active-filter { background: #e3f2fd; box-shadow: 0 0 0 2px #1a73e8; }
         .stat-card:hover { background: #e9ecef; }
+        
+        /* 表格 */
         .table-wrapper { background: white; border-radius: 24px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        th, td { text-align: center; }        /* 表格内容居中 */
-        th { background: #1e2a3e; color: white; padding: 12px 8px; }
-        td { padding: 10px 8px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
+        th, td { text-align: center; vertical-align: middle; padding: 12px 8px; }
+        th { background: #1e2a3e; color: white; }
+        td { border-bottom: 1px solid #edf2f7; }
+        .warning-row { background-color: #ffebee; }
+        
+        /* 颜色圆点 */
         .color-selector { display: flex; gap: 6px; justify-content: center; }
         .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
         .dot-green { background: #4caf50; }
         .dot-yellow { background: #ffc107; }
         .dot-red { background: #f44336; }
         .dot-black { background: #2c3e2f; }
-        .rbc-control { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
-        .rbc-btn { width: 36px; height: 32px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; color: #1e2a3e; }
-        .rbc-btn:hover { background: #d4d9e2; }
+        
+        /* R币按钮组 */
+        .rbc-control { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+        .rbc-btn { width: 36px; height: 32px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; }
+        
         .checkbox { width: 20px; height: 20px; cursor: pointer; }
-        .warning-row { background-color: #ffebee; }
-        .news-input { display: flex; gap: 10px; flex-wrap: wrap; background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; align-items: center; }
-        .news-input input { flex: 2; padding: 10px 16px; border-radius: 40px; border: 1px solid #ddd; }
         .save-hint { position: fixed; bottom: 20px; right: 20px; background: #1e2a3e; color: white; padding: 8px 16px; border-radius: 40px; opacity: 0; transition: 0.2s; pointer-events: none; }
         .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 12px; }
         .connected { background: #e8f5e9; color: #2e7d32; }
         .disconnected { background: #ffebee; color: #d32f2f; }
-        .clear-filter { margin-left: 12px; font-size: 0.8rem; background: #e9ecef; padding: 4px 12px; border-radius: 40px; cursor: pointer; }
-        /* 统一按钮样式：不再区分特殊颜色 */
-        .rbc-btn.special { background: #eef2f6; color: #1e2a3e; }
-        .rbc-btn.special:hover { background: #d4d9e2; }
     </style>
 </head>
 <body>
@@ -53,14 +108,31 @@
         <h1>🔥 RE:Ignite · 中控端 <span id="statusBadge" class="status disconnected">连接中...</span></h1>
         <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
     </div>
-    <div class="news-input">
-        <span>📢 快报广播：</span>
-        <input type="text" id="newsInput" placeholder="例：霍尔木兹风暴！超市涨价！">
-        <button class="btn btn-primary" id="sendNewsBtn">发送</button>
+
+    <!-- 双面板：快报 + 经济状况 -->
+    <div class="control-panels">
+        <!-- 左侧快报面板 -->
+        <div class="panel">
+            <div class="panel-title">📢 快报广播</div>
+            <input type="text" id="newsInput" placeholder="输入快报内容，例如：霍尔木兹风暴！超市涨价！">
+            <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
+        </div>
+        <!-- 右侧经济状况面板 -->
+        <div class="panel">
+            <div class="panel-title">💰 经济状况</div>
+            <div class="button-group">
+                <button class="quick-btn" data-economy="normal">📊 正常</button>
+                <button class="quick-btn" data-economy="inflation">📈 通胀</button>
+                <button class="quick-btn" data-economy="deflation">📉 通缩</button>
+            </div>
+            <input type="text" id="economyInput" placeholder="或自定义经济动态，例如：甜品涨价2R币">
+            <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
+        </div>
     </div>
+
+    <!-- 筛选栏 -->
     <div class="filter-bar">
-        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <span>📌 小组：</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <span class="group-chip active" data-group="all">全部</span>
             <span class="group-chip" data-group="A组">A组</span>
             <span class="group-chip" data-group="B组">B组</span>
@@ -71,7 +143,11 @@
             <span id="clearFilterBtn" class="clear-filter">✖ 清除颜色筛选</span>
         </div>
     </div>
+
+    <!-- 统计卡片 -->
     <div class="stats-grid" id="statsPanel"></div>
+
+    <!-- 玩家表格 -->
     <div class="table-wrapper">
         <table>
             <thead>
@@ -89,7 +165,7 @@
     (function(){
         // ========== 配置 ==========
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";   // ⚠️ 请替换
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
         // =========================
 
         let supabaseClient;
@@ -100,10 +176,9 @@
             window.__supabaseAdminClient = supabaseClient;
         }
 
-        let rawPlayers = [];
         let uniquePlayers = [];
         let currentGroup = "all";
-        let currentColorFilter = null;   // 'green', 'yellow', 'red', 'black', 'warn'
+        let currentColorFilter = null;
 
         function updateStatus(connected) {
             const badge = document.getElementById('statusBadge');
@@ -113,12 +188,12 @@
             }
         }
 
+        // 去重
         function deduplicatePlayers(players) {
             const map = new Map();
             for (const p of players) {
                 const key = `${p.name}|${p.group_name}`;
                 if (!map.has(key)) map.set(key, p);
-                else console.warn(`重复: ${p.name} (${p.group_name}) id=${p.id}`);
             }
             return Array.from(map.values());
         }
@@ -129,63 +204,64 @@
                 .select('*')
                 .order('group_name', { ascending: true })
                 .order('hand_code', { ascending: true });
-            if (error) {
-                console.error('加载失败:', error);
-                updateStatus(false);
-                return;
-            }
-            rawPlayers = data || [];
-            uniquePlayers = deduplicatePlayers(rawPlayers);
+            if (error) { console.error(error); updateStatus(false); return; }
+            uniquePlayers = deduplicatePlayers(data || []);
             updateStatus(true);
             renderUI();
         }
 
         async function updatePlayer(id, updates) {
             const { error } = await supabaseClient.from('players').update(updates).eq('id', id);
-            if (error) {
-                console.error('更新失败:', error);
-                alert('更新失败: ' + error.message);
-            } else {
-                const hint = document.getElementById('saveHint');
-                hint.classList.add('show');
-                setTimeout(() => hint.classList.remove('show'), 1000);
+            if (!error) {
+                document.getElementById('saveHint').classList.add('show');
+                setTimeout(() => document.getElementById('saveHint').classList.remove('show'), 1000);
                 await loadPlayers();
+            } else {
+                alert('更新失败: ' + error.message);
             }
         }
 
         window.changeRbc = (player, delta) => {
-            const newRbc = Math.max(0, player.rbc + delta);
-            updatePlayer(player.id, { rbc: newRbc });
+            const newVal = Math.max(0, player.rbc + delta);
+            updatePlayer(player.id, { rbc: newVal });
         };
-
-        window.setColor = (player, color) => {
-            updatePlayer(player.id, { color });
-        };
-
-        window.toggleStation = (player, station) => {
-            updatePlayer(player.id, { [station]: !player[station] });
-        };
+        window.setColor = (player, color) => updatePlayer(player.id, { color });
+        window.toggleStation = (player, station) => updatePlayer(player.id, { [station]: !player[station] });
 
         function getProgress(p) {
             const done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0);
             return Math.round(done/4*100);
         }
 
+        // 快报发送
         async function sendNews() {
-            const input = document.getElementById('newsInput');
-            const content = input.value.trim();
-            if(content) {
-                const now = new Date();
-                const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-                const { error } = await supabaseClient.from('news').insert([{ content, time: timeStr }]);
-                if (error) alert('发送失败: ' + error.message);
-                else {
-                    alert('快报已发送！');
-                    input.value = '';
-                }
-            }
+            const content = document.getElementById('newsInput').value.trim();
+            if (!content) return;
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            const { error } = await supabaseClient.from('news').insert([{ content, time: timeStr }]);
+            if (error) alert('发送失败: ' + error.message);
+            else { alert('快报已发送！'); document.getElementById('newsInput').value = ''; }
         }
 
+        // 经济动态发布
+        async function setEconomyStatus(content) {
+            if (!content) return;
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            const { error } = await supabaseClient.from('economy_status').insert([{ content, time: timeStr }]);
+            if (error) alert('发布经济动态失败: ' + error.message);
+            else alert('经济动态已发布');
+        }
+
+        // 快捷按钮预设文案
+        const economyPresets = {
+            normal: "正常经济 · 甜品原价 · R币获取正常",
+            inflation: "📈 通胀来袭！超市甜品价格上涨2R币，R币获取减半",
+            deflation: "📉 通缩来临！超市甜品降价2R币，R币获取翻倍"
+        };
+
+        // 重置所有
         async function resetAll() {
             if(confirm('重置所有玩家？')) {
                 for (let p of uniquePlayers) {
@@ -195,6 +271,7 @@
             }
         }
 
+        // 统计卡片渲染 + 筛选
         function renderStatsAndFilters() {
             const stats = { total: uniquePlayers.length, green:0, yellow:0, red:0, black:0, warn:0 };
             for (let p of uniquePlayers) {
@@ -216,11 +293,7 @@
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const filter = card.getAttribute('data-filter');
-                    if (filter === 'all') {
-                        currentColorFilter = null;
-                    } else {
-                        currentColorFilter = filter;
-                    }
+                    currentColorFilter = (filter === 'all') ? null : filter;
                     renderUI();
                 });
             });
@@ -228,29 +301,25 @@
 
         function getFilteredPlayers() {
             let filtered = [...uniquePlayers];
-            if (currentGroup !== "all") {
-                filtered = filtered.filter(p => p.group_name === currentGroup);
-            }
+            if (currentGroup !== "all") filtered = filtered.filter(p => p.group_name === currentGroup);
             if (currentColorFilter) {
-                if (currentColorFilter === 'warn') {
-                    filtered = filtered.filter(p => p.rbc < 5);
-                } else {
-                    filtered = filtered.filter(p => p.color === currentColorFilter);
-                }
+                if (currentColorFilter === 'warn') filtered = filtered.filter(p => p.rbc < 5);
+                else filtered = filtered.filter(p => p.color === currentColorFilter);
             }
             return filtered;
         }
 
         function renderUI() {
             renderStatsAndFilters();
+            // 高亮小组按钮
             document.querySelectorAll('.group-chip').forEach(chip => {
                 if (chip.getAttribute('data-group') === currentGroup) chip.classList.add('active');
                 else chip.classList.remove('active');
             });
+            // 高亮颜色筛选卡片
             document.querySelectorAll('.stat-card').forEach(card => {
                 const filterVal = card.getAttribute('data-filter');
-                if ((currentColorFilter === null && filterVal === 'all') || 
-                    (currentColorFilter !== null && filterVal === currentColorFilter)) {
+                if ((currentColorFilter === null && filterVal === 'all') || (currentColorFilter !== null && filterVal === currentColorFilter)) {
                     card.classList.add('active-filter');
                 } else {
                     card.classList.remove('active-filter');
@@ -267,6 +336,7 @@
                 row.insertCell(1).innerText = p.group_name;
                 row.insertCell(2).innerText = p.hand_code;
 
+                // 颜色
                 const colorCell = row.insertCell(3);
                 const colors = [
                     {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
@@ -278,13 +348,12 @@
                     const dot = document.createElement('div');
                     dot.className = `color-dot ${c.c}`;
                     if(p.color === c.v) dot.style.border = '2px solid #333';
-                    dot.addEventListener('click', (function(player, color) {
-                        return function() { window.setColor(player, color); };
-                    })(p, c.v));
+                    dot.addEventListener('click', () => window.setColor(p, c.v));
                     cDiv.appendChild(dot);
                 });
                 colorCell.appendChild(cDiv);
 
+                // R币控制
                 const rbcCell = row.insertCell(4);
                 const rbDiv = document.createElement('div');
                 rbDiv.className = 'rbc-control';
@@ -295,7 +364,7 @@
                     <span style="min-width:40px;text-align:center;font-weight:bold;">${p.rbc}</span>
                     <button class="rbc-btn">+1</button>
                     <button class="rbc-btn">+2</button>
-                    <button class="rbc-btn special">+5</button>
+                    <button class="rbc-btn">+5</button>
                 `;
                 const btns = rbDiv.children;
                 btns[0].onclick = () => window.changeRbc(p, -5);
@@ -310,9 +379,7 @@
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
                     cb.checked = checked;
-                    cb.addEventListener('change', (function(player, station) {
-                        return function() { window.toggleStation(player, station); };
-                    })(p, station));
+                    cb.addEventListener('change', () => window.toggleStation(p, station));
                     return cb;
                 };
                 row.insertCell(5).appendChild(createCheck(p.s1, 's1'));
@@ -329,12 +396,27 @@
                 .subscribe();
         }
 
+        // 事件绑定
         document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
         document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
-        document.getElementById('clearFilterBtn')?.addEventListener('click', () => {
-            currentColorFilter = null;
-            renderUI();
+        document.getElementById('clearFilterBtn')?.addEventListener('click', () => { currentColorFilter = null; renderUI(); });
+        document.getElementById('setEconomyBtn')?.addEventListener('click', () => {
+            const customText = document.getElementById('economyInput').value.trim();
+            if (customText) setEconomyStatus(customText);
+            else alert('请输入经济动态内容或使用快捷按钮');
         });
+        // 快捷按钮
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-economy');
+                const preset = economyPresets[type];
+                if (preset) {
+                    setEconomyStatus(preset);
+                    document.getElementById('economyInput').value = preset;
+                }
+            });
+        });
+        // 小组筛选
         document.querySelectorAll('.group-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 currentGroup = chip.getAttribute('data-group');
