@@ -15,37 +15,35 @@
         .connected { background: #e8f5e9; color: #2e7d32; }
         .disconnected { background: #ffebee; color: #d32f2f; }
         
-        /* 快报栏位（蓝色调） */
         .news-bar { background: linear-gradient(135deg, #1e2a3e, #2d3a4e); color: white; border-radius: 28px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
         .news-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 6px; }
         .news-content { font-size: 1rem; font-weight: 500; line-height: 1.4; }
         .news-time { font-size: 0.65rem; opacity: 0.6; margin-top: 8px; text-align: right; }
         
-        /* 经济动态卡片（黄底） */
         .economy-card { background: linear-gradient(135deg, #fff9e6, #fff3d1); border-left: 6px solid #ff9800; border-radius: 28px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
         .economy-title { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #e65100; letter-spacing: 1px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
         .economy-content { font-size: 1rem; font-weight: 600; color: #3e2723; line-height: 1.4; }
         .economy-time { font-size: 0.65rem; color: #8d6e63; text-align: right; margin-top: 8px; }
         
-        /* 个人状态卡片 */
-        .my-card { background: white; border-radius: 32px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06); border-left: 8px solid #4caf50; transition: all 0.2s; }
-        .my-card.warning { border-left-color: #f44336; background: #fffaf9; }
-        .my-name { font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-        .group-badge { background: #eef2f6; padding: 4px 14px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; }
-        .handcode { font-family: monospace; background: #f0f2f5; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 500; }
+        .my-card { border-radius: 32px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06); border-left: 8px solid; transition: all 0.2s; }
+        .name-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+        .player-name { font-size: 1.6rem; font-weight: 700; }
+        .player-meta { display: flex; gap: 12px; align-items: center; }
+        .group-badge { background: rgba(0,0,0,0.1); padding: 4px 14px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; }
+        
         .my-stats { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-        .stat-item { flex: 1; text-align: center; background: #f8f9fa; padding: 14px 8px; border-radius: 24px; min-width: 90px; }
-        .stat-label { font-size: 0.7rem; font-weight: 500; color: #6c757d; margin-bottom: 6px; }
+        .stat-item { flex: 1; text-align: center; background: rgba(255,255,255,0.7); backdrop-filter: blur(2px); padding: 14px 8px; border-radius: 24px; min-width: 90px; }
+        .stat-label { font-size: 0.7rem; font-weight: 500; color: #4a4a4a; margin-bottom: 6px; }
         .stat-value { font-size: 1.8rem; font-weight: 800; line-height: 1.2; }
-        .color-dot { width: 48px; height: 48px; border-radius: 50%; display: inline-block; margin: 0 auto 6px; }
-        .dot-green { background: #4caf50; box-shadow: 0 0 0 3px #e8f5e9; }
-        .dot-yellow { background: #ffc107; box-shadow: 0 0 0 3px #fff8e1; }
-        .dot-orange { background: #ff9800; box-shadow: 0 0 0 3px #fff3e0; }
-        .dot-red { background: #f44336; box-shadow: 0 0 0 3px #ffebee; }
-        .dot-black { background: #2c3e2f; box-shadow: 0 0 0 3px #eceff1; }
+        .color-dot { width: 48px; height: 48px; border-radius: 50%; display: inline-block; margin: 0 auto 6px; box-shadow: 0 0 0 3px rgba(255,255,255,0.8); }
+        .dot-green { background: #4caf50; }
+        .dot-yellow { background: #ffc107; }
+        .dot-orange { background: #ff9800; }
+        .dot-red { background: #f44336; }
+        .dot-black { background: #2c3e2f; }
+        
         .warning-text { color: #d32f2f; font-size: 0.85rem; margin-top: 16px; text-align: center; font-weight: 600; background: #ffebee; padding: 8px; border-radius: 60px; }
         
-        /* 股价卡片 */
         .stock-card { background: white; border-radius: 28px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .stock-title { font-weight: 700; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #ff9800; padding-left: 12px; }
         .stock-price { font-size: 1.8rem; font-weight: 800; color: #ff9800; margin: 8px 0; }
@@ -65,24 +63,20 @@
         <div class="sub">您的每一个决定都将会影响最终结果</div>
     </div>
 
-    <!-- 快报（在上） -->
     <div class="news-bar">
         <div class="news-title">📢 RE:Ignite 快报</div>
         <div class="news-content" id="newsContent">加载中...</div>
         <div class="news-time" id="newsTime"></div>
     </div>
 
-    <!-- 经济动态（在下） -->
-    <div class="economy-card" id="economyCard">
+    <div class="economy-card">
         <div class="economy-title">📊 经济动态</div>
         <div class="economy-content" id="economyContent">加载中...</div>
         <div class="economy-time" id="economyTime"></div>
     </div>
 
-    <!-- 个人状态卡片（无同组信息） -->
     <div id="mainContent"></div>
 
-    <!-- 股价显示区域 -->
     <div class="stock-card">
         <div class="stock-title">📈 RE:Set股 · 实时行情</div>
         <div class="stock-price" id="currentPrice">-- R币</div>
@@ -109,13 +103,14 @@
 
         let allPlayers = [];
         let currentPlayer = null;
-        let priceHistory = [5];   // 初始股价 5 R币
+        let priceHistory = [5];
         let chart = null;
 
+        // 修改后的股价图表：隐藏 X 轴标签
         function renderStockChart() {
             const ctx = document.getElementById('priceChart').getContext('2d');
             if (chart) chart.destroy();
-            const labels = priceHistory.map((_, idx) => `点${idx+1}`);
+            const labels = priceHistory.map((_, idx) => idx + 1);  // 内部标签（数字）
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -134,28 +129,37 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw} R币` } } }
+                    scales: {
+                        x: {
+                            ticks: { display: false },  // 隐藏 X 轴刻度标签
+                            grid: { display: false },   // 隐藏 X 轴网格线
+                            title: { display: false }
+                        },
+                        y: {
+                            ticks: { callback: (val) => val + ' R' },  // 可选：简化 Y 轴标签
+                            grid: { color: '#e9ecef' }
+                        }
+                    },
+                    plugins: {
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.raw} R币` } },
+                        legend: { display: true, position: 'top' }
+                    }
                 }
             });
             document.getElementById('currentPrice').innerText = priceHistory[priceHistory.length-1] + ' R币';
         }
 
-        // 股票价格订阅（从中控端写入 stock_prices 表读取）
         async function loadLatestPrice() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('stock_prices')
-                    .select('price')
-                    .order('id', { ascending: false })
-                    .limit(1);
-                if (!error && data && data.length > 0) {
+                const { data, error } = await supabaseClient.from('stock_prices').select('price').order('id', { ascending: false }).limit(1);
+                if (!error && data && data.length) {
                     const latestPrice = data[0].price;
                     if (priceHistory[priceHistory.length-1] !== latestPrice) {
                         priceHistory.push(latestPrice);
                         renderStockChart();
                     }
                 }
-            } catch(e) { console.warn('stock_prices 表可能未创建', e); }
+            } catch(e) { console.warn(e); }
         }
 
         function subscribeStockPrice() {
@@ -207,6 +211,28 @@
             return Math.round(done/4*100);
         }
 
+        function getBackgroundColor(color) {
+            switch(color) {
+                case 'green': return 'rgba(76, 175, 80, 0.12)';
+                case 'yellow': return 'rgba(255, 193, 7, 0.12)';
+                case 'orange': return 'rgba(255, 152, 0, 0.12)';
+                case 'red': return 'rgba(244, 67, 54, 0.12)';
+                case 'black': return 'rgba(44, 62, 47, 0.15)';
+                default: return 'white';
+            }
+        }
+
+        function getBorderColor(color) {
+            switch(color) {
+                case 'green': return '#4caf50';
+                case 'yellow': return '#ffc107';
+                case 'orange': return '#ff9800';
+                case 'red': return '#f44336';
+                case 'black': return '#2c3e2f';
+                default: return '#4caf50';
+            }
+        }
+
         function renderPlayerView() {
             if (!currentPlayer) return;
             const p = allPlayers.find(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
@@ -214,13 +240,16 @@
             const colorMap = { green:'dot-green', yellow:'dot-yellow', orange:'dot-orange', red:'dot-red', black:'dot-black' };
             const colorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' }[p.color];
             const isWarning = p.rbc < 5;
-            const myCardClass = isWarning ? 'my-card warning' : 'my-card';
+            const bgColor = getBackgroundColor(p.color);
+            const borderColor = getBorderColor(p.color);
+
             document.getElementById('mainContent').innerHTML = `
-                <div class="${myCardClass}">
-                    <div class="my-name">
-                        <span>${p.name}</span>
-                        <span class="group-badge">${p.group_name}</span>
-                        <span class="handcode">${p.hand_code}</span>
+                <div class="my-card" style="background-color: ${bgColor}; border-left-color: ${borderColor};">
+                    <div class="name-row">
+                        <span class="player-name">${p.name}</span>
+                        <div class="player-meta">
+                            <span class="group-badge">${p.group_name}</span>
+                        </div>
                     </div>
                     <div class="my-stats">
                         <div class="stat-item">
@@ -249,7 +278,7 @@
             }
             const sorted = [...allPlayers].sort((a,b) => a.group_name.localeCompare(b.group_name) || a.hand_code.localeCompare(b.hand_code));
             let options = '<option value="">—— 请选择你的角色 ——</option>';
-            sorted.forEach(p => { options += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name} (${p.hand_code})</option>`; });
+            sorted.forEach(p => { options += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name}</option>`; });
             document.getElementById('mainContent').innerHTML = `
                 <div style="background:white;border-radius:32px;padding:24px;">
                     <h3>👋 欢迎来到第七城区</h3>
@@ -300,7 +329,7 @@
         loadLatestEconomy();
         setupRealtime();
         renderStockChart();
-        loadLatestPrice();   // 初始拉取一次最新股价
+        loadLatestPrice();
 
         if (currentPlayer) {
             let interval = setInterval(() => {
