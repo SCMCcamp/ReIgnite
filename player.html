@@ -5,362 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>RE:Ignite · 玩家端</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #f0f2f5;
-            padding: 16px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            color: #1a1a2e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .sub {
-            color: #6c757d;
-            font-size: 0.8rem;
-            margin-top: 4px;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-
-        .connected {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .disconnected {
-            background: #ffebee;
-            color: #d32f2f;
-        }
-
-        /* 经济动态卡片 */
-        .economy-card {
-            background: linear-gradient(135deg, #fff9e6, #fff3d1);
-            border-left: 6px solid #ff9800;
-            border-radius: 28px;
-            padding: 16px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-        .economy-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: #e65100;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .economy-content {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #3e2723;
-            line-height: 1.4;
-        }
-        .economy-time {
-            font-size: 0.65rem;
-            color: #8d6e63;
-            text-align: right;
-            margin-top: 8px;
-        }
-
-        /* 快报栏位 */
-        .news-bar {
-            background: linear-gradient(135deg, #1e2a3e, #2d3a4e);
-            color: white;
-            border-radius: 28px;
-            padding: 16px 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .news-title {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.7;
-            margin-bottom: 6px;
-        }
-
-        .news-content {
-            font-size: 1rem;
-            font-weight: 500;
-            line-height: 1.4;
-        }
-
-        .news-time {
-            font-size: 0.65rem;
-            opacity: 0.6;
-            margin-top: 8px;
-            text-align: right;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; padding: 16px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 1.8rem; color: #1a1a2e; }
+        .sub { color: #6c757d; font-size: 0.8rem; margin-top: 4px; }
+        .status { display: inline-block; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 500; margin-left: 8px; }
+        .connected { background: #e8f5e9; color: #2e7d32; }
+        .disconnected { background: #ffebee; color: #d32f2f; }
+        
+        /* 快报与经济卡片 */
+        .info-card { background: white; border-radius: 28px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .info-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; border-left: 3px solid #1a73e8; padding-left: 12px; }
+        .info-content { font-size: 1rem; margin-top: 4px; }
+        .info-time { font-size: 0.65rem; color: #6c757d; text-align: right; margin-top: 6px; }
+        
         /* 个人状态卡片 */
-        .my-card {
-            background: white;
-            border-radius: 32px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-            border-left: 8px solid #4caf50;
-            transition: all 0.2s;
-        }
-
-        .my-card.warning {
-            border-left-color: #f44336;
-            background: #fffaf9;
-        }
-
-        .my-name {
-            font-size: 1.6rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-
-        .group-badge {
-            background: #eef2f6;
-            padding: 4px 14px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .handcode {
-            font-family: monospace;
-            background: #f0f2f5;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-
-        .my-stats {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-
-        .stat-item {
-            flex: 1;
-            text-align: center;
-            background: #f8f9fa;
-            padding: 14px 8px;
-            border-radius: 24px;
-            min-width: 90px;
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: #6c757d;
-            margin-bottom: 6px;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 800;
-            line-height: 1.2;
-        }
-
-        .color-dot {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: inline-block;
-            margin: 0 auto 6px;
-        }
-
-        .dot-green {
-            background: #4caf50;
-            box-shadow: 0 0 0 3px #e8f5e9;
-        }
-
-        .dot-yellow {
-            background: #ffc107;
-            box-shadow: 0 0 0 3px #fff8e1;
-        }
-
-        .dot-red {
-            background: #f44336;
-            box-shadow: 0 0 0 3px #ffebee;
-        }
-
-        .dot-black {
-            background: #2c3e2f;
-            box-shadow: 0 0 0 3px #eceff1;
-        }
-
-        .warning-text {
-            color: #d32f2f;
-            font-size: 0.85rem;
-            margin-top: 16px;
-            text-align: center;
-            font-weight: 600;
-            background: #ffebee;
-            padding: 8px;
-            border-radius: 60px;
-        }
-
-        /* 组员列表 */
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .team-grid {
-            background: white;
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-        }
-
-        .team-header {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            background: #1e2a3e;
-            color: white;
-            padding: 14px 18px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .team-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            padding: 12px 18px;
-            border-bottom: 1px solid #edf2f7;
-            align-items: center;
-            text-align: center;
-            background: white;
-        }
-
-        .team-row.self {
-            background: #e8f0fe;
-        }
-
-        .small-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        .refresh-note {
-            text-align: center;
-            font-size: 0.7rem;
-            color: #6c757d;
-            margin-top: 24px;
-            padding: 12px;
-        }
-
-        select,
-        button {
-            width: 100%;
-            padding: 14px;
-            border-radius: 60px;
-            font-size: 1rem;
-            margin-top: 12px;
-        }
-
-        .btn-primary {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .btn-primary:hover {
-            background: #0d5cbb;
-        }
-
-        select {
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-        }
+        .my-card { background: white; border-radius: 32px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); border-left: 8px solid #4caf50; }
+        .my-card.warning { border-left-color: #f44336; background: #fffaf9; }
+        .my-name { font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .group-badge { background: #eef2f6; padding: 4px 14px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; }
+        .handcode { font-family: monospace; background: #f0f2f5; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 500; }
+        .my-stats { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .stat-item { flex: 1; text-align: center; background: #f8f9fa; padding: 14px 8px; border-radius: 24px; }
+        .stat-label { font-size: 0.7rem; font-weight: 500; color: #6c757d; margin-bottom: 6px; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; line-height: 1.2; }
+        .color-dot { width: 48px; height: 48px; border-radius: 50%; display: inline-block; margin: 0 auto 6px; }
+        .dot-green { background: #4caf50; box-shadow: 0 0 0 3px #e8f5e9; }
+        .dot-yellow { background: #ffc107; box-shadow: 0 0 0 3px #fff8e1; }
+        .dot-orange { background: #ff9800; box-shadow: 0 0 0 3px #fff3e0; }
+        .dot-red { background: #f44336; box-shadow: 0 0 0 3px #ffebee; }
+        .dot-black { background: #2c3e2f; box-shadow: 0 0 0 3px #eceff1; }
+        .warning-text { color: #d32f2f; font-size: 0.85rem; margin-top: 16px; text-align: center; font-weight: 600; background: #ffebee; padding: 8px; border-radius: 60px; }
+        
+        /* 股票区域（折叠） */
+        .collapsible-section { background: white; border-radius: 28px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .collapsible-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; cursor: pointer; font-weight: 600; background: white; }
+        .collapsible-header:hover { background: #f8f9fa; }
+        .collapsible-content { display: none; padding: 0 20px 20px 20px; border-top: 1px solid #edf2f7; }
+        .collapsible-content.expanded { display: block; }
+        canvas { max-height: 250px; width: 100%; margin-top: 12px; }
+        .current-price { text-align: center; margin-top: 12px; font-size: 0.9rem; font-weight: 600; }
+        
+        .refresh-note { text-align: center; font-size: 0.7rem; color: #6c757d; margin-top: 24px; }
+        select, button { width: 100%; padding: 14px; border-radius: 60px; font-size: 1rem; margin-top: 12px; }
+        .btn-primary { background: #1a73e8; color: white; border: none; cursor: pointer; font-weight: 600; }
+        select { border: 1px solid #ddd; background: white; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="header">
         <h1>🔥 RE:Ignite <span id="statusBadge" class="status disconnected">连接中...</span></h1>
-        <div class="sub">实时同步 · 中控修改立即更新</div>
+        <div class="sub">实时同步 · 您的个人状态</div>
     </div>
 
-    <!-- 经济动态公告栏 -->
-    <div class="economy-card" id="economyCard">
-        <div class="economy-title">📊 经济动态</div>
-        <div class="economy-content" id="economyContent">加载中...</div>
-        <div class="economy-time" id="economyTime"></div>
+    <!-- 快报栏 -->
+    <div class="info-card">
+        <div class="info-title">📢 营会快报</div>
+        <div class="info-content" id="newsContent">加载中...</div>
+        <div class="info-time" id="newsTime"></div>
     </div>
 
-    <!-- 营会快报栏 -->
-    <div class="news-bar">
-        <div class="news-title">📢 营会快报</div>
-        <div class="news-content" id="newsContent">加载中...</div>
-        <div class="news-time" id="newsTime"></div>
+    <!-- 经济动态栏 -->
+    <div class="info-card">
+        <div class="info-title">💰 经济动态</div>
+        <div class="info-content" id="economyContent">加载中...</div>
+        <div class="info-time" id="economyTime"></div>
     </div>
 
-    <!-- 动态内容 (个人卡片 + 组员列表 或 角色选择器) -->
+    <!-- 个人状态卡片（动态） -->
     <div id="mainContent"></div>
 
-    <div class="refresh-note">
-        🔄 数据实时同步 · 无需刷新页面
+    <!-- 股票区域（折叠） -->
+    <div class="collapsible-section">
+        <div class="collapsible-header" id="stockHeader">
+            <span>📈 RE:Set股 · 实时价格走势</span>
+            <span>▼</span>
+        </div>
+        <div class="collapsible-content" id="stockContent">
+            <canvas id="priceChart" width="600" height="200"></canvas>
+            <div class="current-price">当前价格: <strong id="currentPrice">--</strong> R币</div>
+        </div>
     </div>
+
+    <div class="refresh-note">🔄 所有数据实时同步 · 无需手动刷新</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    (function () {
-        // ==================== Supabase 配置 ====================
+    (function(){
+        // Supabase 配置
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-        // ======================================================
 
         let supabaseClient;
         if (window.__supabasePlayerClient) {
@@ -371,23 +110,106 @@
         }
 
         let allPlayers = [];
-        let currentPlayer = null;     // { name, group_name }
+        let currentPlayer = null;
+        let priceHistory = [];   // 用于存储股票历史价格
+        let chart = null;
 
-        // 更新连接状态显示
+        // 元素
+        const newsContent = document.getElementById('newsContent');
+        const newsTime = document.getElementById('newsTime');
+        const economyContent = document.getElementById('economyContent');
+        const economyTime = document.getElementById('economyTime');
+        const mainContent = document.getElementById('mainContent');
+        const statusBadge = document.getElementById('statusBadge');
+        const currentPriceSpan = document.getElementById('currentPrice');
+
+        // 更新连接状态
         function updateStatus(connected) {
-            const badge = document.getElementById('statusBadge');
-            if (badge) {
-                badge.className = `status ${connected ? 'connected' : 'disconnected'}`;
-                badge.innerText = connected ? '● 实时在线' : '离线';
+            if (statusBadge) {
+                statusBadge.className = `status ${connected ? 'connected' : 'disconnected'}`;
+                statusBadge.innerText = connected ? '● 实时在线' : '离线';
             }
         }
 
-        // 加载所有玩家 (按手环编号排序)
+        // 加载最新快报
+        async function loadLatestNews() {
+            const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
+            if (!error && data && data.length) {
+                newsContent.innerText = data[0].content;
+                newsTime.innerText = data[0].time;
+            } else if (error) console.error('加载快报失败:', error);
+        }
+
+        // 加载最新经济动态
+        async function loadLatestEconomy() {
+            const { data, error } = await supabaseClient.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
+            if (!error && data && data.length) {
+                economyContent.innerText = data[0].content;
+                economyTime.innerText = data[0].time;
+            } else if (error) console.error('加载经济动态失败:', error);
+        }
+
+        // 加载股票历史数据（我们简单从前端维护，因为中控端暂未存数据库，先从 URL 参数或 API 获取？实际可从新表 stock_prices 获取，但为了简化，我们监听中控端的 live 数据？）
+        // 由于中控端没有将价格存入 Supabase，玩家端无法直接接收实时价格历史。需要中控端同步价格数据到新表。
+        // 这里采用临时方案：玩家端初始化时，尝试从本地存储读取价格历史？但无法多端同步。
+        // 更好的方案：在中控端每次 addPricePoint 时也插入 stock_prices 表，然后玩家端订阅该表。
+        // 由于之前已经要求中控端保存价格数据，但未实现。现在快速实现：在中控端增加保存价格点到 stock_prices 表，玩家端订阅该表。
+        // 但为了当前演示，假设价格数据已同步（新表已存在）。我们实现从 stock_prices 表读取最新价格序列。
+        // 为了复用，我们创建 stock_prices 表存储价格和时间。
+        // 下面先实现从 stock_prices 加载历史数据及实时订阅。
+        async function loadStockPrices() {
+            const { data, error } = await supabaseClient.from('stock_prices').select('*').order('created_at', { ascending: true });
+            if (!error && data && data.length) {
+                priceHistory = data.map(row => row.price);
+                renderChart();
+            } else if (error && error.code !== '42P01') { // 表不存在则忽略
+                console.warn('stock_prices 表还未创建，请在中控端创建', error);
+            }
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            if (chart) chart.destroy();
+            if (!priceHistory.length) return;
+            const labels = priceHistory.map((_, idx) => idx+1);
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'RE:Set股 价格 (R币)',
+                        data: priceHistory,
+                        borderColor: '#ff9800',
+                        backgroundColor: 'rgba(255,152,0,0.1)',
+                        tension: 0.2,
+                        fill: true,
+                        pointBackgroundColor: '#ff9800',
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw} R币` } } }
+                }
+            });
+            if (priceHistory.length) currentPriceSpan.innerText = priceHistory[priceHistory.length-1];
+        }
+
+        // 添加实时订阅 stock_prices
+        function setupStockRealtime() {
+            supabaseClient.channel('stock-channel')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, (payload) => {
+                    const newPrice = payload.new.price;
+                    priceHistory.push(newPrice);
+                    renderChart();
+                })
+                .subscribe();
+        }
+
+        // 加载所有玩家（用于选择角色）
         async function loadPlayers() {
-            const { data, error } = await supabaseClient
-                .from('players')
-                .select('*')
-                .order('hand_code', { ascending: true });
+            const { data, error } = await supabaseClient.from('players').select('*').order('group_name').order('hand_code');
             if (error) {
                 console.error('加载玩家失败:', error);
                 updateStatus(false);
@@ -395,66 +217,16 @@
             }
             allPlayers = data;
             updateStatus(true);
-
             if (currentPlayer) {
-                const stillExists = allPlayers.some(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
-                if (stillExists) {
-                    renderPlayerView();
-                } else {
-                    currentPlayer = null;
-                    localStorage.removeItem('current_player');
-                    showSelector();
-                }
+                const exists = allPlayers.some(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
+                if (exists) renderPlayerView();
+                else showSelector();
             } else {
                 showSelector();
             }
         }
 
-        // 拉取最新一条普通快报 (news 表)
-        async function loadLatestNews() {
-            const { data, error } = await supabaseClient
-                .from('news')
-                .select('*')
-                .order('id', { ascending: false })
-                .limit(1);
-            if (!error && data && data.length > 0) {
-                document.getElementById('newsContent').innerHTML = data[0].content;
-                document.getElementById('newsTime').innerHTML = data[0].time;
-            } else if (error) {
-                console.error('加载快报失败:', error);
-            }
-        }
-
-        // 拉取经济动态 (从 economy_status 表，若无则显示默认)
-        async function loadEconomyStatus() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('economy_status')
-                    .select('*')
-                    .order('id', { ascending: false })
-                    .limit(1);
-                if (!error && data && data.length > 0) {
-                    document.getElementById('economyContent').innerHTML = data[0].content;
-                    document.getElementById('economyTime').innerHTML = data[0].time;
-                } else {
-                    // 如果没有经济动态表或数据，显示默认提示
-                    document.getElementById('economyContent').innerHTML = "正常经济 · 甜品原价";
-                    document.getElementById('economyTime').innerHTML = "---";
-                }
-            } catch (err) {
-                console.warn('经济动态表可能未创建', err);
-                document.getElementById('economyContent').innerHTML = "正常经济 · 甜品原价";
-                document.getElementById('economyTime').innerHTML = "---";
-            }
-        }
-
-        // 计算个人进度百分比
-        function getProgress(p) {
-            const done = (p.s1 ? 1 : 0) + (p.s2 ? 1 : 0) + (p.s3 ? 1 : 0) + (p.s4 ? 1 : 0);
-            return Math.round((done / 4) * 100);
-        }
-
-        // 渲染玩家个人状态 + 同组组员列表
+        // 渲染个人视图（无组员列表）
         function renderPlayerView() {
             if (!currentPlayer) return;
             const me = allPlayers.find(p => p.name === currentPlayer.name && p.group_name === currentPlayer.group_name);
@@ -463,32 +235,12 @@
                 return;
             }
 
-            const colorText = { green: '绿', yellow: '黄', red: '红', black: '黑' }[me.color];
-            const dotClass = { green: 'dot-green', yellow: 'dot-yellow', red: 'dot-red', black: 'dot-black' }[me.color];
+            const colorMap = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' };
+            const dotClassMap = { green:'dot-green', yellow:'dot-yellow', orange:'dot-orange', red:'dot-red', black:'dot-black' };
+            const colorName = colorMap[me.color] || '绿';
+            const dotClass = dotClassMap[me.color] || 'dot-green';
             const isWarning = me.rbc < 5;
-
-            // 同组玩家 (按手环编号排序)
-            const teammates = allPlayers
-                .filter(m => m.group_name === me.group_name)
-                .sort((a, b) => a.hand_code.localeCompare(b.hand_code));
-
-            let teamHtml = `<div class="team-header"><span>队员</span><span>生命颜色</span><span>💰 R币</span></div>`;
-            teammates.forEach(m => {
-                const isSelf = m.name === me.name;
-                const mColorShort = { green: '绿', yellow: '黄', red: '红', black: '黑' }[m.color];
-                const mDotClass = { green: 'dot-green', yellow: 'dot-yellow', red: 'dot-red', black: 'dot-black' }[m.color];
-                teamHtml += `
-                    <div class="team-row ${isSelf ? 'self' : ''}">
-                        <div>${m.name} ${isSelf ? '(你)' : ''}</div>
-                        <div>
-                            <div class="small-dot ${mDotClass}" style="display: inline-block;"></div> ${mColorShort}
-                        </div>
-                        <div>💰 ${m.rbc}</div>
-                    </div>
-                `;
-            });
-
-            const warningBlock = isWarning ? '<div class="warning-text">⚠️ 生存警告！R币不足5，快去赚R币！</div>' : '';
+            const progress = Math.round(((me.s1?1:0)+(me.s2?1:0)+(me.s3?1:0)+(me.s4?1:0))/4*100);
 
             const mainHtml = `
                 <div class="my-card ${isWarning ? 'warning' : ''}">
@@ -501,7 +253,7 @@
                         <div class="stat-item">
                             <div class="stat-label">生命颜色</div>
                             <div class="color-dot ${dotClass}" style="margin: 0 auto;"></div>
-                            <div style="margin-top: 6px; font-weight: 500;">${colorText}</div>
+                            <div style="margin-top: 6px;">${colorName}</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">💰 R币</div>
@@ -509,92 +261,85 @@
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">📊 章节进度</div>
-                            <div class="stat-value">${getProgress(me)}%</div>
+                            <div class="stat-value">${progress}%</div>
                         </div>
                     </div>
-                    ${warningBlock}
+                    ${isWarning ? '<div class="warning-text">⚠️ 生存警告！R币不足5，快去赚R币！</div>' : ''}
                 </div>
-                <div class="section-title">👥 同组伙伴 · 生命状态</div>
-                <div class="team-grid">${teamHtml}</div>
             `;
-
-            document.getElementById('mainContent').innerHTML = mainHtml;
+            mainContent.innerHTML = mainHtml;
         }
 
-        // 显示下拉选择器
+        // 角色选择器
         function showSelector() {
             if (!allPlayers.length) {
-                document.getElementById('mainContent').innerHTML = '<div style="background:white;border-radius:24px;padding:20px;text-align:center;">加载玩家名单中...</div>';
+                mainContent.innerHTML = '<div style="background:white;border-radius:24px;padding:20px;">加载玩家名单中...</div>';
                 return;
             }
-
-            const sorted = [...allPlayers].sort((a, b) => {
+            const sorted = [...allPlayers].sort((a,b) => {
                 if (a.group_name !== b.group_name) return a.group_name.localeCompare(b.group_name);
                 return a.hand_code.localeCompare(b.hand_code);
             });
-
             let options = '<option value="">—— 请选择你的角色 ——</option>';
             sorted.forEach(p => {
                 options += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name} (${p.hand_code})</option>`;
             });
-
-            const selectorHtml = `
-                <div style="background: white; border-radius: 32px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-                    <h3 style="margin-bottom: 8px;">👋 欢迎来到第七城区</h3>
-                    <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 16px;">请在下拉菜单选择你的名字，即可查看实时状态</p>
-                    <select id="playerSelect" style="width: 100%; padding: 14px; border-radius: 60px; border: 1px solid #ccc;">${options}</select>
+            mainContent.innerHTML = `
+                <div style="background:white;border-radius:32px;padding:24px;">
+                    <h3 style="margin-bottom:8px;">👋 欢迎来到第七城区</h3>
+                    <p style="font-size:0.85rem; margin-bottom:16px;">请选择你的名字，即可查看实时状态</p>
+                    <select id="playerSelect">${options}</select>
                     <button id="confirmBtn" class="btn-primary">确认并进入</button>
                 </div>
             `;
-            document.getElementById('mainContent').innerHTML = selectorHtml;
-
-            const confirmBtn = document.getElementById('confirmBtn');
-            if (confirmBtn) {
-                confirmBtn.onclick = () => {
-                    const val = document.getElementById('playerSelect').value;
-                    if (val) {
-                        const [name, group_name] = val.split('|');
-                        currentPlayer = { name, group_name };
-                        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
-                        renderPlayerView();
-                    } else {
-                        alert('请先选择你的名字');
-                    }
-                };
-            }
+            document.getElementById('confirmBtn')?.addEventListener('click', () => {
+                const val = document.getElementById('playerSelect').value;
+                if (val) {
+                    const [name, group_name] = val.split('|');
+                    currentPlayer = { name, group_name };
+                    localStorage.setItem('current_player', JSON.stringify(currentPlayer));
+                    renderPlayerView();
+                } else alert('请选择你的名字');
+            });
         }
 
-        // 实时订阅 (players, news, economy_status 三表)
-        function setupRealtime() {
-            // players 表变化
+        // 订阅 players 表变更
+        function setupPlayersRealtime() {
             supabaseClient.channel('players-channel')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => {
-                    console.log('▲ 收到 players 更新，刷新数据');
-                    loadPlayers();
-                })
-                .subscribe();
-
-            // news 表变化 (普通快报)
-            supabaseClient.channel('news-channel')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, (payload) => {
-                    console.log('📢 收到新快报:', payload);
-                    if (payload.new) {
-                        document.getElementById('newsContent').innerHTML = payload.new.content;
-                        document.getElementById('newsTime').innerHTML = payload.new.time;
-                    }
-                })
-                .subscribe();
-
-            // economy_status 表变化 (经济动态)
-            supabaseClient.channel('economy-channel')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'economy_status' }, () => {
-                    console.log('💰 经济动态更新');
-                    loadEconomyStatus();
+                    loadPlayers();  // 刷新玩家数据并重绘
                 })
                 .subscribe();
         }
 
-        // 初始化：尝试从 URL 参数或 localStorage 读取当前玩家
+        // 订阅 news 和 economy_status 表变更
+        function setupNewsAndEconomyRealtime() {
+            supabaseClient.channel('news-channel')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews())
+                .subscribe();
+            supabaseClient.channel('economy-channel')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
+                .subscribe();
+        }
+
+        // 折叠股票面板
+        function initCollapsible() {
+            const header = document.getElementById('stockHeader');
+            const content = document.getElementById('stockContent');
+            let expanded = false;
+            header.addEventListener('click', () => {
+                expanded = !expanded;
+                if (expanded) {
+                    content.classList.add('expanded');
+                    header.querySelector('span:last-child').innerHTML = '▲';
+                } else {
+                    content.classList.remove('expanded');
+                    header.querySelector('span:last-child').innerHTML = '▼';
+                }
+            });
+        }
+
+        // 初始化：从 url 或 localStorage 获取玩家
         const urlParams = new URLSearchParams(window.location.search);
         const urlName = urlParams.get('name');
         const urlGroup = urlParams.get('group');
@@ -604,17 +349,18 @@
         } else {
             const stored = localStorage.getItem('current_player');
             if (stored) {
-                try {
-                    currentPlayer = JSON.parse(stored);
-                } catch (e) { }
+                try { currentPlayer = JSON.parse(stored); } catch(e) {}
             }
         }
 
-        // 启动所有数据流
         loadPlayers();
         loadLatestNews();
-        loadEconomyStatus();
-        setupRealtime();
+        loadLatestEconomy();
+        loadStockPrices();   // 加载股票历史
+        setupPlayersRealtime();
+        setupNewsAndEconomyRealtime();
+        setupStockRealtime();
+        initCollapsible();
     })();
 </script>
 </body>
