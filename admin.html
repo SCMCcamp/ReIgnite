@@ -8,74 +8,29 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 16px; }
         .container { max-width: 1600px; margin: 0 auto; }
-        
-        /* 头部 */
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
         h1 { font-size: 1.6rem; }
         .btn { background: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; transition: 0.2s; }
         .btn-primary { background: #1a73e8; color: white; }
         
-        /* 两个独立卡片（快报 + 经济状况） */
-        .control-panels {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .panel {
-            flex: 1;
-            background: white;
-            border-radius: 28px;
-            padding: 16px 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .panel-title {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-left: 4px solid #1a73e8;
-            padding-left: 12px;
-        }
-        .panel input, .panel textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 60px;
-            border: 1px solid #ddd;
-            margin-bottom: 12px;
-            font-size: 0.9rem;
-        }
-        .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .quick-btn {
-            background: #eef2f6;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
+        .control-panels { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
+        .panel { flex: 1; background: white; border-radius: 28px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .panel-title { font-weight: 600; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #1a73e8; padding-left: 12px; }
+        .panel input, .panel textarea { width: 100%; padding: 10px 14px; border-radius: 60px; border: 1px solid #ddd; margin-bottom: 12px; font-size: 0.9rem; }
+        .button-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .quick-btn { background: #eef2f6; border: none; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
         .quick-btn:hover { background: #d0d7de; }
         
-        /* 筛选栏 */
         .filter-bar { background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         .group-chip { padding: 6px 16px; border-radius: 40px; background: #eef2f6; cursor: pointer; }
         .group-chip.active { background: #1a73e8; color: white; }
-        .clear-filter { margin-left: 12px; font-size: 0.8rem; background: #e9ecef; padding: 4px 12px; border-radius: 40px; cursor: pointer; }
+        .clear-filter { margin-left: auto; font-size: 0.8rem; background: #e9ecef; padding: 4px 12px; border-radius: 40px; cursor: pointer; }
         
-        /* 统计卡片 */
         .stats-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
         .stat-card { background: white; border-radius: 20px; padding: 12px 20px; text-align: center; flex: 1; min-width: 80px; cursor: pointer; transition: 0.1s; }
         .stat-card.active-filter { background: #e3f2fd; box-shadow: 0 0 0 2px #1a73e8; }
         .stat-card:hover { background: #e9ecef; }
         
-        /* 表格 */
         .table-wrapper { background: white; border-radius: 24px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th, td { text-align: center; vertical-align: middle; padding: 12px 8px; }
@@ -83,7 +38,6 @@
         td { border-bottom: 1px solid #edf2f7; }
         .warning-row { background-color: #ffebee; }
         
-        /* 颜色圆点 */
         .color-selector { display: flex; gap: 6px; justify-content: center; }
         .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
         .dot-green { background: #4caf50; }
@@ -91,10 +45,8 @@
         .dot-red { background: #f44336; }
         .dot-black { background: #2c3e2f; }
         
-        /* R币按钮组 */
         .rbc-control { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
         .rbc-btn { width: 36px; height: 32px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; }
-        
         .checkbox { width: 20px; height: 20px; cursor: pointer; }
         .save-hint { position: fixed; bottom: 20px; right: 20px; background: #1e2a3e; color: white; padding: 8px 16px; border-radius: 40px; opacity: 0; transition: 0.2s; pointer-events: none; }
         .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 12px; }
@@ -109,28 +61,24 @@
         <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
     </div>
 
-    <!-- 双面板：快报 + 经济状况 -->
     <div class="control-panels">
-        <!-- 左侧快报面板 -->
         <div class="panel">
             <div class="panel-title">📢 快报广播</div>
             <input type="text" id="newsInput" placeholder="输入快报内容，例如：霍尔木兹风暴！超市涨价！">
             <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
         </div>
-        <!-- 右侧经济状况面板 -->
         <div class="panel">
             <div class="panel-title">💰 经济状况</div>
             <div class="button-group">
-                <button class="quick-btn" data-economy="normal">📊 正常</button>
-                <button class="quick-btn" data-economy="inflation">📈 通胀</button>
-                <button class="quick-btn" data-economy="deflation">📉 通缩</button>
+                <button class="quick-btn" data-preset="normal">📊 正常</button>
+                <button class="quick-btn" data-preset="inflation">📈 通胀</button>
+                <button class="quick-btn" data-preset="deflation">📉 通缩</button>
             </div>
             <input type="text" id="economyInput" placeholder="或自定义经济动态，例如：甜品涨价2R币">
             <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
         </div>
     </div>
 
-    <!-- 筛选栏 -->
     <div class="filter-bar">
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <span class="group-chip active" data-group="all">全部</span>
@@ -139,15 +87,10 @@
             <span class="group-chip" data-group="C组">C组</span>
             <span class="group-chip" data-group="D组">D组</span>
         </div>
-        <div style="margin-left: auto;">
-            <span id="clearFilterBtn" class="clear-filter">✖ 清除颜色筛选</span>
-        </div>
+        <span id="clearFilterBtn" class="clear-filter">✖ 清除颜色筛选</span>
     </div>
 
-    <!-- 统计卡片 -->
     <div class="stats-grid" id="statsPanel"></div>
-
-    <!-- 玩家表格 -->
     <div class="table-wrapper">
         <table>
             <thead>
@@ -163,10 +106,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     (function(){
-        // ========== 配置 ==========
         const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-        // =========================
 
         let supabaseClient;
         if (window.__supabaseAdminClient) {
@@ -188,7 +129,6 @@
             }
         }
 
-        // 去重
         function deduplicatePlayers(players) {
             const map = new Map();
             for (const p of players) {
@@ -233,7 +173,6 @@
             return Math.round(done/4*100);
         }
 
-        // 快报发送
         async function sendNews() {
             const content = document.getElementById('newsInput').value.trim();
             if (!content) return;
@@ -244,8 +183,7 @@
             else { alert('快报已发送！'); document.getElementById('newsInput').value = ''; }
         }
 
-        // 经济动态发布
-        async function setEconomyStatus(content) {
+        async function publishEconomy(content) {
             if (!content) return;
             const now = new Date();
             const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
@@ -254,14 +192,12 @@
             else alert('经济动态已发布');
         }
 
-        // 快捷按钮预设文案
-        const economyPresets = {
+        const presetMap = {
             normal: "正常经济 · 甜品原价 · R币获取正常",
             inflation: "📈 通胀来袭！超市甜品价格上涨2R币，R币获取减半",
             deflation: "📉 通缩来临！超市甜品降价2R币，R币获取翻倍"
         };
 
-        // 重置所有
         async function resetAll() {
             if(confirm('重置所有玩家？')) {
                 for (let p of uniquePlayers) {
@@ -271,7 +207,6 @@
             }
         }
 
-        // 统计卡片渲染 + 筛选
         function renderStatsAndFilters() {
             const stats = { total: uniquePlayers.length, green:0, yellow:0, red:0, black:0, warn:0 };
             for (let p of uniquePlayers) {
@@ -311,12 +246,10 @@
 
         function renderUI() {
             renderStatsAndFilters();
-            // 高亮小组按钮
             document.querySelectorAll('.group-chip').forEach(chip => {
                 if (chip.getAttribute('data-group') === currentGroup) chip.classList.add('active');
                 else chip.classList.remove('active');
             });
-            // 高亮颜色筛选卡片
             document.querySelectorAll('.stat-card').forEach(card => {
                 const filterVal = card.getAttribute('data-filter');
                 if ((currentColorFilter === null && filterVal === 'all') || (currentColorFilter !== null && filterVal === currentColorFilter)) {
@@ -336,7 +269,6 @@
                 row.insertCell(1).innerText = p.group_name;
                 row.insertCell(2).innerText = p.hand_code;
 
-                // 颜色
                 const colorCell = row.insertCell(3);
                 const colors = [
                     {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
@@ -353,7 +285,6 @@
                 });
                 colorCell.appendChild(cDiv);
 
-                // R币控制
                 const rbcCell = row.insertCell(4);
                 const rbDiv = document.createElement('div');
                 rbDiv.className = 'rbc-control';
@@ -396,27 +327,25 @@
                 .subscribe();
         }
 
-        // 事件绑定
         document.getElementById('sendNewsBtn')?.addEventListener('click', sendNews);
         document.getElementById('resetAllBtn')?.addEventListener('click', resetAll);
         document.getElementById('clearFilterBtn')?.addEventListener('click', () => { currentColorFilter = null; renderUI(); });
         document.getElementById('setEconomyBtn')?.addEventListener('click', () => {
-            const customText = document.getElementById('economyInput').value.trim();
-            if (customText) setEconomyStatus(customText);
-            else alert('请输入经济动态内容或使用快捷按钮');
+            const custom = document.getElementById('economyInput').value.trim();
+            if (custom) publishEconomy(custom);
+            else alert('请输入经济动态内容或点击快捷按钮填充');
         });
-        // 快捷按钮
+
+        // 快捷按钮只填充输入框，不自动发布
         document.querySelectorAll('.quick-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const type = btn.getAttribute('data-economy');
-                const preset = economyPresets[type];
-                if (preset) {
-                    setEconomyStatus(preset);
-                    document.getElementById('economyInput').value = preset;
+                const presetKey = btn.getAttribute('data-preset');
+                if (presetKey && presetMap[presetKey]) {
+                    document.getElementById('economyInput').value = presetMap[presetKey];
                 }
             });
         });
-        // 小组筛选
+
         document.querySelectorAll('.group-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 currentGroup = chip.getAttribute('data-group');
