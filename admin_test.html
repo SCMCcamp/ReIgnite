@@ -10,54 +10,196 @@
         .container { max-width: 1600px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
         h1 { font-size: 1.6rem; }
-        .btn { background: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; transition: 0.2s; }
+        .btn {
+            background: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
         .btn-primary { background: #1a73e8; color: white; }
-        .filter-bar { background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-        .group-chip { padding: 6px 16px; border-radius: 40px; background: #eef2f6; cursor: pointer; }
+        .btn-primary:hover { background: #0d5cbb; }
+        .btn-outline { background: #eef2f6; }
+        .btn-outline:hover { background: #e2e6ea; }
+        .filter-bar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .group-chip {
+            padding: 6px 16px;
+            border-radius: 40px;
+            background: #eef2f6;
+            cursor: pointer;
+        }
         .group-chip.active { background: #1a73e8; color: white; }
-        .stats-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: white; border-radius: 20px; padding: 12px 20px; text-align: center; flex: 1; min-width: 80px; cursor: pointer; transition: 0.1s; }
+        .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 12px 20px;
+            text-align: center;
+            flex: 1;
+            min-width: 80px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
         .stat-card.active-filter { background: #e3f2fd; box-shadow: 0 0 0 2px #1a73e8; }
         .stat-card:hover { background: #e9ecef; }
         .table-wrapper { background: white; border-radius: 24px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        th, td { text-align: center; }        /* 表格内容居中 */
-        th { background: #1e2a3e; color: white; padding: 12px 8px; }
-        td { padding: 10px 8px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
-        .color-selector { display: flex; gap: 6px; justify-content: center; }
+        th {
+            background: #1e2a3e;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #edf2f7;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .color-selector { display: flex; justify-content: center; gap: 6px; }
         .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
         .dot-green { background: #4caf50; }
         .dot-yellow { background: #ffc107; }
         .dot-red { background: #f44336; }
         .dot-black { background: #2c3e2f; }
-        .rbc-control { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
-        .rbc-btn { width: 36px; height: 32px; border-radius: 20px; border: none; cursor: pointer; background: #eef2f6; font-weight: bold; color: #1e2a3e; }
-        .rbc-btn:hover { background: #d4d9e2; }
+        .rbc-control { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+        .rbc-btn {
+            width: 36px;
+            height: 32px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            background: #eef2f6;
+            font-weight: bold;
+        }
         .checkbox { width: 20px; height: 20px; cursor: pointer; }
         .warning-row { background-color: #ffebee; }
-        .news-input { display: flex; gap: 10px; flex-wrap: wrap; background: white; padding: 12px 20px; border-radius: 60px; margin-bottom: 20px; align-items: center; }
+        .news-input {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
         .news-input input { flex: 2; padding: 10px 16px; border-radius: 40px; border: 1px solid #ddd; }
-        .save-hint { position: fixed; bottom: 20px; right: 20px; background: #1e2a3e; color: white; padding: 8px 16px; border-radius: 40px; opacity: 0; transition: 0.2s; pointer-events: none; }
-        .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; margin-left: 12px; }
+        .save-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e2a3e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 12px;
+        }
         .connected { background: #e8f5e9; color: #2e7d32; }
         .disconnected { background: #ffebee; color: #d32f2f; }
         .clear-filter { margin-left: 12px; font-size: 0.8rem; background: #e9ecef; padding: 4px 12px; border-radius: 40px; cursor: pointer; }
-        /* 统一按钮样式：不再区分特殊颜色 */
-        .rbc-btn.special { background: #eef2f6; color: #1e2a3e; }
-        .rbc-btn.special:hover { background: #d4d9e2; }
+        /* 经济状态栏 */
+        .economy-bar {
+            background: #2c3e50;
+            color: white;
+            border-radius: 60px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .economy-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .economy-label {
+            font-weight: 600;
+            background: #1e2a3e;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        .economy-text {
+            font-size: 1rem;
+            font-weight: 500;
+            background: rgba(255,255,255,0.1);
+            padding: 6px 16px;
+            border-radius: 40px;
+        }
+        .economy-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .economy-btn {
+            background: #3a546d;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .economy-btn:hover { background: #4a6a8a; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
         <h1>🔥 RE:Ignite · 中控端 <span id="statusBadge" class="status disconnected">连接中...</span></h1>
-        <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
+        <div><button class="btn btn-outline" id="resetAllBtn">🔄 重置所有</button></div>
     </div>
+
+    <!-- 实时经济状态 (公告栏) -->
+    <div class="economy-bar">
+        <div class="economy-status">
+            <span class="economy-label">📊 经济状况</span>
+            <span class="economy-text" id="economyStatusText">正常 · 标准汇率</span>
+        </div>
+        <div class="economy-buttons">
+            <button class="economy-btn" data-economy="normal">💰 正常</button>
+            <button class="economy-btn" data-economy="inflation">📈 通货膨胀 (R币贬值)</button>
+            <button class="economy-btn" data-economy="deflation">📉 通货紧缩 (R币升值)</button>
+            <button class="economy-btn" data-economy="custom">✏️ 自定义</button>
+        </div>
+    </div>
+
     <div class="news-input">
         <span>📢 快报广播：</span>
         <input type="text" id="newsInput" placeholder="例：霍尔木兹风暴！超市涨价！">
         <button class="btn btn-primary" id="sendNewsBtn">发送</button>
     </div>
+
     <div class="filter-bar">
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <span>📌 小组：</span>
@@ -71,6 +213,7 @@
             <span id="clearFilterBtn" class="clear-filter">✖ 清除颜色筛选</span>
         </div>
     </div>
+
     <div class="stats-grid" id="statsPanel"></div>
     <div class="table-wrapper">
         <table>
@@ -195,6 +338,32 @@
             }
         }
 
+        // 经济状态预设
+        const economyPresets = {
+            normal: '💰 正常 · 标准汇率',
+            inflation: '📈 通货膨胀 · 物价上涨 (R币购买力下降)',
+            deflation: '📉 通货紧缩 · 物价下跌 (R币更值钱)'
+        };
+        function setEconomyStatus(text) {
+            const statusSpan = document.getElementById('economyStatusText');
+            if (statusSpan) statusSpan.innerText = text;
+            // 也可以将经济状态存到 localStorage 或 broadcast 到玩家端，但用户只要求中控显示
+        }
+        function initEconomyBar() {
+            document.querySelectorAll('.economy-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const val = btn.getAttribute('data-economy');
+                    if (val === 'custom') {
+                        const customText = prompt('请输入自定义经济状况文字:', document.getElementById('economyStatusText').innerText);
+                        if (customText) setEconomyStatus(customText);
+                    } else if (economyPresets[val]) {
+                        setEconomyStatus(economyPresets[val]);
+                    }
+                });
+            });
+        }
+
+        // 统计卡片及筛选
         function renderStatsAndFilters() {
             const stats = { total: uniquePlayers.length, green:0, yellow:0, red:0, black:0, warn:0 };
             for (let p of uniquePlayers) {
@@ -216,11 +385,8 @@
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const filter = card.getAttribute('data-filter');
-                    if (filter === 'all') {
-                        currentColorFilter = null;
-                    } else {
-                        currentColorFilter = filter;
-                    }
+                    if (filter === 'all') currentColorFilter = null;
+                    else currentColorFilter = filter;
                     renderUI();
                 });
             });
@@ -267,6 +433,7 @@
                 row.insertCell(1).innerText = p.group_name;
                 row.insertCell(2).innerText = p.hand_code;
 
+                // 颜色选择器
                 const colorCell = row.insertCell(3);
                 const colors = [
                     {v:'green',c:'dot-green'}, {v:'yellow',c:'dot-yellow'},
@@ -285,6 +452,7 @@
                 });
                 colorCell.appendChild(cDiv);
 
+                // R币控制区：统一灰色按钮
                 const rbcCell = row.insertCell(4);
                 const rbDiv = document.createElement('div');
                 rbDiv.className = 'rbc-control';
@@ -295,7 +463,7 @@
                     <span style="min-width:40px;text-align:center;font-weight:bold;">${p.rbc}</span>
                     <button class="rbc-btn">+1</button>
                     <button class="rbc-btn">+2</button>
-                    <button class="rbc-btn special">+5</button>
+                    <button class="rbc-btn">+5</button>
                 `;
                 const btns = rbDiv.children;
                 btns[0].onclick = () => window.changeRbc(p, -5);
@@ -306,6 +474,7 @@
                 btns[6].onclick = () => window.changeRbc(p, 5);
                 rbcCell.appendChild(rbDiv);
 
+                // 站复选框
                 const createCheck = (checked, station) => {
                     const cb = document.createElement('input');
                     cb.type = 'checkbox';
@@ -344,6 +513,7 @@
 
         loadPlayers();
         setupRealtime();
+        initEconomyBar();
     })();
 </script>
 </body>
