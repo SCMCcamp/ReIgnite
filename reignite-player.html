@@ -30,12 +30,6 @@
             --red-dim: rgba(248,113,113,0.12);
             --blue: #60a5fa;
             --blue-dim: rgba(96,165,250,0.1);
-
-            /* HP danger CSS vars (driven by JS) */
-            --hp-vignette: 0;
-            --hp-red-tint: 0;
-            --hp-flicker: 1;
-            --hp-desaturate: 0;
         }
 
         [data-theme="light"] {
@@ -64,22 +58,18 @@
             font-family: 'Noto Sans SC', system-ui, sans-serif;
             background: var(--surface);
             color: var(--text-1);
-            /* Safe area insets for iPhone notch/home bar */
             padding: max(16px, env(safe-area-inset-top)) 16px max(40px, env(safe-area-inset-bottom));
             padding-left: max(16px, env(safe-area-inset-left));
             padding-right: max(16px, env(safe-area-inset-right));
             min-height: 100vh;
             min-height: -webkit-fill-available;
             transition: filter 0.8s ease;
-            /* Prevent text size adjustment on orientation change */
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
-            /* Smooth momentum scrolling */
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: none;
         }
 
-        /* ── Ambient background ── */
         body::before {
             content: '';
             position: fixed;
@@ -100,66 +90,37 @@
             z-index: 9999;
             opacity: 0;
             transition: opacity 0.8s ease;
-            /* radial vignette from edges */
             background: radial-gradient(ellipse 90% 90% at 50% 50%,
                 transparent 40%,
                 rgba(200, 20, 10, 0.18) 75%,
                 rgba(160, 0, 0, 0.45) 100%
             );
         }
-
-        /* yellow: subtle */
         body.hp-yellow .hp-vignette { opacity: 0.4; }
-        /* orange: medium */
         body.hp-orange .hp-vignette { opacity: 0.7; }
-        /* red: pulsing danger */
-        body.hp-red .hp-vignette {
-            opacity: 1;
-            animation: vignette-pulse 2s ease-in-out infinite;
-        }
-        /* black: near-death flatline */
+        body.hp-red .hp-vignette { opacity: 1; animation: vignette-pulse 2s ease-in-out infinite; }
         body.hp-black .hp-vignette {
             background: radial-gradient(ellipse 80% 80% at 50% 50%,
-                rgba(0,0,0,0.1) 20%,
-                rgba(0,0,0,0.5) 65%,
-                rgba(0,0,0,0.88) 100%
+                rgba(0,0,0,0.1) 20%, rgba(0,0,0,0.5) 65%, rgba(0,0,0,0.88) 100%
             );
             opacity: 1;
             animation: vignette-flicker 4s ease-in-out infinite;
         }
 
-        @keyframes vignette-pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
+        @keyframes vignette-pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
         @keyframes vignette-flicker {
-            0%, 100% { opacity: 0.85; }
-            30% { opacity: 1; }
-            45% { opacity: 0.6; }
-            50% { opacity: 0.95; }
-            70% { opacity: 0.75; }
+            0%, 100% { opacity: 0.85; } 30% { opacity: 1; } 45% { opacity: 0.6; }
+            50% { opacity: 0.95; } 70% { opacity: 0.75; }
         }
 
-        /* ── HP scan-line effect for red/black ── */
         .hp-scanlines {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 9998;
-            opacity: 0;
-            transition: opacity 1s ease;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0,0,0,0.03) 2px,
-                rgba(0,0,0,0.03) 4px
-            );
+            position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+            opacity: 0; transition: opacity 1s ease;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
         }
         body.hp-red .hp-scanlines  { opacity: 1; }
         body.hp-black .hp-scanlines { opacity: 1; }
 
-        /* ── Body-level HP effects ── */
         body.hp-yellow { filter: saturate(0.9); }
         body.hp-orange { filter: saturate(0.75); }
         body.hp-red    { filter: saturate(0.55) brightness(0.92); }
@@ -169,48 +130,21 @@
 
         /* ── Header ── */
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2px 18px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 18px;
-            gap: 8px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2px 18px; border-bottom: 1px solid var(--border);
+            margin-bottom: 18px; gap: 8px;
         }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-            min-width: 0; /* allow text truncation */
-        }
-        .logo-text {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.35rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--text-1);
-            white-space: nowrap;
-        }
+        .logo { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+        .logo-text { font-family: 'Rajdhani', sans-serif; font-size: 1.35rem; font-weight: 700; letter-spacing: 2px; color: var(--text-1); white-space: nowrap; }
         .logo-text span { color: var(--brand); }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-        .header-sub { display: none; } /* hidden on mobile — save space */
+        .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .header-sub { display: none; }
 
         .status-pill {
             display: flex; align-items: center; gap: 5px;
-            padding: 5px 10px 5px 7px;
-            border-radius: 40px;
-            font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            border: 1px solid;
-            transition: all 0.3s;
-            white-space: nowrap;
+            padding: 5px 10px 5px 7px; border-radius: 40px;
+            font-size: 0.68rem; font-weight: 600; letter-spacing: 0.3px;
+            border: 1px solid; transition: all 0.3s; white-space: nowrap;
         }
         .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
         .connected { background: var(--green-dim); border-color: rgba(52,211,153,0.3); color: var(--green); }
@@ -218,7 +152,6 @@
         .disconnected { background: var(--red-dim); border-color: rgba(248,113,113,0.3); color: var(--red); }
         .disconnected .status-dot { background: var(--red); }
 
-        /* Desktop: restore full header */
         @media (min-width: 600px) {
             .header { padding: 0 4px 24px; margin-bottom: 24px; }
             .logo { gap: 10px; }
@@ -228,10 +161,7 @@
             .status-pill { font-size: 0.72rem; padding: 4px 12px 4px 8px; }
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.85); }
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.85); } }
 
         /* ── Animated Fire ── */
         .fire-logo { width: 36px; height: 36px; position: relative; }
@@ -248,185 +178,132 @@
 
         /* ── Theme Toggle ── */
         .theme-toggle {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            border: 1px solid var(--border-2);
-            background: var(--surface-3);
-            color: var(--text-2);
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px;
-            transition: all 0.2s;
-            flex-shrink: 0;
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 1px solid var(--border-2); background: var(--surface-3);
+            color: var(--text-2); cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 16px; transition: all 0.2s; flex-shrink: 0;
         }
         .theme-toggle:hover { background: var(--surface-4); color: var(--text-1); border-color: var(--brand); }
 
-        /* ════════════════════════════════════════
-           LIQUID GLASS BASE — applied everywhere
-        ════════════════════════════════════════ */
+        /* ── Liquid Glass ── */
         .glass {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(
-                135deg,
-                rgba(255,255,255,0.09) 0%,
-                rgba(255,255,255,0.04) 50%,
-                rgba(255,255,255,0.01) 100%
-            );
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.01) 100%);
             backdrop-filter: blur(24px) saturate(1.6) brightness(1.05);
             -webkit-backdrop-filter: blur(24px) saturate(1.6) brightness(1.05);
             border: 1px solid rgba(255,255,255,0.13);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.15),
-                inset 0 -1px 0 rgba(0,0,0,0.15),
-                0 8px 32px rgba(0,0,0,0.28),
-                0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.15), 0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.1);
         }
-        /* Top-left sheen sweep */
         .glass::before {
-            content: '';
-            position: absolute;
-            top: -10%; left: -60%;
-            width: 45%; height: 120%;
-            background: linear-gradient(
-                105deg,
-                transparent 35%,
-                rgba(255,255,255,0.07) 50%,
-                transparent 65%
-            );
-            pointer-events: none;
-            border-radius: inherit;
+            content: ''; position: absolute; top: -10%; left: -60%; width: 45%; height: 120%;
+            background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.07) 50%, transparent 65%);
+            pointer-events: none; border-radius: inherit;
         }
         [data-theme="light"] .glass {
-            background: linear-gradient(
-                135deg,
-                rgba(255,255,255,0.78) 0%,
-                rgba(255,255,255,0.55) 60%,
-                rgba(255,255,255,0.35) 100%
-            );
+            background: linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 60%, rgba(255,255,255,0.35) 100%);
             border: 1px solid rgba(255,255,255,0.8);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.98),
-                inset 0 -1px 0 rgba(0,0,0,0.04),
-                0 6px 24px rgba(0,0,0,0.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.98), inset 0 -1px 0 rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.08);
         }
 
-        /* ── Info Cards Row ── */
-        /* Mobile: stack vertically for readability */
+        /* ══════════════════════════════════════
+           INFO CARDS — with history dropdown
+        ══════════════════════════════════════ */
         .info-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin-bottom: 14px;
+            display: grid; grid-template-columns: 1fr;
+            gap: 10px; margin-bottom: 14px;
         }
-        /* Side by side only on tablets+ */
-        @media (min-width: 520px) {
-            .info-row { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        }
+        @media (min-width: 520px) { .info-row { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; } }
 
         .info-card {
-            border-radius: 18px;
-            padding: 14px 16px;
-            transition: box-shadow 0.2s;
-            /* Prevent tap highlight on mobile */
-            -webkit-tap-highlight-color: transparent;
+            border-radius: 18px; padding: 14px 16px;
+            transition: box-shadow 0.2s; -webkit-tap-highlight-color: transparent;
         }
-        @media (min-width: 520px) {
-            .info-card { border-radius: 20px; padding: 16px 18px; }
-        }
-        /* news: blue accent tint */
+        @media (min-width: 520px) { .info-card { border-radius: 20px; padding: 16px 18px; } }
+
         .news-card {
             background: linear-gradient(135deg,
-                rgba(255,255,255,0.09) 0%,
-                rgba(255,255,255,0.04) 50%,
-                rgba(96,165,250,0.06) 100%
+                rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 50%, rgba(96,165,250,0.06) 100%
             ) !important;
         }
-        /* economy: gold accent tint */
         .economy-card {
             background: linear-gradient(135deg,
-                rgba(255,255,255,0.09) 0%,
-                rgba(255,255,255,0.04) 50%,
-                rgba(245,166,35,0.08) 100%
+                rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 50%, rgba(245,166,35,0.08) 100%
             ) !important;
         }
         [data-theme="light"] .news-card {
-            background: linear-gradient(135deg,
-                rgba(255,255,255,0.82) 0%,
-                rgba(255,255,255,0.6) 55%,
-                rgba(96,165,250,0.06) 100%
-            ) !important;
+            background: linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.6) 55%, rgba(96,165,250,0.06) 100%) !important;
         }
         [data-theme="light"] .economy-card {
-            background: linear-gradient(135deg,
-                rgba(255,255,255,0.82) 0%,
-                rgba(255,255,255,0.6) 55%,
-                rgba(245,166,35,0.08) 100%
-            ) !important;
+            background: linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.6) 55%, rgba(245,166,35,0.08) 100%) !important;
         }
         .info-card:hover {
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.2),
-                inset 0 -1px 0 rgba(0,0,0,0.12),
-                0 10px 36px rgba(0,0,0,0.32) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.12), 0 10px 36px rgba(0,0,0,0.32) !important;
         }
 
         .info-card-label {
             display: flex; align-items: center; gap: 6px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-3);
-            margin-bottom: 10px;
-            position: relative; z-index: 1;
+            font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--text-3); margin-bottom: 10px; position: relative; z-index: 1;
         }
         .info-card-label .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
-        /* ── Dot states ── */
-        /* News dot: always pulses (slow by default) */
         .news-card .info-card-label .dot {
-            background: var(--blue);
-            box-shadow: 0 0 6px var(--blue);
-            animation: dot-slow 3s ease-in-out infinite;
+            background: var(--blue); box-shadow: 0 0 6px var(--blue); animation: dot-slow 3s ease-in-out infinite;
         }
-        /* Economy dot: slow by default */
         .economy-card .info-card-label .dot {
-            background: var(--gold);
-            box-shadow: 0 0 6px var(--gold);
-            animation: dot-slow 3s ease-in-out infinite;
+            background: var(--gold); box-shadow: 0 0 6px var(--gold); animation: dot-slow 3s ease-in-out infinite;
         }
-        /* Fast pulse on new notification */
-        .dot-alert {
-            animation: dot-fast 0.5s ease-in-out infinite !important;
-        }
+        .dot-alert { animation: dot-fast 0.5s ease-in-out infinite !important; }
 
         @keyframes dot-slow {
-            0%, 100% { opacity: 1;   transform: scale(1);    box-shadow: 0 0 4px currentColor; }
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 4px currentColor; }
             50%       { opacity: 0.5; transform: scale(0.75); box-shadow: 0 0 2px currentColor; }
         }
         @keyframes dot-fast {
-            0%, 100% { opacity: 1;   transform: scale(1.3); box-shadow: 0 0 10px currentColor; }
+            0%, 100% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 10px currentColor; }
             50%       { opacity: 0.3; transform: scale(0.7); box-shadow: 0 0 3px currentColor; }
         }
 
+        /* ── Latest message (always visible) ── */
         .info-card-content {
-            font-size: 0.92rem;
-            line-height: 1.6;
-            color: var(--text-1);
-            position: relative; z-index: 1;
-            transition: opacity 0.3s;
+            font-size: 0.92rem; line-height: 1.6; color: var(--text-1);
+            position: relative; z-index: 1; transition: opacity 0.3s;
         }
-        @media (min-width: 520px) {
-            .info-card-content { font-size: 0.9rem; line-height: 1.55; }
+
+        /* ── History toggle ── */
+        .history-toggle-btn {
+            display: flex; align-items: center; gap: 4px;
+            margin-top: 8px; padding: 0;
+            background: none; border: none; cursor: pointer;
+            font-size: 0.62rem; color: var(--text-3); letter-spacing: 0.5px;
+            transition: color 0.2s; position: relative; z-index: 1;
+            -webkit-tap-highlight-color: transparent;
         }
+        .history-toggle-btn:hover { color: var(--text-2); }
+        .history-toggle-btn .htb-arrow {
+            display: inline-block; transition: transform 0.25s;
+            font-size: 0.55rem;
+        }
+        .history-toggle-btn.open .htb-arrow { transform: rotate(180deg); }
+
+        .history-list {
+            display: none; margin-top: 8px; position: relative; z-index: 1;
+            border-top: 1px solid var(--border); padding-top: 8px;
+        }
+        .history-list.open { display: block; }
+        .history-item {
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.78rem; line-height: 1.5; color: var(--text-2);
+        }
+        .history-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .history-item-time { font-size: 0.6rem; color: var(--text-3); margin-top: 2px; }
+
         .info-card-time {
-            font-size: 0.65rem;
-            color: var(--text-3);
-            margin-top: 10px;
-            text-align: right;
-            position: relative; z-index: 1;
+            font-size: 0.65rem; color: var(--text-3); margin-top: 6px;
+            text-align: right; position: relative; z-index: 1;
         }
+
         @keyframes content-flash {
             0%   { opacity: 0.2; transform: translateY(-4px); }
             100% { opacity: 1;   transform: translateY(0); }
@@ -434,163 +311,114 @@
         .content-updated { animation: content-flash 0.4s ease-out; }
 
         /* ════════════════════════════════════════
-           PLAYER CARD — liquid glass + HP danger
+           PLAYER CARD — bigger, bolder
         ════════════════════════════════════════ */
         .player-card {
-            border-radius: 22px;
-            padding: 20px 18px;
+            border-radius: 24px;
+            padding: 22px 20px;
             margin-bottom: 14px;
             position: relative;
             overflow: hidden;
             transition: border-color 0.5s ease, box-shadow 0.5s ease;
             -webkit-tap-highlight-color: transparent;
         }
-        @media (min-width: 520px) {
-            .player-card { border-radius: 24px; padding: 24px; margin-bottom: 16px; }
-        }
+        @media (min-width: 520px) { .player-card { border-radius: 28px; padding: 28px 26px; margin-bottom: 16px; } }
 
-        /* Color top stripe */
+        /* Thicker, more dramatic top stripe */
         .player-card::after {
             content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
-            border-radius: 24px 24px 0 0;
-            transition: background 0.5s ease;
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            border-radius: 24px 24px 0 0; transition: background 0.5s ease;
         }
-        .player-card.color-green::after  { background: linear-gradient(90deg, transparent, #4caf50, transparent); }
-        .player-card.color-yellow::after { background: linear-gradient(90deg, transparent, #ffc107, transparent); }
-        .player-card.color-orange::after { background: linear-gradient(90deg, transparent, #ff9800, transparent); }
-        .player-card.color-red::after    { background: linear-gradient(90deg, transparent, #f44336, transparent); }
-        .player-card.color-black::after  { background: linear-gradient(90deg, transparent, #546e7a, transparent); }
+        .player-card.color-green::after  { background: linear-gradient(90deg, transparent 5%, #4caf50 40%, #4caf50 60%, transparent 95%); }
+        .player-card.color-yellow::after { background: linear-gradient(90deg, transparent 5%, #ffc107 40%, #ffc107 60%, transparent 95%); }
+        .player-card.color-orange::after { background: linear-gradient(90deg, transparent 5%, #ff9800 40%, #ff9800 60%, transparent 95%); }
+        .player-card.color-red::after    { background: linear-gradient(90deg, transparent 5%, #f44336 40%, #f44336 60%, transparent 95%); }
+        .player-card.color-black::after  { background: linear-gradient(90deg, transparent 5%, #546e7a 40%, #546e7a 60%, transparent 95%); }
 
-        /* Per-HP-state card border glow */
-        .player-card.color-green  { border-color: rgba(76,175,80,0.2) !important; }
-        .player-card.color-yellow { border-color: rgba(255,193,7,0.3) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 24px rgba(255,193,7,0.08), 0 8px 32px rgba(0,0,0,0.28) !important; }
-        .player-card.color-orange { border-color: rgba(255,152,0,0.4) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 32px rgba(255,100,0,0.15), 0 8px 32px rgba(0,0,0,0.3) !important; }
-        .player-card.color-red    {
-            border-color: rgba(244,67,54,0.55) !important;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 48px rgba(244,67,54,0.25), 0 8px 32px rgba(0,0,0,0.35) !important;
+        /* Enhanced border glows */
+        .player-card.color-green  { border-color: rgba(76,175,80,0.25) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 28px rgba(76,175,80,0.1), 0 8px 40px rgba(0,0,0,0.3) !important; }
+        .player-card.color-yellow { border-color: rgba(255,193,7,0.35) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 32px rgba(255,193,7,0.1), 0 8px 40px rgba(0,0,0,0.3) !important; }
+        .player-card.color-orange { border-color: rgba(255,152,0,0.5) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 40px rgba(255,100,0,0.18), 0 8px 40px rgba(0,0,0,0.32) !important; }
+        .player-card.color-red {
+            border-color: rgba(244,67,54,0.65) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 60px rgba(244,67,54,0.3), 0 8px 40px rgba(0,0,0,0.4) !important;
             animation: card-danger-pulse 2s ease-in-out infinite;
         }
-        .player-card.color-black  {
-            border-color: rgba(80,80,90,0.6) !important;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 60px rgba(0,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5) !important;
+        .player-card.color-black {
+            border-color: rgba(80,80,90,0.7) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 70px rgba(0,0,0,0.7), 0 8px 40px rgba(0,0,0,0.6) !important;
         }
 
         @keyframes card-danger-pulse {
-            0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 40px rgba(244,67,54,0.2), 0 8px 32px rgba(0,0,0,0.35); border-color: rgba(244,67,54,0.45) !important; }
-            50%       { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 70px rgba(244,67,54,0.45), 0 8px 32px rgba(0,0,0,0.35); border-color: rgba(244,67,54,0.75) !important; }
+            0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 40px rgba(244,67,54,0.22), 0 8px 40px rgba(0,0,0,0.4); border-color: rgba(244,67,54,0.5) !important; }
+            50%       { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 80px rgba(244,67,54,0.52), 0 8px 40px rgba(0,0,0,0.4); border-color: rgba(244,67,54,0.9) !important; }
         }
 
         /* ── Player Name Block ── */
         .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 18px;
-            gap: 10px;
+            display: flex; justify-content: space-between;
+            align-items: flex-start; margin-bottom: 20px; gap: 12px;
         }
         .player-name-block { position: relative; flex: 1; min-width: 0; }
+
+        /* BIGGER name */
         .player-name {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 2.6rem; /* bigger on mobile for impact */
-            font-weight: 700;
-            letter-spacing: 1px;
-            line-height: 1;
-            color: var(--text-1);
-            transition: color 0.5s ease, text-shadow 0.5s ease;
-            position: relative;
-            /* Prevent overflow on very long names */
-            word-break: break-word;
+            font-size: 3.2rem;
+            font-weight: 700; letter-spacing: 2px; line-height: 1;
+            color: var(--text-1); transition: color 0.5s ease, text-shadow 0.5s ease;
+            position: relative; word-break: break-word;
         }
-        @media (min-width: 520px) {
-            .player-name { font-size: 2.2rem; }
-            .player-header { margin-bottom: 20px; }
-        }
+        @media (min-width: 520px) { .player-name { font-size: 3rem; } }
 
-        /* HP-based name chromatic aberration / crack effects */
         .color-orange .player-name { color: #e8d5b0; text-shadow: 1px 0 0 rgba(255,100,0,0.3), -1px 0 0 rgba(0,80,255,0.15); }
         .color-red .player-name {
             color: #f5c6c6;
-            text-shadow:
-                2px 0 0 rgba(255,50,30,0.5),
-                -2px 0 0 rgba(0,100,255,0.2),
-                0 0 20px rgba(255,60,60,0.4);
+            text-shadow: 2px 0 0 rgba(255,50,30,0.5), -2px 0 0 rgba(0,100,255,0.2), 0 0 20px rgba(255,60,60,0.4);
             animation: name-shake 2.5s ease-in-out infinite;
         }
         .color-black .player-name {
             color: #9aa0b0;
-            text-shadow:
-                3px 0 0 rgba(180,30,20,0.35),
-                -3px 0 0 rgba(0,60,200,0.15),
-                0 0 30px rgba(255,20,20,0.2);
+            text-shadow: 3px 0 0 rgba(180,30,20,0.35), -3px 0 0 rgba(0,60,200,0.15), 0 0 30px rgba(255,20,20,0.2);
             animation: name-flicker 3s ease-in-out infinite;
         }
 
         @keyframes name-shake {
             0%, 85%, 100% { transform: translate(0, 0); }
-            87% { transform: translate(-1px, 0); }
-            89% { transform: translate(2px, 0); }
-            91% { transform: translate(-1px, 0); }
-            93% { transform: translate(1px, 0); }
+            87% { transform: translate(-1px, 0); } 89% { transform: translate(2px, 0); }
+            91% { transform: translate(-1px, 0); } 93% { transform: translate(1px, 0); }
             95% { transform: translate(0, 0); }
         }
         @keyframes name-flicker {
-            0%, 100% { opacity: 1; }
-            25%  { opacity: 0.85; }
-            27%  { opacity: 1; }
-            50%  { opacity: 0.7; }
-            52%  { opacity: 0.9; }
-            75%  { opacity: 0.6; }
-            77%  { opacity: 1; }
+            0%, 100% { opacity: 1; } 25% { opacity: 0.85; } 27% { opacity: 1; }
+            50% { opacity: 0.7; } 52% { opacity: 0.9; } 75% { opacity: 0.6; } 77% { opacity: 1; }
         }
 
-        /* HP crack overlay on name area */
         .player-name-block::after {
-            content: '';
-            position: absolute;
-            inset: -4px -8px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.6s ease;
-            /* SVG crack pattern encoded */
+            content: ''; position: absolute; inset: -4px -8px; opacity: 0;
+            pointer-events: none; transition: opacity 0.6s ease;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='60'%3E%3Cpath d='M60 5 L58 20 L65 25 L55 55' stroke='rgba(244,67,54,0.5)' fill='none' stroke-width='0.8'/%3E%3Cpath d='M120 0 L118 15 L125 18 L115 58' stroke='rgba(244,67,54,0.35)' fill='none' stroke-width='0.6'/%3E%3Cpath d='M58 20 L45 35' stroke='rgba(244,67,54,0.3)' fill='none' stroke-width='0.5'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-size: cover;
+            background-repeat: no-repeat; background-size: cover;
         }
-        .color-red .player-name-block::after    { opacity: 0.7; }
-        .color-black .player-name-block::after  { opacity: 1; }
+        .color-red .player-name-block::after   { opacity: 0.7; }
+        .color-black .player-name-block::after { opacity: 1; }
 
-        .player-group {
-            font-size: 0.75rem;
-            color: var(--text-3);
-            margin-top: 4px;
-            letter-spacing: 0.5px;
-        }
+        .player-group { font-size: 0.8rem; color: var(--text-3); margin-top: 5px; letter-spacing: 0.5px; }
         .player-group strong { color: var(--text-2); }
 
-        /* HP badge replaces plain group badge */
+        /* HP badge */
         .player-id-badge {
-            border-radius: 10px;
-            padding: 6px 14px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-2);
-            font-family: 'Rajdhani', sans-serif;
-            letter-spacing: 1px;
-            background: var(--surface-4);
-            border: 1px solid var(--border-2);
-            transition: all 0.5s ease;
-            position: relative;
-            overflow: hidden;
+            border-radius: 12px; padding: 8px 16px;
+            font-size: 0.85rem; font-weight: 700; color: var(--text-2);
+            font-family: 'Rajdhani', sans-serif; letter-spacing: 2px;
+            background: var(--surface-4); border: 1px solid var(--border-2);
+            transition: all 0.5s ease; position: relative; overflow: hidden;
+            white-space: nowrap;
         }
-        /* HP status bar inside badge */
         .player-id-badge::before {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; height: 2px;
-            border-radius: 0 0 10px 10px;
-            transition: width 0.6s ease, background 0.6s ease;
+            content: ''; position: absolute; bottom: 0; left: 0; height: 2px;
+            border-radius: 0 0 12px 12px; transition: width 0.6s ease, background 0.6s ease;
         }
         .color-green  .player-id-badge::before { width: 100%; background: #4caf50; }
         .color-yellow .player-id-badge::before { width: 75%;  background: #ffc107; }
@@ -598,40 +426,21 @@
         .color-red    .player-id-badge::before { width: 25%;  background: #f44336; animation: bar-pulse 1.5s ease-in-out infinite; }
         .color-black  .player-id-badge::before { width: 5%;   background: #546e7a; }
 
-        @keyframes bar-pulse {
-            0%, 100% { opacity: 1; }
-            50%       { opacity: 0.4; }
-        }
+        @keyframes bar-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
         /* ── Stats Grid ── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         @media (min-width: 400px) { .stats-grid { gap: 10px; } }
 
         .stat-box {
-            border-radius: 14px;
-            padding: 12px 6px 10px;
-            text-align: center;
-            position: relative;
-            /* liquid glass for stat boxes */
-            background: linear-gradient(
-                135deg,
-                rgba(255,255,255,0.07) 0%,
-                rgba(255,255,255,0.03) 100%
-            );
-            backdrop-filter: blur(16px) saturate(1.4);
-            -webkit-backdrop-filter: blur(16px) saturate(1.4);
+            border-radius: 16px; padding: 14px 6px 12px; text-align: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+            backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
             border: 1px solid rgba(255,255,255,0.1);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.12),
-                inset 0 -1px 0 rgba(0,0,0,0.1),
-                0 4px 16px rgba(0,0,0,0.18);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.1), 0 4px 16px rgba(0,0,0,0.18);
         }
-        @media (min-width: 400px) { .stat-box { padding: 13px 8px 11px; border-radius: 15px; } }
-        @media (min-width: 520px) { .stat-box { padding: 14px 12px 12px; border-radius: 16px; } }
+        @media (min-width: 400px) { .stat-box { padding: 15px 8px 13px; } }
+        @media (min-width: 520px) { .stat-box { padding: 16px 12px 14px; border-radius: 18px; } }
         [data-theme="light"] .stat-box {
             background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.45) 100%);
             border: 1px solid rgba(255,255,255,0.75);
@@ -639,39 +448,67 @@
         }
 
         .stat-label {
-            font-size: 0.58rem;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            color: var(--text-3);
-            margin-bottom: 8px;
-            font-weight: 600;
+            font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px;
+            color: var(--text-3); margin-bottom: 9px; font-weight: 600;
         }
-        @media (min-width: 400px) { .stat-label { font-size: 0.62rem; letter-spacing: 0.8px; } }
-        @media (min-width: 520px) { .stat-label { font-size: 0.65rem; letter-spacing: 1px; margin-bottom: 10px; } }
+        @media (min-width: 400px) { .stat-label { font-size: 0.63rem; letter-spacing: 1px; } }
+        @media (min-width: 520px) { .stat-label { font-size: 0.65rem; letter-spacing: 1.2px; margin-bottom: 10px; } }
 
+        /* Bigger stat values */
         .stat-value {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 1.9rem;
-            font-weight: 700;
-            line-height: 1;
-            color: var(--text-1);
+            font-size: 2.4rem; font-weight: 700; line-height: 1; color: var(--text-1);
         }
-        @media (min-width: 380px) { .stat-value { font-size: 2.1rem; } }
-        @media (min-width: 520px) { .stat-value { font-size: 2.2rem; } }
+        @media (min-width: 380px) { .stat-value { font-size: 2.6rem; } }
+        @media (min-width: 520px) { .stat-value { font-size: 2.8rem; } }
+
+        /* RBC highlighted */
         .stat-value.rbc-value { color: var(--gold); }
 
-        /* ── Color Orb ── */
-        .color-orb-wrap { display: flex; justify-content: center; }
-        .color-orb {
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.15);
-            margin-bottom: 4px;
+        /* RBC WARNING: pulsing red highlight */
+        .stat-value.rbc-danger {
+            color: #ff4444 !important;
+            text-shadow: 0 0 16px rgba(255,50,50,0.7), 0 0 32px rgba(255,0,0,0.4);
+            animation: rbc-danger-pulse 1s ease-in-out infinite;
         }
-        @media (min-width: 400px) { .color-orb { width: 38px; height: 38px; } }
-        @media (min-width: 520px) { .color-orb { width: 40px; height: 40px; } }
-        .orb-label { font-size: 0.75rem; color: var(--text-2); font-weight: 500; }
-        @media (min-width: 400px) { .orb-label { font-size: 0.8rem; } }
+        @keyframes rbc-danger-pulse {
+            0%, 100% { text-shadow: 0 0 12px rgba(255,50,50,0.6), 0 0 24px rgba(255,0,0,0.3); color: #ff4444; }
+            50%       { text-shadow: 0 0 28px rgba(255,80,80,0.9), 0 0 50px rgba(255,0,0,0.6); color: #ff2222; }
+        }
+        /* RBC stat-box highlight when dangerous */
+        .stat-box.rbc-box-danger {
+            border-color: rgba(255,60,60,0.5) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 24px rgba(255,50,50,0.25), 0 4px 16px rgba(0,0,0,0.2) !important;
+            animation: rbc-box-pulse 1s ease-in-out infinite;
+        }
+        @keyframes rbc-box-pulse {
+            0%, 100% { border-color: rgba(255,60,60,0.4) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 18px rgba(255,50,50,0.2) !important; }
+            50%       { border-color: rgba(255,60,60,0.8) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 36px rgba(255,50,50,0.45) !important; }
+        }
+
+        /* ── Color Orb (no color name label below) ── */
+        .color-orb-wrap { display: flex; justify-content: center; margin-bottom: 4px; }
+        .color-orb {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+        @media (min-width: 400px) { .color-orb { width: 40px; height: 40px; } }
+        @media (min-width: 520px) { .color-orb { width: 44px; height: 44px; } }
+
+        /* ── Skull for dead (black) orb ── */
+        .skull-orb {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.55rem; line-height: 1;
+            animation: skull-pulse 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(80,90,100,0.6));
+        }
+        @media (min-width: 400px) { .skull-orb { width: 40px; height: 40px; font-size: 1.7rem; } }
+        @media (min-width: 520px) { .skull-orb { width: 44px; height: 44px; font-size: 1.85rem; } }
+        @keyframes skull-pulse {
+            0%, 100% { opacity: 0.7; transform: scale(1);    filter: drop-shadow(0 0 6px rgba(80,90,100,0.5)); }
+            50%       { opacity: 1;   transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(80,90,100,0.8)); }
+        }
 
         @keyframes hb-green {
             0%   { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
@@ -714,106 +551,80 @@
 
         /* ── Progress bar ── */
         .progress-bar-bg {
-            background: rgba(255,255,255,0.08);
-            border-radius: 4px;
-            height: 4px;
-            margin-top: 6px;
-            overflow: hidden;
+            background: rgba(255,255,255,0.08); border-radius: 4px;
+            height: 4px; margin-top: 6px; overflow: hidden;
         }
         [data-theme="light"] .progress-bar-bg { background: rgba(0,0,0,0.08); }
         .progress-bar-fill {
-            height: 100%;
-            border-radius: 4px;
+            height: 100%; border-radius: 4px;
             background: linear-gradient(90deg, var(--brand), #ffb347);
             transition: width 0.6s cubic-bezier(.4,0,.2,1);
         }
 
-        /* ── Warning Banner ── */
+        /* ── Insufficient Fund Warning — more dangerous ── */
         .warning-banner {
-            background: var(--red-dim);
-            border: 1px solid rgba(248,113,113,0.25);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-top: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            color: var(--red);
-            font-weight: 600;
-            animation: banner-pulse 1.5s ease-in-out infinite;
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-top: 16px;
+            display: flex; align-items: center; gap: 12px;
+            font-size: 0.88rem; font-weight: 700;
             line-height: 1.4;
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,0,0,0.18) 0%, rgba(180,0,0,0.1) 100%);
+            border: 1.5px solid rgba(255,50,50,0.5);
+            color: #ff5555;
+            animation: warn-border-pulse 0.8s ease-in-out infinite;
         }
-        @keyframes banner-pulse {
-            0%, 100% { border-color: rgba(248,113,113,0.25); }
-            50%       { border-color: rgba(248,113,113,0.6); }
+        .warning-banner::before {
+            content: ''; position: absolute;
+            top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(105deg, transparent 30%, rgba(255,80,80,0.07) 50%, transparent 70%);
+            animation: warn-sweep 2.5s linear infinite;
         }
-        .warning-banner .wi { font-size: 1.2rem; flex-shrink: 0; }
+        @keyframes warn-border-pulse {
+            0%, 100% { border-color: rgba(255,50,50,0.4); box-shadow: 0 0 12px rgba(255,0,0,0.1) inset; }
+            50%       { border-color: rgba(255,50,50,0.85); box-shadow: 0 0 28px rgba(255,0,0,0.25) inset; }
+        }
+        @keyframes warn-sweep {
+            0% { left: -100%; } 100% { left: 200%; }
+        }
+        .warning-banner .wi { font-size: 1.5rem; flex-shrink: 0; animation: wi-shake 0.6s ease-in-out infinite; }
+        @keyframes wi-shake {
+            0%, 100% { transform: rotate(-8deg); }
+            50%       { transform: rotate(8deg); }
+        }
+        .warning-banner .warn-text { position: relative; z-index: 1; }
 
-        /* ── Black/flatline special overlay ── */
-        .flatline-msg {
-            margin-top: 14px;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid rgba(84,110,122,0.4);
-            border-radius: 12px;
-            padding: 14px 16px;
-            text-align: center;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.88rem;
-            letter-spacing: 2px;
-            color: #607080;
-            animation: flatline-text 4s ease-in-out infinite;
-        }
-        @keyframes flatline-text {
-            0%, 100% { opacity: 0.6; letter-spacing: 2px; }
-            50%       { opacity: 0.9; letter-spacing: 3px; }
+        /* Orange caution bar */
+        .caution-bar {
+            margin-top: 12px; padding: 10px 16px;
+            background: rgba(255,152,0,0.1); border: 1px solid rgba(255,152,0,0.3);
+            border-radius: 10px; font-size: 0.8rem; color: #ff9800; font-weight: 600;
         }
 
-        /* ══════════════════════════════════════
-           STOCK CARD — liquid glass + gold glow
-        ══════════════════════════════════════ */
+        /* ── Stock Card ── */
         .stock-card {
-            position: relative;
-            border-radius: 20px;
-            padding: 18px 18px 14px;
-            margin-bottom: 14px;
-            overflow: hidden;
-            background: linear-gradient(
-                135deg,
-                rgba(255,255,255,0.09) 0%,
-                rgba(255,255,255,0.04) 50%,
-                rgba(245,166,35,0.06) 100%
-            );
-            backdrop-filter: blur(24px) saturate(1.6);
-            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            position: relative; border-radius: 20px; padding: 18px 18px 14px;
+            margin-bottom: 14px; overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 50%, rgba(245,166,35,0.06) 100%);
+            backdrop-filter: blur(24px) saturate(1.6); -webkit-backdrop-filter: blur(24px) saturate(1.6);
             border: 1px solid rgba(255,255,255,0.13);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.15),
-                inset 0 -1px 0 rgba(0,0,0,0.15),
-                0 8px 32px rgba(0,0,0,0.25),
-                0 2px 8px rgba(245,166,35,0.06);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.15), 0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(245,166,35,0.06);
         }
-        @media (min-width: 520px) {
-            .stock-card { border-radius: 24px; padding: 22px 24px 18px; margin-bottom: 16px; }
-        }
+        @media (min-width: 520px) { .stock-card { border-radius: 24px; padding: 22px 24px 18px; margin-bottom: 16px; } }
         [data-theme="light"] .stock-card {
             background: linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 50%, rgba(245,166,35,0.08) 100%);
             border: 1px solid rgba(255,255,255,0.8);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 8px 32px rgba(0,0,0,0.07);
         }
         .stock-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -60%; width: 50%; height: 100%;
+            content: ''; position: absolute; top: 0; left: -60%; width: 50%; height: 100%;
             background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
             pointer-events: none;
         }
         .stock-card::after {
-            content: '';
-            position: absolute;
-            bottom: -30px; right: -20px;
-            width: 140px; height: 140px;
-            border-radius: 50%;
+            content: ''; position: absolute; bottom: -30px; right: -20px;
+            width: 140px; height: 140px; border-radius: 50%;
             background: radial-gradient(circle, rgba(245,166,35,0.14) 0%, transparent 70%);
             pointer-events: none;
         }
@@ -826,8 +637,7 @@
 
         .stock-left { display: flex; flex-direction: column; justify-content: center; }
         .stock-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.3rem; font-weight: 700;
+            font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; font-weight: 700;
             color: var(--text-1); letter-spacing: 2px; line-height: 1;
         }
         @media (min-width: 520px) { .stock-title { font-size: 1.55rem; } }
@@ -835,54 +645,36 @@
         .stock-ticker { font-size: 0.6rem; color: var(--text-3); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; }
         .stock-right { text-align: right; }
         .stock-price {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 2.2rem; font-weight: 700;
-            color: var(--gold); line-height: 1;
-            text-shadow: 0 0 20px rgba(245,166,35,0.35);
+            font-family: 'Rajdhani', sans-serif; font-size: 2.2rem; font-weight: 700;
+            color: var(--gold); line-height: 1; text-shadow: 0 0 20px rgba(245,166,35,0.35);
         }
         @media (min-width: 520px) { .stock-price { font-size: 2.4rem; } }
         .stock-unit { font-size: 0.65rem; color: var(--text-3); margin-top: 3px; letter-spacing: 0.5px; }
         .stock-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(245,166,35,0.25), transparent);
+            height: 1px; background: linear-gradient(90deg, transparent, rgba(245,166,35,0.25), transparent);
             margin-bottom: 12px; position: relative; z-index: 1;
         }
-        /* Shorter chart on mobile to save vertical space */
         canvas { width: 100% !important; max-height: 110px; position: relative; z-index: 1; }
         @media (min-width: 520px) { canvas { max-height: 150px; } }
         .stock-note { font-size: 0.6rem; color: var(--text-3); text-align: center; margin-top: 10px; letter-spacing: 0.3px; position: relative; z-index: 1; }
 
-        /* ── Selector Card — liquid glass ── */
-        .selector-card {
-            border-radius: 20px;
-            padding: 22px 18px;
-            margin-bottom: 24px;
-        }
-        @media (min-width: 520px) {
-            .selector-card { border-radius: 24px; padding: 28px 24px; margin-bottom: 32px; }
-        }
+        /* ── Selector Card ── */
+        .selector-card { border-radius: 20px; padding: 22px 18px; margin-bottom: 24px; }
+        @media (min-width: 520px) { .selector-card { border-radius: 24px; padding: 28px 24px; margin-bottom: 32px; } }
         .selector-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.6rem; font-weight: 700;
+            font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700;
             color: var(--text-1); letter-spacing: 1px; margin-bottom: 6px;
         }
         .selector-sub { font-size: 0.85rem; color: var(--text-3); margin-bottom: 18px; line-height: 1.55; }
         select {
-            width: 100%;
-            background: rgba(30,36,53,0.8);
-            border: 1px solid var(--border-2);
-            color: var(--text-1);
-            border-radius: 12px;
-            /* Tall enough for comfortable touch */
-            padding: 14px 36px 14px 16px;
-            font-size: 1rem;
-            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            width: 100%; background: rgba(30,36,53,0.8);
+            border: 1px solid var(--border-2); color: var(--text-1);
+            border-radius: 12px; padding: 14px 36px 14px 16px;
+            font-size: 1rem; font-family: 'Noto Sans SC', system-ui, sans-serif;
             cursor: pointer; outline: none; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a94a8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: right 14px center;
-            transition: border-color 0.2s;
-            backdrop-filter: blur(12px);
-            /* Remove iOS default styling */
+            transition: border-color 0.2s; backdrop-filter: blur(12px);
             -webkit-appearance: none;
         }
         [data-theme="light"] select { background-color: rgba(255,255,255,0.7); }
@@ -890,14 +682,10 @@
 
         .btn-primary {
             width: 100%; background: var(--brand); color: white; border: none;
-            border-radius: 14px;
-            /* 52px min height = comfortable thumb target */
-            padding: 15px 20px;
-            font-size: 1rem; font-weight: 700;
-            font-family: 'Rajdhani', sans-serif; letter-spacing: 1.5px; cursor: pointer;
-            margin-top: 12px; transition: all 0.2s;
-            /* Remove tap highlight */
-            -webkit-tap-highlight-color: transparent;
+            border-radius: 14px; padding: 15px 20px;
+            font-size: 1rem; font-weight: 700; font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1.5px; cursor: pointer; margin-top: 12px;
+            transition: all 0.2s; -webkit-tap-highlight-color: transparent;
         }
         .btn-primary:hover { background: #d44516; }
         .btn-primary:active { transform: scale(0.98); background: #c43d12; }
@@ -910,7 +698,6 @@
 </head>
 <body>
 
-<!-- HP ambient overlays (always in DOM, toggled via body class) -->
 <div class="hp-vignette"></div>
 <div class="hp-scanlines"></div>
 
@@ -956,6 +743,7 @@
 
     <!-- News + Economy Row -->
     <div class="info-row">
+        <!-- News Card -->
         <div class="info-card news-card glass">
             <div class="info-card-label">
                 <span class="dot" id="newsDot"></span>
@@ -963,7 +751,12 @@
             </div>
             <div class="info-card-content" id="newsContent">加载中…</div>
             <div class="info-card-time" id="newsTime"></div>
+            <button class="history-toggle-btn" id="newsHistoryBtn" style="display:none;">
+                <span class="htb-arrow">▼</span>&nbsp;历史记录
+            </button>
+            <div class="history-list" id="newsHistoryList"></div>
         </div>
+        <!-- Economy Card -->
         <div class="info-card economy-card glass">
             <div class="info-card-label">
                 <span class="dot" id="economyDot"></span>
@@ -971,6 +764,10 @@
             </div>
             <div class="info-card-content" id="economyContent">加载中…</div>
             <div class="info-card-time" id="economyTime"></div>
+            <button class="history-toggle-btn" id="econHistoryBtn" style="display:none;">
+                <span class="htb-arrow">▼</span>&nbsp;历史记录
+            </button>
+            <div class="history-list" id="econHistoryList"></div>
         </div>
     </div>
 
@@ -1026,7 +823,7 @@
     let allPlayers = [], currentPlayer = null, priceHistory = [5], chart = null;
 
     /* ════════════════════════════════════════
-       NOTIFICATION DOT — fast/slow pulse
+       NOTIFICATION DOT
     ════════════════════════════════════════ */
     let newsDotTimer = null, econDotTimer = null;
 
@@ -1042,13 +839,47 @@
        HP DANGER SYSTEM
     ════════════════════════════════════════ */
     const HP_CLASSES = ['hp-green', 'hp-yellow', 'hp-orange', 'hp-red', 'hp-black'];
-
     function applyHpEffect(color) {
         const body = document.body;
         HP_CLASSES.forEach(c => body.classList.remove(c));
-        if (color && color !== 'green') {
-            body.classList.add('hp-' + color);
+        if (color && color !== 'green') body.classList.add('hp-' + color);
+    }
+
+    /* ════════════════════════════════════════
+       HISTORY DROPDOWN SYSTEM
+    ════════════════════════════════════════ */
+    function setupHistoryToggle(btnId, listId) {
+        const btn = document.getElementById(btnId);
+        const list = document.getElementById(listId);
+        if (!btn || !list) return;
+        btn.addEventListener('click', () => {
+            const isOpen = list.classList.toggle('open');
+            btn.classList.toggle('open', isOpen);
+        });
+    }
+
+    function renderHistoryList(listId, items) {
+        // items: [{content, time}] latest first
+        const list = document.getElementById(listId);
+        const btnId = listId === 'newsHistoryList' ? 'newsHistoryBtn' : 'econHistoryBtn';
+        const btn = document.getElementById(btnId);
+        if (!list || !btn) return;
+
+        if (items.length <= 1) {
+            btn.style.display = 'none';
+            list.innerHTML = '';
+            return;
         }
+
+        // Show button (items[0] is already the main display, show items 1-4 as history)
+        btn.style.display = 'flex';
+        const histItems = items.slice(1, 5); // up to 4 older items
+        list.innerHTML = histItems.map(item => `
+            <div class="history-item">
+                <div>${item.content}</div>
+                <div class="history-item-time">${item.time || ''}</div>
+            </div>
+        `).join('');
     }
 
     /* ── Stock Chart ── */
@@ -1066,19 +897,13 @@
                 labels: priceHistory.map((_, i) => i + 1),
                 datasets: [{
                     data: priceHistory,
-                    borderColor: lineColor,
-                    backgroundColor: fillColor,
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
-                    pointHoverBackgroundColor: lineColor
+                    borderColor: lineColor, backgroundColor: fillColor,
+                    borderWidth: 2, tension: 0.3, fill: true,
+                    pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: lineColor
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
                     x: { display: false, grid: { display: false } },
@@ -1091,11 +916,8 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#1e2435',
-                        borderColor: 'rgba(255,255,255,0.1)',
-                        borderWidth: 1,
-                        titleColor: '#8a94a8',
-                        bodyColor: '#f0f2f8',
+                        backgroundColor: '#1e2435', borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1, titleColor: '#8a94a8', bodyColor: '#f0f2f8',
                         callbacks: { label: c => `  ${c.raw} R币` }
                     }
                 }
@@ -1138,34 +960,51 @@
         if (currentPlayer) renderPlayerView();
     }
 
+    /* ── News with history ── */
+    let newsHistory = [];
     async function loadLatestNews() {
-        const { data, error } = await sb.from('news').select('*').order('id', { ascending: false }).limit(1);
-        const el = document.getElementById('newsContent');
-        const newText = (!error && data?.length) ? data[0].content : '暂无快报';
-        if (el.innerHTML !== newText) {
-            el.innerHTML = newText;
-            el.classList.remove('content-updated');
-            void el.offsetWidth;
-            el.classList.add('content-updated');
-            // Trigger fast dot pulse on new content
-            newsDotTimer = triggerDotAlert('newsDot', newsDotTimer);
+        // Fetch top 5, latest first
+        const { data, error } = await sb.from('news').select('*').order('id', { ascending: false }).limit(5);
+        if (!error && data?.length) {
+            newsHistory = data;
+            const latest = data[0];
+            const el = document.getElementById('newsContent');
+            const newText = latest.content;
+            if (el.innerHTML !== newText) {
+                el.innerHTML = newText;
+                el.classList.remove('content-updated');
+                void el.offsetWidth;
+                el.classList.add('content-updated');
+                newsDotTimer = triggerDotAlert('newsDot', newsDotTimer);
+            }
+            document.getElementById('newsTime').innerHTML = latest.time || '';
+            renderHistoryList('newsHistoryList', data);
+        } else {
+            document.getElementById('newsContent').innerHTML = '暂无快报';
         }
-        document.getElementById('newsTime').innerHTML = (!error && data?.length) ? data[0].time : '';
     }
 
+    /* ── Economy with history ── */
+    let econHistory = [];
     async function loadLatestEconomy() {
-        const { data, error } = await sb.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
-        const el = document.getElementById('economyContent');
-        const newText = (!error && data?.length) ? data[0].content : '暂无经济动态';
-        if (el.innerHTML !== newText) {
-            el.innerHTML = newText;
-            el.classList.remove('content-updated');
-            void el.offsetWidth;
-            el.classList.add('content-updated');
-            // Trigger fast dot pulse on new content
-            econDotTimer = triggerDotAlert('economyDot', econDotTimer);
+        const { data, error } = await sb.from('economy_status').select('*').order('id', { ascending: false }).limit(5);
+        if (!error && data?.length) {
+            econHistory = data;
+            const latest = data[0];
+            const el = document.getElementById('economyContent');
+            const newText = latest.content;
+            if (el.innerHTML !== newText) {
+                el.innerHTML = newText;
+                el.classList.remove('content-updated');
+                void el.offsetWidth;
+                el.classList.add('content-updated');
+                econDotTimer = triggerDotAlert('economyDot', econDotTimer);
+            }
+            document.getElementById('economyTime').innerHTML = latest.time || '';
+            renderHistoryList('econHistoryList', data);
+        } else {
+            document.getElementById('economyContent').innerHTML = '暂无经济动态';
         }
-        document.getElementById('economyTime').innerHTML = (!error && data?.length) ? data[0].time : '';
     }
 
     function getProgress(p) {
@@ -1173,14 +1012,7 @@
     }
 
     const colorMap  = { green:'green', yellow:'yellow', orange:'orange', red:'red', black:'black' };
-    const colorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' };
-    const colorLabel = {
-        green:  '生命活跃',
-        yellow: '轻微损伤',
-        orange: '警戒状态',
-        red:    '危急告警',
-        black:  '已出局'
-    };
+    const colorLabel = { green:'生命活跃', yellow:'轻微损伤', orange:'警戒状态', red:'危急告警', black:'已出局' };
 
     function renderPlayerView() {
         if (!currentPlayer) return;
@@ -1192,18 +1024,31 @@
         const col = colorMap[p.color] || 'green';
         const isDead = col === 'black';
 
-        // Apply body-level HP effect
         applyHpEffect(col);
 
-        // Extra warning banners per severity
-        let warningHtml = '';
+        /* ── Color orb or skull ── */
+        let orbHtml;
         if (isDead) {
-            warningHtml = `<div class="flatline-msg">— — — FLATLINE · 你已出局 · FLATLINE — — —</div>`;
-        } else if (isWarning) {
-            warningHtml = `<div class="warning-banner"><span class="wi">⚠️</span>生存警告！R币不足 5，请尽快补充资源！</div>`;
+            orbHtml = `<div class="color-orb-wrap"><div class="skull-orb">💀</div></div>`;
+        } else {
+            orbHtml = `<div class="color-orb-wrap"><div class="color-orb orb-${col}"></div></div>`;
+        }
+
+        /* ── RBC value class ── */
+        const rbcClass = isWarning ? 'stat-value rbc-danger' : 'stat-value rbc-value';
+        const rbcBoxClass = isWarning ? 'stat-box rbc-box-danger' : 'stat-box';
+
+        /* ── Extra warning banners ── */
+        let warningHtml = '';
+        if (isWarning && !isDead) {
+            warningHtml = `
+                <div class="warning-banner">
+                    <span class="wi">☠️</span>
+                    <span class="warn-text">生存危机！R币严重不足，即将出局！立即补充资源！</span>
+                </div>`;
         }
         if (col === 'orange' && !isWarning) {
-            warningHtml += `<div style="margin-top:12px;padding:8px 14px;background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.25);border-radius:10px;font-size:0.78rem;color:#ff9800;font-weight:600;">⚡ 注意：你的状态正在恶化</div>`;
+            warningHtml += `<div class="caution-bar">⚡ 注意：你的状态正在恶化</div>`;
         }
 
         document.getElementById('mainContent').innerHTML = `
@@ -1218,19 +1063,16 @@
                 <div class="stats-grid">
                     <div class="stat-box">
                         <div class="stat-label">生命颜色</div>
-                        <div class="color-orb-wrap">
-                            <div class="color-orb orb-${col}"></div>
-                        </div>
-                        <div class="orb-label">${colorName[p.color] || p.color}</div>
-                        <div style="font-size:0.6rem;color:var(--text-3);margin-top:3px;letter-spacing:0.5px;">${colorLabel[col] || ''}</div>
+                        ${orbHtml}
+                        <div style="font-size:0.6rem;color:var(--text-3);margin-top:3px;letter-spacing:0.4px;">${colorLabel[col] || ''}</div>
                     </div>
-                    <div class="stat-box">
+                    <div class="${rbcBoxClass}">
                         <div class="stat-label">R 币</div>
-                        <div class="stat-value rbc-value">${p.rbc}</div>
+                        <div class="${rbcClass}">${p.rbc}</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">章节进度</div>
-                        <div class="stat-value">${prog}<span style="font-size:1rem;color:var(--text-3)">%</span></div>
+                        <div class="stat-value">${prog}<span style="font-size:1.1rem;color:var(--text-3)">%</span></div>
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill" style="width:${prog}%"></div>
                         </div>
@@ -1250,12 +1092,12 @@
     window.__resetPlayer = function() {
         currentPlayer = null;
         localStorage.removeItem('current_player');
-        applyHpEffect('green'); // clear body effects
+        applyHpEffect('green');
         showSelector();
     };
 
     function showSelector() {
-        applyHpEffect('green'); // clear body effects when in selector
+        applyHpEffect('green');
         if (!allPlayers.length) {
             document.getElementById('mainContent').innerHTML = `<div class="selector-card glass"><div class="selector-sub">加载玩家名单中，请稍候…</div></div>`;
             return;
@@ -1309,6 +1151,10 @@
 
     loadPlayers(); loadLatestNews(); loadLatestEconomy();
     setupRealtime(); renderStockChart(); loadLatestPrice();
+
+    // Setup history toggles (they're always in DOM)
+    setupHistoryToggle('newsHistoryBtn', 'newsHistoryList');
+    setupHistoryToggle('econHistoryBtn', 'econHistoryList');
 
     if (currentPlayer) {
         let iv = setInterval(() => { if (allPlayers.length) { clearInterval(iv); renderPlayerView(); } }, 200);
