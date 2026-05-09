@@ -291,11 +291,50 @@
             color: var(--text-2);
             font-weight: 500;
         }
-        .orb-green { background: #4caf50; box-shadow: 0 0 12px rgba(76,175,80,0.5); }
-        .orb-yellow { background: #ffc107; box-shadow: 0 0 12px rgba(255,193,7,0.5); }
-        .orb-orange { background: #ff9800; box-shadow: 0 0 12px rgba(255,152,0,0.5); }
-        .orb-red { background: #f44336; box-shadow: 0 0 12px rgba(244,67,54,0.5); }
-        .orb-black { background: #546e7a; box-shadow: 0 0 12px rgba(84,110,122,0.4); }
+        /* Heartbeat: real lub-dub double thump per color */
+        @keyframes hb-green {
+            0%   { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
+            8%   { transform: scale(1.22); box-shadow: 0 0 20px rgba(76,175,80,0.85); }
+            16%  { transform: scale(1.05); box-shadow: 0 0 10px rgba(76,175,80,0.5); }
+            24%  { transform: scale(1.18); box-shadow: 0 0 17px rgba(76,175,80,0.7); }
+            40%  { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
+            100% { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
+        }
+        @keyframes hb-yellow {
+            0%   { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.4); }
+            10%  { transform: scale(1.17); box-shadow: 0 0 16px rgba(255,193,7,0.75); }
+            20%  { transform: scale(1.04); box-shadow: 0 0 9px rgba(255,193,7,0.45); }
+            30%  { transform: scale(1.13); box-shadow: 0 0 13px rgba(255,193,7,0.65); }
+            48%  { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.35); }
+            100% { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.35); }
+        }
+        @keyframes hb-orange {
+            0%   { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.4); }
+            12%  { transform: scale(1.13); box-shadow: 0 0 13px rgba(255,152,0,0.7); }
+            24%  { transform: scale(1.03); box-shadow: 0 0 8px rgba(255,152,0,0.4); }
+            36%  { transform: scale(1.09); box-shadow: 0 0 11px rgba(255,152,0,0.6); }
+            56%  { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.3); }
+            100% { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.3); }
+        }
+        @keyframes hb-red {
+            0%   { transform: scale(1);    box-shadow: 0 0 6px rgba(244,67,54,0.35); }
+            16%  { transform: scale(1.08); box-shadow: 0 0 11px rgba(244,67,54,0.6); }
+            32%  { transform: scale(1.02); box-shadow: 0 0 6px rgba(244,67,54,0.3); }
+            48%  { transform: scale(1.06); box-shadow: 0 0 9px rgba(244,67,54,0.5); }
+            72%  { transform: scale(1);    box-shadow: 0 0 5px rgba(244,67,54,0.25); }
+            100% { transform: scale(1);    box-shadow: 0 0 5px rgba(244,67,54,0.25); }
+        }
+
+        /* green = vigorous young heart ~75 BPM fast strong lub-dub */
+        .orb-green  { background: #4caf50; animation: hb-green  0.8s ease-in-out infinite; }
+        /* yellow = healthy ~65 BPM */
+        .orb-yellow { background: #ffc107; animation: hb-yellow 1.2s ease-in-out infinite; }
+        /* orange = weakening ~48 BPM */
+        .orb-orange { background: #ff9800; animation: hb-orange 1.7s ease-in-out infinite; }
+        /* red = critical ~35 BPM, faint barely-there thump */
+        .orb-red    { background: #f44336; animation: hb-red    2.5s ease-in-out infinite; }
+        /* black = flatline, no pulse, no glow */
+        .orb-black  { background: #546e7a; box-shadow: none; }
 
         /* Progress bar for chapter */
         .progress-bar-wrap { margin-top: 6px; }
@@ -335,41 +374,116 @@
         }
         .warning-banner .wi { font-size: 1.1rem; }
 
-        /* ── Stock Card ── */
+        /* ── Stock Card ── liquid glass */
         .stock-card {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 20px 22px;
+            position: relative;
+            border-radius: 24px;
+            padding: 22px 24px 18px;
             margin-bottom: 16px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 50%, rgba(245,166,35,0.05) 100%);
+            backdrop-filter: blur(20px) saturate(1.6);
+            -webkit-backdrop-filter: blur(20px) saturate(1.6);
+            border: 1px solid rgba(255,255,255,0.13);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.15),
+                inset 0 -1px 0 rgba(0,0,0,0.15),
+                0 8px 32px rgba(0,0,0,0.25),
+                0 2px 8px rgba(245,166,35,0.06);
         }
-        .stock-header {
+        [data-theme="light"] .stock-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.45) 50%, rgba(245,166,35,0.07) 100%);
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                inset 0 -1px 0 rgba(0,0,0,0.05),
+                0 8px 32px rgba(0,0,0,0.08),
+                0 2px 8px rgba(245,166,35,0.08);
+        }
+        /* glass sheen sweep across top */
+        .stock-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -60%; width: 50%; height: 100%;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+            pointer-events: none;
+            border-radius: 24px;
+        }
+        /* gold glow orb bottom-right */
+        .stock-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30px; right: -20px;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(245,166,35,0.14) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .stock-top-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
         }
-        .stock-title-block {}
+        .stock-left { display: flex; flex-direction: column; justify-content: center; }
         .stock-title {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 1rem;
+            font-size: 1.55rem;
             font-weight: 700;
-            color: var(--text-2);
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            color: var(--text-1);
+            letter-spacing: 2px;
+            line-height: 1;
         }
-        .stock-ticker { font-size: 0.65rem; color: var(--text-3); margin-top: 2px; letter-spacing: 1px; }
-        .stock-price-block { text-align: right; }
+        .stock-title em { color: var(--gold); font-style: normal; }
+        .stock-ticker {
+            font-size: 0.62rem;
+            color: var(--text-3);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .stock-right { text-align: right; }
         .stock-price {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 2rem;
+            font-size: 2.4rem;
             font-weight: 700;
             color: var(--gold);
             line-height: 1;
+            text-shadow: 0 0 20px rgba(245,166,35,0.35);
         }
-        .stock-unit { font-size: 0.72rem; color: var(--text-3); margin-top: 2px; }
-        canvas { width: 100% !important; max-height: 160px; margin-top: 4px; }
-        .stock-note { font-size: 0.65rem; color: var(--text-3); text-align: center; margin-top: 10px; letter-spacing: 0.3px; }
+        .stock-unit {
+            font-size: 0.68rem;
+            color: var(--text-3);
+            margin-top: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        .stock-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(245,166,35,0.25), transparent);
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        canvas {
+            width: 100% !important;
+            max-height: 150px;
+            position: relative;
+            z-index: 1;
+        }
+        .stock-note {
+            font-size: 0.62rem;
+            color: var(--text-3);
+            text-align: center;
+            margin-top: 12px;
+            letter-spacing: 0.4px;
+            position: relative;
+            z-index: 1;
+        }
 
         /* ── Selector ── */
         .selector-card {
@@ -516,17 +630,18 @@
 
     <!-- Stock Card -->
     <div class="stock-card">
-        <div class="stock-header">
-            <div class="stock-title-block">
-                <div class="stock-title">RE:Set 股</div>
+        <div class="stock-top-row">
+            <div class="stock-left">
+                <div class="stock-title">RE<em>:</em>Set 股</div>
                 <div class="stock-ticker">实时行情 · RESET</div>
             </div>
-            <div class="stock-price-block">
+            <div class="stock-right">
                 <div class="stock-price" id="currentPrice">--</div>
                 <div class="stock-unit">R币 / 股</div>
             </div>
         </div>
-        <canvas id="priceChart" height="140"></canvas>
+        <div class="stock-divider"></div>
+        <canvas id="priceChart" height="130"></canvas>
         <div class="stock-note">中控发布经济动态或随机波动时自动更新</div>
     </div>
 
@@ -729,7 +844,7 @@
         sorted.forEach(p => { opts += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name}</option>`; });
         document.getElementById('mainContent').innerHTML = `
             <div class="selector-card">
-                <div class="selector-title">欢迎来到第七城区</div>
+                <div class="selector-title">欢迎来到R区</div>
                 <div class="selector-sub">请选择你的角色，即可查看实时游戏状态与数据</div>
                 <select id="playerSelect">${opts}</select>
                 <button id="confirmBtn" class="btn-primary">确认身份 →</button>
