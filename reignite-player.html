@@ -27,6 +27,8 @@
             --red-dim: rgba(248,113,113,0.12);
             --blue: #60a5fa;
             --blue-dim: rgba(96,165,250,0.1);
+            --orange: #f97316;      /* 连接中颜色 */
+            --orange-dim: rgba(249,115,22,0.15);
         }
 
         [data-theme="light"] {
@@ -47,6 +49,8 @@
             --red-dim: rgba(220,38,38,0.08);
             --blue: #2563eb;
             --blue-dim: rgba(37,99,235,0.08);
+            --orange: #ea580c;
+            --orange-dim: rgba(234,88,12,0.1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -63,16 +67,31 @@
             content: '';
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background:
-                radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,80,26,0.05) 0%, transparent 60%),
-                radial-gradient(ellipse 40% 30% at 80% 80%, rgba(96,165,250,0.03) 0%, transparent 60%);
+            background: radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,80,26,0.08) 0%, transparent 60%),
+                        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(96,165,250,0.05) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
         }
 
         .container { max-width: 740px; margin: 0 auto; position: relative; z-index: 1; }
 
-        /* ── Header ── */
+        /* 液态玻璃效果 */
+        .info-card, .player-card, .stock-card, .selector-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 60%, rgba(96,165,250,0.04) 100%);
+            backdrop-filter: blur(16px) saturate(1.5);
+            -webkit-backdrop-filter: blur(16px) saturate(1.5);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.2);
+        }
+        [data-theme="light"] .info-card,
+        [data-theme="light"] .player-card,
+        [data-theme="light"] .stock-card,
+        [data-theme="light"] .selector-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 60%, rgba(96,165,250,0.05) 100%);
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08);
+        }
+
         .header {
             display: flex;
             align-items: center;
@@ -81,189 +100,88 @@
             border-bottom: 1px solid var(--border);
             margin-bottom: 24px;
         }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .logo-text {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--text-1);
-        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-text { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; letter-spacing: 2px; color: var(--text-1); }
         .logo-text span { color: var(--brand); }
         .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        .header-sub { font-size: 0.7rem; color: var(--text-3); letter-spacing: 0.5px; }
-
+        
+        /* 状态指示灯样式 */
         .status-pill {
-            display: flex; align-items: center; gap: 6px;
-            padding: 4px 12px 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px 4px 10px;
             border-radius: 40px;
             font-size: 0.72rem;
             font-weight: 600;
-            letter-spacing: 0.5px;
             border: 1px solid;
-            transition: all 0.3s;
-        }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
-        .connected { background: var(--green-dim); border-color: rgba(52,211,153,0.3); color: var(--green); }
-        .connected .status-dot { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
-        .disconnected { background: var(--red-dim); border-color: rgba(248,113,113,0.3); color: var(--red); }
-        .disconnected .status-dot { background: var(--red); }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.85); }
-        }
-
-        /* ── Animated Fire ── */
-        .fire-logo { width: 36px; height: 36px; position: relative; }
-        .fire-logo svg { width: 100%; height: 100%; }
-        .flame-main { animation: flicker 1.8s ease-in-out infinite alternate; transform-origin: 50% 90%; }
-        .flame-inner { animation: flicker 1.2s ease-in-out infinite alternate-reverse; transform-origin: 50% 90%; }
-        .flame-tip { animation: flicker 0.9s ease-in-out infinite alternate; transform-origin: 50% 95%; }
-        @keyframes flicker {
-            0%   { transform: scaleX(1) scaleY(1) rotate(-1deg); }
-            33%  { transform: scaleX(0.95) scaleY(1.04) rotate(1.5deg); }
-            66%  { transform: scaleX(1.04) scaleY(0.97) rotate(-2deg); }
-            100% { transform: scaleX(0.97) scaleY(1.06) rotate(1deg); }
-        }
-
-        /* ── Theme Toggle ── */
-        .theme-toggle {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            border: 1px solid var(--border-2);
             background: var(--surface-3);
-            color: var(--text-2);
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px;
-            transition: all 0.2s;
-            flex-shrink: 0;
+            transition: all 0.2s ease;
         }
-        .theme-toggle:hover { background: var(--surface-4); color: var(--text-1); border-color: var(--brand); }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        /* 连接中状态 (橙色 + 慢速脉冲) */
+        .status-connecting {
+            border-color: rgba(249,115,22,0.5);
+            color: var(--orange);
+        }
+        .status-connecting .status-dot {
+            background: var(--orange);
+            animation: connectingPulse 1.2s ease-in-out infinite;
+            box-shadow: 0 0 4px var(--orange);
+        }
+        /* 已连接状态 (绿色 + 简洁常亮) */
+        .status-connected {
+            border-color: rgba(52,211,153,0.4);
+            color: var(--green);
+        }
+        .status-connected .status-dot {
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+            animation: none;
+        }
+        /* 失联状态 (红色 + 快速闪烁警告) */
+        .status-disconnected {
+            border-color: rgba(248,113,113,0.5);
+            color: var(--red);
+        }
+        .status-disconnected .status-dot {
+            background: var(--red);
+            animation: disconnectedBlink 0.6s step-start infinite;
+            box-shadow: 0 0 8px var(--red);
+        }
+        
+        @keyframes connectingPulse {
+            0%, 100% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        @keyframes disconnectedBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
-        /* ── Info Cards Row ── */
+        /* 快报/经济圆点脉冲 */
+        .info-card-label .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); animation: idlePulse 2s infinite; }
+        .economy-card .info-card-label .dot { background: var(--gold); }
+        @keyframes idlePulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+        @keyframes urgentPulse { 0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(96,165,250,0.7); } 50% { opacity: 1; transform: scale(1.4); box-shadow: 0 0 0 4px rgba(96,165,250,0.4); } }
+        @keyframes urgentPulseGold { 0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(245,166,35,0.8); } 50% { opacity: 1; transform: scale(1.4); box-shadow: 0 0 0 4px rgba(245,166,35,0.4); } }
+        .pulse-urgent { animation: urgentPulse 0.6s ease-in-out 3 !important; }
+        .pulse-urgent-gold { animation: urgentPulseGold 0.6s ease-in-out 3 !important; }
+
         .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
         @media (max-width: 500px) { .info-row { grid-template-columns: 1fr; } }
+        .info-card { border-radius: 20px; padding: 16px 18px; position: relative; overflow: hidden; }
+        .info-card-label { display: flex; align-items: center; gap: 8px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-3); margin-bottom: 10px; }
+        .info-card-content { font-size: 0.9rem; line-height: 1.55; color: var(--text-1); transition: all 0.2s; }
+        .info-card-time { font-size: 0.65rem; color: var(--text-3); margin-top: 10px; text-align: right; }
 
-        .info-card {
-            position: relative;
-            border-radius: 20px;
-            padding: 16px 18px;
-            overflow: hidden;
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 60%, rgba(96,165,250,0.04) 100%);
-            backdrop-filter: blur(20px) saturate(1.5);
-            -webkit-backdrop-filter: blur(20px) saturate(1.5);
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.13),
-                inset 0 -1px 0 rgba(0,0,0,0.12),
-                0 6px 24px rgba(0,0,0,0.2);
-            transition: box-shadow 0.2s;
-        }
-        [data-theme="light"] .info-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.5) 60%, rgba(96,165,250,0.05) 100%);
-            border: 1px solid rgba(255,255,255,0.75);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.95),
-                inset 0 -1px 0 rgba(0,0,0,0.04),
-                0 4px 16px rgba(0,0,0,0.07);
-        }
-        /* tint economy card with gold accent */
-        .economy-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 50%, rgba(245,166,35,0.07) 100%);
-        }
-        [data-theme="light"] .economy-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.5) 50%, rgba(245,166,35,0.07) 100%);
-        }
-        /* glass sheen */
-        .info-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -60%; width: 45%; height: 100%;
-            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
-            pointer-events: none;
-            border-radius: 20px;
-        }
-        .info-card:hover {
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.18),
-                inset 0 -1px 0 rgba(0,0,0,0.12),
-                0 8px 28px rgba(0,0,0,0.28);
-        }
-
-        .info-card-label {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-3);
-            margin-bottom: 10px;
-            position: relative; z-index: 1;
-        }
-        .info-card-label .dot { width: 6px; height: 6px; border-radius: 50%; }
-        .news-card .info-card-label .dot { background: var(--blue); }
-        .economy-card .info-card-label .dot { background: var(--gold); animation: pulse 2.5s infinite; }
-
-        .info-card-content {
-            font-size: 0.9rem;
-            line-height: 1.55;
-            color: var(--text-1);
-            position: relative; z-index: 1;
-            transition: opacity 0.3s;
-        }
-        .info-card-time {
-            font-size: 0.65rem;
-            color: var(--text-3);
-            margin-top: 10px;
-            text-align: right;
-            position: relative; z-index: 1;
-        }
-
-        /* flash when content updates */
-        @keyframes content-flash {
-            0%   { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-        .content-updated { animation: content-flash 0.5s ease-out; }
-
-        /* ── Player Card ── */
-        .player-card {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 16px;
-            position: relative;
-            overflow: hidden;
-            transition: border-color 0.2s;
-        }
-        .player-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
-            border-radius: 20px 20px 0 0;
-        }
-        .player-card.color-green::before { background: linear-gradient(90deg, transparent, #4caf50, transparent); }
-        .player-card.color-yellow::before { background: linear-gradient(90deg, transparent, #ffc107, transparent); }
-        .player-card.color-orange::before { background: linear-gradient(90deg, transparent, #ff9800, transparent); }
-        .player-card.color-red::before { background: linear-gradient(90deg, transparent, #f44336, transparent); }
-        .player-card.color-black::before { background: linear-gradient(90deg, transparent, #8899aa, transparent); }
-
-        .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .player-name-block {}
+        /* 玩家卡片 & 低生命值特效 */
+        .player-card { border-radius: 20px; padding: 24px; margin-bottom: 16px; position: relative; transition: all 0.3s ease; }
         .player-name {
             font-family: 'Rajdhani', sans-serif;
             font-size: 2rem;
@@ -271,648 +189,220 @@
             letter-spacing: 1px;
             line-height: 1;
             color: var(--text-1);
+            transition: all 0.3s ease;
+            display: inline-block;
         }
-        .player-group {
-            font-size: 0.75rem;
-            color: var(--text-3);
-            margin-top: 4px;
-            letter-spacing: 0.5px;
-        }
-        .player-group strong { color: var(--text-2); }
+        .name-effect-yellow { text-shadow: 0 0 4px rgba(255,193,7,0.6); animation: subtleShake 0.2s ease-in-out 0s 2; }
+        .name-effect-orange { text-shadow: 0 0 6px rgba(255,152,0,0.9); animation: subtleShake 0.25s ease-in-out 0s 3; filter: blur(0.3px); }
+        .name-effect-red { text-shadow: 0 0 10px rgba(244,67,54,1); animation: subtleShake 0.3s ease-in-out infinite; filter: blur(0.5px); position: relative; }
+        .name-effect-red::after { content: '⚡'; position: absolute; right: -20px; top: 0; opacity: 0.7; animation: flickerDanger 0.3s infinite; }
+        .name-effect-black { text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 0 2px rgba(120,120,120,0.5); animation: violentShake 0.15s ease-in-out infinite; filter: blur(1px); opacity: 0.85; letter-spacing: -0.5px; }
+        .name-effect-black::before { content: '💀'; position: absolute; left: -24px; top: 4px; font-size: 1.2rem; filter: blur(0); animation: ghostFade 1s infinite; }
 
-        .player-id-badge {
-            background: var(--surface-4);
-            border: 1px solid var(--border-2);
-            border-radius: 8px;
-            padding: 6px 14px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-2);
-            font-family: 'Rajdhani', sans-serif;
-            letter-spacing: 1px;
-        }
+        @keyframes subtleShake { 0% { transform: translateX(0); } 25% { transform: translateX(-1.5px); } 75% { transform: translateX(1.5px); } 100% { transform: translateX(0); } }
+        @keyframes violentShake { 0% { transform: translateX(0) rotate(0deg); } 20% { transform: translateX(-2px) rotate(-1deg); } 40% { transform: translateX(2px) rotate(1deg); } 60% { transform: translateX(-1px) rotate(-0.5deg); } 80% { transform: translateX(1px) rotate(0.5deg); } 100% { transform: translateX(0) rotate(0); } }
+        @keyframes flickerDanger { 0%, 100% { opacity: 0.8; } 50% { opacity: 0.2; } }
+        @keyframes ghostFade { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.1; } }
 
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .stat-box {
-            background: var(--surface-3);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 12px 12px;
-            text-align: center;
-            position: relative;
-        }
-        .stat-label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-3);
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .stat-value {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 2.2rem;
-            font-weight: 700;
-            line-height: 1;
-            color: var(--text-1);
-        }
-        .stat-value.rbc-value { color: var(--gold); }
-
-        /* Color Orb */
-        .color-orb-wrap { display: flex; justify-content: center; }
-        .color-orb {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.15);
-            margin-bottom: 4px;
-        }
-        .orb-label {
-            font-size: 0.8rem;
-            color: var(--text-2);
-            font-weight: 500;
-        }
-        /* Heartbeat: real lub-dub double thump per color */
-        @keyframes hb-green {
-            0%   { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
-            8%   { transform: scale(1.22); box-shadow: 0 0 20px rgba(76,175,80,0.85); }
-            16%  { transform: scale(1.05); box-shadow: 0 0 10px rgba(76,175,80,0.5); }
-            24%  { transform: scale(1.18); box-shadow: 0 0 17px rgba(76,175,80,0.7); }
-            40%  { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
-            100% { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
-        }
-        @keyframes hb-yellow {
-            0%   { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.4); }
-            10%  { transform: scale(1.17); box-shadow: 0 0 16px rgba(255,193,7,0.75); }
-            20%  { transform: scale(1.04); box-shadow: 0 0 9px rgba(255,193,7,0.45); }
-            30%  { transform: scale(1.13); box-shadow: 0 0 13px rgba(255,193,7,0.65); }
-            48%  { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.35); }
-            100% { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.35); }
-        }
-        @keyframes hb-orange {
-            0%   { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.4); }
-            12%  { transform: scale(1.13); box-shadow: 0 0 13px rgba(255,152,0,0.7); }
-            24%  { transform: scale(1.03); box-shadow: 0 0 8px rgba(255,152,0,0.4); }
-            36%  { transform: scale(1.09); box-shadow: 0 0 11px rgba(255,152,0,0.6); }
-            56%  { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.3); }
-            100% { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.3); }
-        }
-        @keyframes hb-red {
-            0%   { transform: scale(1);    box-shadow: 0 0 6px rgba(244,67,54,0.35); }
-            16%  { transform: scale(1.08); box-shadow: 0 0 11px rgba(244,67,54,0.6); }
-            32%  { transform: scale(1.02); box-shadow: 0 0 6px rgba(244,67,54,0.3); }
-            48%  { transform: scale(1.06); box-shadow: 0 0 9px rgba(244,67,54,0.5); }
-            72%  { transform: scale(1);    box-shadow: 0 0 5px rgba(244,67,54,0.25); }
-            100% { transform: scale(1);    box-shadow: 0 0 5px rgba(244,67,54,0.25); }
-        }
-
-        /* green = vigorous young heart ~75 BPM fast strong lub-dub */
-        .orb-green  { background: #4caf50; animation: hb-green  0.8s ease-in-out infinite; }
-        /* yellow = healthy ~65 BPM */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+        .stat-box { background: rgba(0,0,0,0.25); backdrop-filter: blur(4px); border-radius: 14px; padding: 12px; text-align: center; border: 1px solid var(--border); }
+        [data-theme="light"] .stat-box { background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); margin-bottom: 8px; }
+        .stat-value { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; line-height: 1; color: var(--text-1); }
+        .rbc-value { color: var(--gold); }
+        .color-orb { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 6px; border: 2px solid rgba(255,255,255,0.2); transition: box-shadow 0.2s; }
+        .orb-green { background: #4caf50; animation: hb-green 0.8s ease-in-out infinite; }
         .orb-yellow { background: #ffc107; animation: hb-yellow 1.2s ease-in-out infinite; }
-        /* orange = weakening ~48 BPM */
         .orb-orange { background: #ff9800; animation: hb-orange 1.7s ease-in-out infinite; }
-        /* red = critical ~35 BPM, faint barely-there thump */
-        .orb-red    { background: #f44336; animation: hb-red    2.5s ease-in-out infinite; }
-        /* black = flatline, no pulse, no glow */
-        .orb-black  { background: #546e7a; box-shadow: none; }
+        .orb-red { background: #f44336; animation: hb-red 2.5s ease-in-out infinite; }
+        .orb-black { background: #546e7a; animation: none; box-shadow: none; }
+        @keyframes hb-green { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(76,175,80,0.4); } 14% { transform: scale(1.22); box-shadow: 0 0 0 6px rgba(76,175,80,0.2); } 28% { transform: scale(1); } 42% { transform: scale(1.15); } 70% { transform: scale(1); } 100% { transform: scale(1); } }
+        @keyframes hb-yellow { 0% { transform: scale(1); } 20% { transform: scale(1.18); } 40% { transform: scale(1); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes hb-orange { 0% { transform: scale(1); } 25% { transform: scale(1.12); } 50% { transform: scale(1); } 75% { transform: scale(1.06); } 100% { transform: scale(1); } }
+        @keyframes hb-red { 0% { transform: scale(1); } 30% { transform: scale(1.08); } 60% { transform: scale(1); } 100% { transform: scale(1); } }
 
-        /* Progress bar for chapter */
-        .progress-bar-wrap { margin-top: 6px; }
-        .progress-bar-bg {
-            background: var(--surface-4);
-            border-radius: 4px;
-            height: 4px;
-            margin-top: 6px;
-            overflow: hidden;
-        }
-        .progress-bar-fill {
-            height: 100%;
-            border-radius: 4px;
-            background: linear-gradient(90deg, var(--brand), #ffb347);
-            transition: width 0.6s cubic-bezier(.4,0,.2,1);
-        }
-        .progress-label {
-            font-size: 0.65rem;
-            color: var(--text-3);
-            text-align: center;
-            margin-top: 5px;
-        }
+        .warning-banner { background: var(--red-dim); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; padding: 10px; margin-top: 16px; text-align: center; font-size: 0.8rem; color: var(--red); font-weight: 600; }
 
-        /* Warning Banner */
-        .warning-banner {
-            background: var(--red-dim);
-            border: 1px solid rgba(248,113,113,0.25);
-            border-radius: 12px;
-            padding: 10px 16px;
-            margin-top: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.82rem;
-            color: var(--red);
-            font-weight: 600;
-        }
-        .warning-banner .wi { font-size: 1.1rem; }
-
-        /* ── Stock Card ── liquid glass */
-        .stock-card {
-            position: relative;
-            border-radius: 24px;
-            padding: 22px 24px 18px;
-            margin-bottom: 16px;
-            overflow: hidden;
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 50%, rgba(245,166,35,0.05) 100%);
-            backdrop-filter: blur(20px) saturate(1.6);
-            -webkit-backdrop-filter: blur(20px) saturate(1.6);
-            border: 1px solid rgba(255,255,255,0.13);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.15),
-                inset 0 -1px 0 rgba(0,0,0,0.15),
-                0 8px 32px rgba(0,0,0,0.25),
-                0 2px 8px rgba(245,166,35,0.06);
-        }
-        [data-theme="light"] .stock-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.45) 50%, rgba(245,166,35,0.07) 100%);
-            border: 1px solid rgba(255,255,255,0.7);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.9),
-                inset 0 -1px 0 rgba(0,0,0,0.05),
-                0 8px 32px rgba(0,0,0,0.08),
-                0 2px 8px rgba(245,166,35,0.08);
-        }
-        /* glass sheen sweep across top */
-        .stock-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -60%; width: 50%; height: 100%;
-            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
-            pointer-events: none;
-            border-radius: 24px;
-        }
-        /* gold glow orb bottom-right */
-        .stock-card::after {
-            content: '';
-            position: absolute;
-            bottom: -30px; right: -20px;
-            width: 140px; height: 140px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(245,166,35,0.14) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .stock-top-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-            position: relative;
-            z-index: 1;
-        }
-        .stock-left { display: flex; flex-direction: column; justify-content: center; }
-        .stock-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.55rem;
-            font-weight: 700;
-            color: var(--text-1);
-            letter-spacing: 2px;
-            line-height: 1;
-        }
+        .stock-card { border-radius: 24px; padding: 22px; margin-top: 8px; }
+        .stock-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text-1); }
         .stock-title em { color: var(--gold); font-style: normal; }
-        .stock-ticker {
-            font-size: 0.62rem;
-            color: var(--text-3);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-        .stock-right { text-align: right; }
-        .stock-price {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 2.4rem;
-            font-weight: 700;
-            color: var(--gold);
-            line-height: 1;
-            text-shadow: 0 0 20px rgba(245,166,35,0.35);
-        }
-        .stock-unit {
-            font-size: 0.68rem;
-            color: var(--text-3);
-            margin-top: 3px;
-            letter-spacing: 0.5px;
-        }
+        .stock-price { font-family: 'Rajdhani', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--gold); text-align: right; }
+        canvas { max-height: 120px; width: 100%; margin-top: 12px; }
 
-        .stock-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(245,166,35,0.25), transparent);
-            margin-bottom: 14px;
-            position: relative;
-            z-index: 1;
-        }
-
-        canvas {
-            width: 100% !important;
-            max-height: 150px;
-            position: relative;
-            z-index: 1;
-        }
-        .stock-note {
-            font-size: 0.62rem;
-            color: var(--text-3);
-            text-align: center;
-            margin-top: 12px;
-            letter-spacing: 0.4px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ── Selector ── */
-        .selector-card {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 28px 24px;
-            margin-bottom: 32px;
-        }
-        .selector-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-1);
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-        }
-        .selector-sub {
-            font-size: 0.82rem;
-            color: var(--text-3);
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        select {
-            width: 100%;
-            background: var(--surface-3);
-            border: 1px solid var(--border-2);
-            color: var(--text-1);
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 0.9rem;
-            font-family: 'Noto Sans SC', system-ui, sans-serif;
-            cursor: pointer;
-            outline: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a94a8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 36px;
-            transition: border-color 0.2s;
-        }
-        select:focus { border-color: var(--brand); }
-
-        .btn-primary {
-            width: 100%;
-            background: var(--brand);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 13px 20px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            font-family: 'Rajdhani', sans-serif;
-            letter-spacing: 1.5px;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: all 0.2s;
-        }
-        .btn-primary:hover { background: #d44516; transform: translateY(-1px); }
-        .btn-primary:active { transform: translateY(0); }
-
-        /* ── Footer ── */
-        .footer {
-            text-align: center;
-            font-size: 0.65rem;
-            color: var(--text-3);
-            margin-top: 28px;
-            letter-spacing: 0.5px;
-        }
-        .footer-dot { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--brand); margin: 0 6px; vertical-align: middle; animation: pulse 2s infinite; }
-
-        /* Divider */
-        .divider { height: 1px; background: var(--border); margin: 0 0 16px; }
+        .selector-card { border-radius: 20px; padding: 28px 24px; margin-bottom: 32px; text-align: center; }
+        select, .btn-primary { width: 100%; padding: 12px; border-radius: 12px; background: var(--surface-3); border: 1px solid var(--border-2); color: var(--text-1); font-size: 0.9rem; margin-top: 12px; cursor: pointer; }
+        .btn-primary { background: var(--brand); color: white; border: none; font-weight: 700; }
+        .footer { text-align: center; font-size: 0.65rem; color: var(--text-3); margin-top: 24px; }
+        .theme-toggle { background: var(--surface-3); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="container">
-
-    <!-- Header -->
     <div class="header">
         <div class="logo">
-            <div class="fire-logo">
-                <svg viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g class="flame-main">
-                        <path d="M18 42C10 42 4 36 4 28C4 20 9 16 12 12C12 16 14 18 16 18C14 12 17 6 18 2C19 8 22 10 24 14C26 10 25 6 24 4C28 8 32 14 32 22C32 32 26 42 18 42Z" fill="url(#fg1)"/>
-                    </g>
-                    <g class="flame-inner">
-                        <path d="M18 38C13 38 9 34 9 28C9 23 12 20 14 17C14 20 16 22 17.5 22C16 18 17 14 18 10C19 14 21 16 22 19C23 16 22.5 13 22 11C25 15 27 19 27 25C27 32 23 38 18 38Z" fill="url(#fg2)"/>
-                    </g>
-                    <g class="flame-tip">
-                        <path d="M18 34C15 34 12 31 12 27C12 24 14 22 15.5 20C15.5 22.5 17 24 18 24C17 21 17.5 19 18 17C18.5 19 20 21 20.5 23C21 21 20.5 19 20 18C22 21 24 23 24 27C24 31 21 34 18 34Z" fill="url(#fg3)"/>
-                    </g>
-                    <defs>
-                        <linearGradient id="fg1" x1="18" y1="2" x2="18" y2="42" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#ff6b1a"/>
-                            <stop offset="100%" stop-color="#e8501a"/>
-                        </linearGradient>
-                        <linearGradient id="fg2" x1="18" y1="10" x2="18" y2="38" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#ffcc00"/>
-                            <stop offset="100%" stop-color="#ff8800"/>
-                        </linearGradient>
-                        <linearGradient id="fg3" x1="18" y1="17" x2="18" y2="34" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#fff5aa"/>
-                            <stop offset="100%" stop-color="#ffdd00"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </div>
             <div class="logo-text">RE<span>:</span>Ignite</div>
-            <div id="statusBadge" class="status-pill disconnected">
+            <div id="statusBadge" class="status-pill status-connecting">
                 <span class="status-dot"></span>
                 连接中…
             </div>
         </div>
         <div class="header-right">
-            <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+            <button class="theme-toggle" id="themeToggle">🌙</button>
             <div class="header-sub">每一个决定都将影响最终结果</div>
         </div>
     </div>
-
-    <!-- News + Economy Row -->
     <div class="info-row">
-        <div class="info-card news-card">
-            <div class="info-card-label">
-                <span class="dot"></span>
-                RE:Ignite 快报
-            </div>
-            <div class="info-card-content" id="newsContent">加载中…</div>
-            <div class="info-card-time" id="newsTime"></div>
-        </div>
-        <div class="info-card economy-card">
-            <div class="info-card-label">
-                <span class="dot"></span>
-                经济动态
-            </div>
-            <div class="info-card-content" id="economyContent">加载中…</div>
-            <div class="info-card-time" id="economyTime"></div>
-        </div>
+        <div class="info-card news-card"><div class="info-card-label"><span class="dot" id="newsDot"></span>RE:Ignite 快报</div><div class="info-card-content" id="newsContent">加载中…</div><div class="info-card-time" id="newsTime"></div></div>
+        <div class="info-card economy-card"><div class="info-card-label"><span class="dot" id="economyDot"></span>经济动态</div><div class="info-card-content" id="economyContent">加载中…</div><div class="info-card-time" id="economyTime"></div></div>
     </div>
-
-    <!-- Main Player / Selector -->
     <div id="mainContent"></div>
-
-    <!-- Stock Card -->
-    <div class="stock-card">
-        <div class="stock-top-row">
-            <div class="stock-left">
-                <div class="stock-title">RE<em>:</em>Set 股</div>
-                <div class="stock-ticker">实时行情 · RESET</div>
-            </div>
-            <div class="stock-right">
-                <div class="stock-price" id="currentPrice">--</div>
-                <div class="stock-unit">R币 / 股</div>
-            </div>
-        </div>
-        <div class="stock-divider"></div>
-        <canvas id="priceChart" height="130"></canvas>
-        <div class="stock-note">中控发布经济动态或随机波动时自动更新</div>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-        数据实时同步<span class="footer-dot"></span>无需刷新页面
-    </div>
-
+    <div class="stock-card"><div class="stock-title">RE<em>:</em>Set 股</div><div class="stock-price" id="currentPrice">--</div><canvas id="priceChart" height="130"></canvas><div class="stock-note" style="font-size:0.65rem; text-align:center; margin-top:8px;">中控发布经济动态或随机波动时自动更新</div></div>
+    <div class="footer">数据实时同步<span style="display:inline-block; width:4px; height:4px; background:var(--brand); border-radius:50%; margin:0 6px; vertical-align:middle;"></span>无需刷新页面</div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-    /* ── Theme Toggle ── */
-    (function(){
-        const btn = document.getElementById('themeToggle');
-        const saved = localStorage.getItem('reignite_theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', saved);
-        btn.textContent = saved === 'dark' ? '☀️' : '🌙';
-        btn.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('reignite_theme', next);
-            btn.textContent = next === 'dark' ? '☀️' : '🌙';
-        });
-    })();
+    // --- 主题切换 ---
+    const btn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('reignite_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+    btn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('reignite_theme', next);
+        btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
 
     const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-
     let supabaseClient = window.__supabasePlayerClient || (window.__supabasePlayerClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
 
     let allPlayers = [], currentPlayer = null, priceHistory = [5], chart = null;
 
-    /* ── Stock Chart ── */
+    // 连接状态管理
+    const statusBadge = document.getElementById('statusBadge');
+    function setConnectionState(state) { // 'connecting', 'connected', 'disconnected'
+        statusBadge.classList.remove('status-connecting', 'status-connected', 'status-disconnected');
+        if (state === 'connected') {
+            statusBadge.classList.add('status-connected');
+            statusBadge.innerHTML = '<span class="status-dot"></span>已连接';
+        } else if (state === 'disconnected') {
+            statusBadge.classList.add('status-disconnected');
+            statusBadge.innerHTML = '<span class="status-dot"></span>失联';
+        } else {
+            statusBadge.classList.add('status-connecting');
+            statusBadge.innerHTML = '<span class="status-dot"></span>连接中…';
+        }
+    }
+    setConnectionState('connecting');
+
+    // 股票图表
     function renderStockChart() {
         const ctx = document.getElementById('priceChart').getContext('2d');
         if (chart) chart.destroy();
         const last = priceHistory[priceHistory.length-1];
         const prev = priceHistory[priceHistory.length-2] ?? last;
         const rising = last >= prev;
-        const lineColor = rising ? '#34d399' : '#f87171';
-        const fillColor = rising ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)';
         chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: priceHistory.map((_, i) => i+1),
-                datasets: [{
-                    data: priceHistory,
-                    borderColor: lineColor,
-                    backgroundColor: fillColor,
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
-                    pointHoverBackgroundColor: lineColor
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { display: false, grid: { display: false } },
-                    y: {
-                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-                        ticks: { color: '#5a6377', font: { size: 11 }, callback: v => v + ' R' },
-                        border: { display: false }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1e2435',
-                        borderColor: 'rgba(255,255,255,0.1)',
-                        borderWidth: 1,
-                        titleColor: '#8a94a8',
-                        bodyColor: '#f0f2f8',
-                        callbacks: { label: ctx => `  ${ctx.raw} R币` }
-                    }
-                }
-            }
+            type: 'line', data: { labels: priceHistory.map((_, i) => i+1), datasets: [{ data: priceHistory, borderColor: rising ? '#34d399' : '#f87171', backgroundColor: rising ? 'rgba(52,211,153,0.05)' : 'rgba(248,113,113,0.05)', borderWidth: 2, tension: 0.3, fill: true, pointRadius: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false }, y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#5a6377', callback: v => v + ' R' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `  ${ctx.raw} R币` } } } }
         });
         document.getElementById('currentPrice').innerText = last;
     }
+    async function loadLatestPrice() { try { const { data, error } = await supabaseClient.from('stock_prices').select('price').order('id', { ascending: false }).limit(1); if (!error && data?.length && priceHistory[priceHistory.length-1] !== data[0].price) { priceHistory.push(data[0].price); renderStockChart(); } } catch(e) {} }
+    function subscribeStockPrice() { supabaseClient.channel('stock-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, (payload) => { if (payload.new.price && priceHistory[priceHistory.length-1] !== payload.new.price) { priceHistory.push(payload.new.price); renderStockChart(); } }).subscribe(); }
 
-    async function loadLatestPrice() {
-        try {
-            const { data, error } = await supabaseClient.from('stock_prices').select('price').order('id', { ascending: false }).limit(1);
-            if (!error && data?.length) {
-                const p = data[0].price;
-                if (priceHistory[priceHistory.length-1] !== p) { priceHistory.push(p); renderStockChart(); }
-            }
-        } catch(e) { console.warn(e); }
+    // 触发脉冲动画
+    let newsTimeout, economyTimeout;
+    function animateDot(dotElement, isGold = false) {
+        if (!dotElement) return;
+        dotElement.classList.remove('pulse-urgent', 'pulse-urgent-gold');
+        void dotElement.offsetWidth;
+        dotElement.classList.add(isGold ? 'pulse-urgent-gold' : 'pulse-urgent');
+        if (isGold) { if (economyTimeout) clearTimeout(economyTimeout); economyTimeout = setTimeout(() => dotElement.classList.remove('pulse-urgent-gold'), 800); }
+        else { if (newsTimeout) clearTimeout(newsTimeout); newsTimeout = setTimeout(() => dotElement.classList.remove('pulse-urgent'), 800); }
     }
 
-    function subscribeStockPrice() {
-        supabaseClient.channel('stock-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, (payload) => {
-                const p = payload.new.price;
-                if (p && priceHistory[priceHistory.length-1] !== p) { priceHistory.push(p); renderStockChart(); }
-            }).subscribe();
-    }
-
-    function updateStatus(connected) {
-        const el = document.getElementById('statusBadge');
-        if (!el) return;
-        el.className = `status-pill ${connected ? 'connected' : 'disconnected'}`;
-        el.innerHTML = `<span class="status-dot"></span>${connected ? '实时在线' : '离线'}`;
-    }
-
-    /* ── Players ── */
-    async function loadPlayers() {
-        const { data, error } = await supabaseClient.from('players').select('*').order('group_name');
-        if (error) { updateStatus(false); return; }
-        allPlayers = data;
-        updateStatus(true);
-        if (currentPlayer) renderPlayerView();
-    }
-
+    let lastNews = '', lastEconomy = '';
     async function loadLatestNews() {
-        const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
-        const el = document.getElementById('newsContent');
-        const newText = (!error && data?.length) ? data[0].content : '暂无快报';
-        if (el.innerHTML !== newText) {
-            el.innerHTML = newText;
-            el.classList.remove('content-updated');
-            void el.offsetWidth;
-            el.classList.add('content-updated');
-        }
-        document.getElementById('newsTime').innerHTML = (!error && data?.length) ? data[0].time : '';
+        try {
+            const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
+            const newText = (!error && data?.length) ? data[0].content : '暂无快报';
+            const newTime = (!error && data?.length) ? data[0].time : '';
+            if (lastNews !== newText) { animateDot(document.getElementById('newsDot'), false); lastNews = newText; }
+            document.getElementById('newsContent').innerHTML = newText; document.getElementById('newsTime').innerHTML = newTime;
+            setConnectionState('connected');
+        } catch(e) { setConnectionState('disconnected'); }
     }
-
     async function loadLatestEconomy() {
-        const { data, error } = await supabaseClient.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
-        const el = document.getElementById('economyContent');
-        const newText = (!error && data?.length) ? data[0].content : '暂无经济动态';
-        if (el.innerHTML !== newText) {
-            el.innerHTML = newText;
-            el.classList.remove('content-updated');
-            void el.offsetWidth;
-            el.classList.add('content-updated');
-        }
-        document.getElementById('economyTime').innerHTML = (!error && data?.length) ? data[0].time : '';
+        try {
+            const { data, error } = await supabaseClient.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
+            const newText = (!error && data?.length) ? data[0].content : '暂无经济动态';
+            const newTime = (!error && data?.length) ? data[0].time : '';
+            if (lastEconomy !== newText) { animateDot(document.getElementById('economyDot'), true); lastEconomy = newText; }
+            document.getElementById('economyContent').innerHTML = newText; document.getElementById('economyTime').innerHTML = newTime;
+        } catch(e) {}
     }
 
-    function getProgress(p) {
-        return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100);
-    }
-
-    const colorMap = { green:'green', yellow:'yellow', orange:'orange', red:'red', black:'black' };
+    function getProgress(p) { return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100); }
     const colorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' };
+    
+    function getHealthEffectClass(color) {
+        if (color === 'yellow') return 'name-effect-yellow';
+        if (color === 'orange') return 'name-effect-orange';
+        if (color === 'red') return 'name-effect-red';
+        if (color === 'black') return 'name-effect-black';
+        return '';
+    }
+
+    async function loadPlayers() {
+        try {
+            const { data, error } = await supabaseClient.from('players').select('*').order('group_name');
+            if (error) throw error;
+            allPlayers = data;
+            setConnectionState('connected');
+            if (currentPlayer) renderPlayerView();
+        } catch(e) { setConnectionState('disconnected'); }
+    }
 
     function renderPlayerView() {
         if (!currentPlayer) return;
         const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
         if (!p) { showSelector(); return; }
-        const prog = getProgress(p);
-        const isWarning = p.rbc < 5;
-        const col = colorMap[p.color] || 'green';
-
+        const prog = getProgress(p); const isWarning = p.rbc < 5; const col = p.color;
+        const healthClass = getHealthEffectClass(col);
         document.getElementById('mainContent').innerHTML = `
-            <div class="player-card color-${col}" style="margin-bottom:16px;">
-                <div class="player-header">
-                    <div class="player-name-block">
-                        <div class="player-name">${p.name}</div>
-                        <div class="player-group">组别 &nbsp;<strong>${p.group_name}</strong></div>
-                    </div>
-                    <div class="player-id-badge">${p.group_name.toUpperCase()}</div>
+            <div class="player-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+                    <div><div class="player-name ${healthClass}">${p.name}</div><div style="font-size:0.7rem; color:var(--text-3); margin-top:4px;">组别 · ${p.group_name}</div></div>
+                    <div style="background:var(--surface-3); padding:4px 12px; border-radius:20px; font-size:0.7rem; font-weight:600;">${p.group_name}</div>
                 </div>
                 <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">生命颜色</div>
-                        <div class="color-orb-wrap">
-                            <div class="color-orb orb-${col}"></div>
-                        </div>
-                        <div class="orb-label">${colorName[p.color] || p.color}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">R 币</div>
-                        <div class="stat-value rbc-value">${p.rbc}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">章节进度</div>
-                        <div class="stat-value">${prog}<span style="font-size:1rem;color:var(--text-3)">%</span></div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width:${prog}%"></div>
-                        </div>
-                    </div>
+                    <div class="stat-box"><div class="stat-label">生命颜色</div><div class="color-orb orb-${col}"></div><div style="font-size:0.75rem;">${colorName[col]}</div></div>
+                    <div class="stat-box"><div class="stat-label">R 币</div><div class="stat-value rbc-value">${p.rbc}</div></div>
+                    <div class="stat-box"><div class="stat-label">章节进度</div><div class="stat-value">${prog}<span style="font-size:1rem;">%</span></div><div style="height:4px; background:var(--surface-4); border-radius:2px; margin-top:6px;"><div style="width:${prog}%; height:4px; background:var(--brand); border-radius:2px;"></div></div></div>
                 </div>
-                ${isWarning ? `<div class="warning-banner"><span class="wi">⚠️</span>生存警告！R币不足 5，请尽快补充资源！</div>` : ''}
+                ${isWarning ? `<div class="warning-banner">⚠️ 生存警告！R币不足 5，请尽快补充资源！</div>` : ''}
             </div>
-            <div style="text-align:right;margin-bottom:16px;">
-                <button onclick="window.__resetPlayer()" style="background:none;border:1px solid var(--border-2);color:var(--text-3);border-radius:8px;padding:6px 14px;font-size:0.75rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.color='var(--text-1)'" onmouseout="this.style.color='var(--text-3)'">切换角色</button>
-            </div>
+            <div style="text-align:right; margin-top:8px;"><button onclick="window.__resetPlayer()" style="background:var(--surface-3); border:1px solid var(--border); color:var(--text-2); border-radius:20px; padding:4px 12px; font-size:0.7rem; cursor:pointer;">切换角色</button></div>
         `;
     }
 
-    window.__resetPlayer = function() {
-        currentPlayer = null;
-        localStorage.removeItem('current_player');
-        showSelector();
-    };
-
+    window.__resetPlayer = function() { currentPlayer = null; localStorage.removeItem('current_player'); showSelector(); };
     function showSelector() {
-        if (!allPlayers.length) {
-            document.getElementById('mainContent').innerHTML = `<div class="selector-card"><div class="selector-sub">加载玩家名单中，请稍候…</div></div>`;
-            return;
-        }
+        if (!allPlayers.length) { document.getElementById('mainContent').innerHTML = `<div class="selector-card"><div class="selector-sub">加载玩家名单中…</div></div>`; return; }
         const sorted = [...allPlayers].sort((a,b) => a.group_name.localeCompare(b.group_name));
         let opts = '<option value="">—— 请选择你的角色 ——</option>';
-        sorted.forEach(p => { opts += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name}</option>`; });
+        sorted.forEach(p => opts += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name}</option>`);
         document.getElementById('mainContent').innerHTML = `
-            <div class="selector-card">
-                <div class="selector-title">欢迎来到R区</div>
-                <div class="selector-sub">请选择你的角色，即可查看实时游戏状态与数据</div>
-                <select id="playerSelect">${opts}</select>
-                <button id="confirmBtn" class="btn-primary">确认身份 →</button>
-            </div>
+            <div class="selector-card"><div class="selector-title" style="font-size:1.4rem;">欢迎来到R城</div><div class="selector-sub">请选择你的角色，即可查看实时游戏状态与数据</div><select id="playerSelect">${opts}</select><button id="confirmBtn" class="btn-primary">确认身份 →</button></div>
         `;
         document.getElementById('confirmBtn').onclick = () => {
             const val = document.getElementById('playerSelect').value;
-            if (!val) { return; }
+            if (!val) return;
             const [name, group_name] = val.split('|');
             currentPlayer = { name, group_name };
             localStorage.setItem('current_player', JSON.stringify(currentPlayer));
@@ -920,40 +410,21 @@
         };
     }
 
-    /* ── Realtime ── */
     function setupRealtime() {
-        supabaseClient.channel('players-channel')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
-            .subscribe();
-        supabaseClient.channel('news-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews())
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'news' }, () => loadLatestNews())
-            .subscribe();
-        supabaseClient.channel('economy-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
-            .subscribe();
+        supabaseClient.channel('players-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers()).subscribe();
+        supabaseClient.channel('news-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews()).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'news' }, () => loadLatestNews()).subscribe();
+        supabaseClient.channel('economy-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy()).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy()).subscribe();
         subscribeStockPrice();
     }
 
-    /* ── Init ── */
     const urlParams = new URLSearchParams(window.location.search);
     const urlName = urlParams.get('name'), urlGroup = urlParams.get('group');
-    if (urlName && urlGroup) {
-        currentPlayer = { name: urlName, group_name: urlGroup };
-        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
-    } else {
-        try { const s = localStorage.getItem('current_player'); if (s) currentPlayer = JSON.parse(s); } catch(e){}
-    }
+    if (urlName && urlGroup) { currentPlayer = { name: urlName, group_name: urlGroup }; localStorage.setItem('current_player', JSON.stringify(currentPlayer)); }
+    else { try { const s = localStorage.getItem('current_player'); if (s) currentPlayer = JSON.parse(s); } catch(e){} }
 
-    loadPlayers(); loadLatestNews(); loadLatestEconomy();
-    setupRealtime(); renderStockChart(); loadLatestPrice();
-
-    if (currentPlayer) {
-        let iv = setInterval(() => { if (allPlayers.length) { clearInterval(iv); renderPlayerView(); } }, 200);
-    } else {
-        setTimeout(showSelector, 800);
-    }
+    loadPlayers(); loadLatestNews(); loadLatestEconomy(); setupRealtime(); renderStockChart(); loadLatestPrice();
+    if (currentPlayer) { let iv = setInterval(() => { if (allPlayers.length) { clearInterval(iv); renderPlayerView(); } }, 200); }
+    else { setTimeout(showSelector, 500); }
 })();
 </script>
 </body>
