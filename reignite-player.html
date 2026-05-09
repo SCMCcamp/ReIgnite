@@ -151,13 +151,50 @@
         @media (max-width: 500px) { .info-row { grid-template-columns: 1fr; } }
 
         .info-card {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 16px;
+            position: relative;
+            border-radius: 20px;
             padding: 16px 18px;
-            transition: border-color 0.2s;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 60%, rgba(96,165,250,0.04) 100%);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.13),
+                inset 0 -1px 0 rgba(0,0,0,0.12),
+                0 6px 24px rgba(0,0,0,0.2);
+            transition: box-shadow 0.2s;
         }
-        .info-card:hover { border-color: var(--border-2); }
+        [data-theme="light"] .info-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.5) 60%, rgba(96,165,250,0.05) 100%);
+            border: 1px solid rgba(255,255,255,0.75);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.95),
+                inset 0 -1px 0 rgba(0,0,0,0.04),
+                0 4px 16px rgba(0,0,0,0.07);
+        }
+        /* tint economy card with gold accent */
+        .economy-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 50%, rgba(245,166,35,0.07) 100%);
+        }
+        [data-theme="light"] .economy-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.5) 50%, rgba(245,166,35,0.07) 100%);
+        }
+        /* glass sheen */
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -60%; width: 45%; height: 100%;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
+            pointer-events: none;
+            border-radius: 20px;
+        }
+        .info-card:hover {
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.18),
+                inset 0 -1px 0 rgba(0,0,0,0.12),
+                0 8px 28px rgba(0,0,0,0.28);
+        }
 
         .info-card-label {
             display: flex; align-items: center; gap: 6px;
@@ -167,10 +204,9 @@
             letter-spacing: 1.5px;
             color: var(--text-3);
             margin-bottom: 10px;
+            position: relative; z-index: 1;
         }
-        .info-card-label .dot {
-            width: 6px; height: 6px; border-radius: 50%;
-        }
+        .info-card-label .dot { width: 6px; height: 6px; border-radius: 50%; }
         .news-card .info-card-label .dot { background: var(--blue); }
         .economy-card .info-card-label .dot { background: var(--gold); animation: pulse 2.5s infinite; }
 
@@ -178,13 +214,23 @@
             font-size: 0.9rem;
             line-height: 1.55;
             color: var(--text-1);
+            position: relative; z-index: 1;
+            transition: opacity 0.3s;
         }
         .info-card-time {
             font-size: 0.65rem;
             color: var(--text-3);
             margin-top: 10px;
             text-align: right;
+            position: relative; z-index: 1;
         }
+
+        /* flash when content updates */
+        @keyframes content-flash {
+            0%   { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        .content-updated { animation: content-flash 0.5s ease-out; }
 
         /* ── Player Card ── */
         .player-card {
@@ -766,13 +812,27 @@
 
     async function loadLatestNews() {
         const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
-        document.getElementById('newsContent').innerHTML = (!error && data?.length) ? data[0].content : '暂无快报';
+        const el = document.getElementById('newsContent');
+        const newText = (!error && data?.length) ? data[0].content : '暂无快报';
+        if (el.innerHTML !== newText) {
+            el.innerHTML = newText;
+            el.classList.remove('content-updated');
+            void el.offsetWidth;
+            el.classList.add('content-updated');
+        }
         document.getElementById('newsTime').innerHTML = (!error && data?.length) ? data[0].time : '';
     }
 
     async function loadLatestEconomy() {
         const { data, error } = await supabaseClient.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
-        document.getElementById('economyContent').innerHTML = (!error && data?.length) ? data[0].content : '暂无经济动态';
+        const el = document.getElementById('economyContent');
+        const newText = (!error && data?.length) ? data[0].content : '暂无经济动态';
+        if (el.innerHTML !== newText) {
+            el.innerHTML = newText;
+            el.classList.remove('content-updated');
+            void el.offsetWidth;
+            el.classList.add('content-updated');
+        }
         document.getElementById('economyTime').innerHTML = (!error && data?.length) ? data[0].time : '';
     }
 
