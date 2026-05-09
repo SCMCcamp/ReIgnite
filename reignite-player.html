@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f1117">
     <title>RE:Ignite · 玩家端</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -27,8 +30,12 @@
             --red-dim: rgba(248,113,113,0.12);
             --blue: #60a5fa;
             --blue-dim: rgba(96,165,250,0.1);
-            --orange: #f97316;      /* 连接中颜色 */
-            --orange-dim: rgba(249,115,22,0.15);
+
+            /* HP danger CSS vars (driven by JS) */
+            --hp-vignette: 0;
+            --hp-red-tint: 0;
+            --hp-flicker: 1;
+            --hp-desaturate: 0;
         }
 
         [data-theme="light"] {
@@ -49,8 +56,6 @@
             --red-dim: rgba(220,38,38,0.08);
             --blue: #2563eb;
             --blue-dim: rgba(37,99,235,0.08);
-            --orange: #ea580c;
-            --orange-dim: rgba(234,88,12,0.1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -59,346 +64,1212 @@
             font-family: 'Noto Sans SC', system-ui, sans-serif;
             background: var(--surface);
             color: var(--text-1);
-            padding: 20px 16px 40px;
+            /* Safe area insets for iPhone notch/home bar */
+            padding: max(16px, env(safe-area-inset-top)) 16px max(40px, env(safe-area-inset-bottom));
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
             min-height: 100vh;
+            min-height: -webkit-fill-available;
+            transition: filter 0.8s ease;
+            /* Prevent text size adjustment on orientation change */
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            /* Smooth momentum scrolling */
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: none;
         }
 
+        /* ── Ambient background ── */
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,80,26,0.08) 0%, transparent 60%),
-                        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(96,165,250,0.05) 0%, transparent 60%);
+            background:
+                radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,80,26,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 80% 80%, rgba(96,165,250,0.03) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
+            transition: background 1s ease;
         }
+
+        /* ── HP Danger Vignette overlay ── */
+        .hp-vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            /* radial vignette from edges */
+            background: radial-gradient(ellipse 90% 90% at 50% 50%,
+                transparent 40%,
+                rgba(200, 20, 10, 0.18) 75%,
+                rgba(160, 0, 0, 0.45) 100%
+            );
+        }
+
+        /* yellow: subtle */
+        body.hp-yellow .hp-vignette { opacity: 0.4; }
+        /* orange: medium */
+        body.hp-orange .hp-vignette { opacity: 0.7; }
+        /* red: pulsing danger */
+        body.hp-red .hp-vignette {
+            opacity: 1;
+            animation: vignette-pulse 2s ease-in-out infinite;
+        }
+        /* black: near-death flatline */
+        body.hp-black .hp-vignette {
+            background: radial-gradient(ellipse 80% 80% at 50% 50%,
+                rgba(0,0,0,0.1) 20%,
+                rgba(0,0,0,0.5) 65%,
+                rgba(0,0,0,0.88) 100%
+            );
+            opacity: 1;
+            animation: vignette-flicker 4s ease-in-out infinite;
+        }
+
+        @keyframes vignette-pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        @keyframes vignette-flicker {
+            0%, 100% { opacity: 0.85; }
+            30% { opacity: 1; }
+            45% { opacity: 0.6; }
+            50% { opacity: 0.95; }
+            70% { opacity: 0.75; }
+        }
+
+        /* ── HP scan-line effect for red/black ── */
+        .hp-scanlines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0;
+            transition: opacity 1s ease;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.03) 2px,
+                rgba(0,0,0,0.03) 4px
+            );
+        }
+        body.hp-red .hp-scanlines  { opacity: 1; }
+        body.hp-black .hp-scanlines { opacity: 1; }
+
+        /* ── Body-level HP effects ── */
+        body.hp-yellow { filter: saturate(0.9); }
+        body.hp-orange { filter: saturate(0.75); }
+        body.hp-red    { filter: saturate(0.55) brightness(0.92); }
+        body.hp-black  { filter: saturate(0.1) brightness(0.7) contrast(1.1); }
 
         .container { max-width: 740px; margin: 0 auto; position: relative; z-index: 1; }
 
-        /* 液态玻璃效果 */
-        .info-card, .player-card, .stock-card, .selector-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 60%, rgba(96,165,250,0.04) 100%);
-            backdrop-filter: blur(16px) saturate(1.5);
-            -webkit-backdrop-filter: blur(16px) saturate(1.5);
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.2);
-        }
-        [data-theme="light"] .info-card,
-        [data-theme="light"] .player-card,
-        [data-theme="light"] .stock-card,
-        [data-theme="light"] .selector-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 60%, rgba(96,165,250,0.05) 100%);
-            border: 1px solid rgba(255,255,255,0.7);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08);
-        }
-
+        /* ── Header ── */
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 4px 24px;
+            padding: 0 2px 18px;
             border-bottom: 1px solid var(--border);
-            margin-bottom: 24px;
+            margin-bottom: 18px;
+            gap: 8px;
         }
-        .logo { display: flex; align-items: center; gap: 10px; }
-        .logo-text { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; letter-spacing: 2px; color: var(--text-1); }
-        .logo-text span { color: var(--brand); }
-        .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        
-        /* 状态指示灯样式 */
-        .status-pill {
+        .logo {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 4px 14px 4px 10px;
+            flex: 1;
+            min-width: 0; /* allow text truncation */
+        }
+        .logo-text {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-1);
+            white-space: nowrap;
+        }
+        .logo-text span { color: var(--brand); }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .header-sub { display: none; } /* hidden on mobile — save space */
+
+        .status-pill {
+            display: flex; align-items: center; gap: 5px;
+            padding: 5px 10px 5px 7px;
             border-radius: 40px;
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             font-weight: 600;
+            letter-spacing: 0.3px;
             border: 1px solid;
-            background: var(--surface-3);
-            transition: all 0.2s ease;
+            transition: all 0.3s;
+            white-space: nowrap;
         }
-        .status-dot {
-            width: 8px;
-            height: 8px;
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .connected { background: var(--green-dim); border-color: rgba(52,211,153,0.3); color: var(--green); }
+        .connected .status-dot { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+        .disconnected { background: var(--red-dim); border-color: rgba(248,113,113,0.3); color: var(--red); }
+        .disconnected .status-dot { background: var(--red); }
+
+        /* Desktop: restore full header */
+        @media (min-width: 600px) {
+            .header { padding: 0 4px 24px; margin-bottom: 24px; }
+            .logo { gap: 10px; }
+            .logo-text { font-size: 1.5rem; }
+            .header-right { flex-direction: column; align-items: flex-end; gap: 6px; }
+            .header-sub { display: block; font-size: 0.7rem; color: var(--text-3); letter-spacing: 0.5px; }
+            .status-pill { font-size: 0.72rem; padding: 4px 12px 4px 8px; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.85); }
+        }
+
+        /* ── Animated Fire ── */
+        .fire-logo { width: 36px; height: 36px; position: relative; }
+        .fire-logo svg { width: 100%; height: 100%; }
+        .flame-main { animation: flicker 1.8s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+        .flame-inner { animation: flicker 1.2s ease-in-out infinite alternate-reverse; transform-origin: 50% 90%; }
+        .flame-tip { animation: flicker 0.9s ease-in-out infinite alternate; transform-origin: 50% 95%; }
+        @keyframes flicker {
+            0%   { transform: scaleX(1) scaleY(1) rotate(-1deg); }
+            33%  { transform: scaleX(0.95) scaleY(1.04) rotate(1.5deg); }
+            66%  { transform: scaleX(1.04) scaleY(0.97) rotate(-2deg); }
+            100% { transform: scaleX(0.97) scaleY(1.06) rotate(1deg); }
+        }
+
+        /* ── Theme Toggle ── */
+        .theme-toggle {
+            width: 36px; height: 36px;
             border-radius: 50%;
-            transition: all 0.2s ease;
+            border: 1px solid var(--border-2);
+            background: var(--surface-3);
+            color: var(--text-2);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            flex-shrink: 0;
         }
-        /* 连接中状态 (橙色 + 慢速脉冲) */
-        .status-connecting {
-            border-color: rgba(249,115,22,0.5);
-            color: var(--orange);
+        .theme-toggle:hover { background: var(--surface-4); color: var(--text-1); border-color: var(--brand); }
+
+        /* ════════════════════════════════════════
+           LIQUID GLASS BASE — applied everywhere
+        ════════════════════════════════════════ */
+        .glass {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(
+                135deg,
+                rgba(255,255,255,0.09) 0%,
+                rgba(255,255,255,0.04) 50%,
+                rgba(255,255,255,0.01) 100%
+            );
+            backdrop-filter: blur(24px) saturate(1.6) brightness(1.05);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6) brightness(1.05);
+            border: 1px solid rgba(255,255,255,0.13);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.15),
+                inset 0 -1px 0 rgba(0,0,0,0.15),
+                0 8px 32px rgba(0,0,0,0.28),
+                0 2px 8px rgba(0,0,0,0.1);
         }
-        .status-connecting .status-dot {
-            background: var(--orange);
-            animation: connectingPulse 1.2s ease-in-out infinite;
-            box-shadow: 0 0 4px var(--orange);
+        /* Top-left sheen sweep */
+        .glass::before {
+            content: '';
+            position: absolute;
+            top: -10%; left: -60%;
+            width: 45%; height: 120%;
+            background: linear-gradient(
+                105deg,
+                transparent 35%,
+                rgba(255,255,255,0.07) 50%,
+                transparent 65%
+            );
+            pointer-events: none;
+            border-radius: inherit;
         }
-        /* 已连接状态 (绿色 + 简洁常亮) */
-        .status-connected {
-            border-color: rgba(52,211,153,0.4);
-            color: var(--green);
-        }
-        .status-connected .status-dot {
-            background: var(--green);
-            box-shadow: 0 0 6px var(--green);
-            animation: none;
-        }
-        /* 失联状态 (红色 + 快速闪烁警告) */
-        .status-disconnected {
-            border-color: rgba(248,113,113,0.5);
-            color: var(--red);
-        }
-        .status-disconnected .status-dot {
-            background: var(--red);
-            animation: disconnectedBlink 0.6s step-start infinite;
-            box-shadow: 0 0 8px var(--red);
-        }
-        
-        @keyframes connectingPulse {
-            0%, 100% { opacity: 0.5; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-        @keyframes disconnectedBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        [data-theme="light"] .glass {
+            background: linear-gradient(
+                135deg,
+                rgba(255,255,255,0.78) 0%,
+                rgba(255,255,255,0.55) 60%,
+                rgba(255,255,255,0.35) 100%
+            );
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.98),
+                inset 0 -1px 0 rgba(0,0,0,0.04),
+                0 6px 24px rgba(0,0,0,0.08);
         }
 
-        /* 快报/经济圆点脉冲 */
-        .info-card-label .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); animation: idlePulse 2s infinite; }
-        .economy-card .info-card-label .dot { background: var(--gold); }
-        @keyframes idlePulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-        @keyframes urgentPulse { 0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(96,165,250,0.7); } 50% { opacity: 1; transform: scale(1.4); box-shadow: 0 0 0 4px rgba(96,165,250,0.4); } }
-        @keyframes urgentPulseGold { 0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(245,166,35,0.8); } 50% { opacity: 1; transform: scale(1.4); box-shadow: 0 0 0 4px rgba(245,166,35,0.4); } }
-        .pulse-urgent { animation: urgentPulse 0.6s ease-in-out 3 !important; }
-        .pulse-urgent-gold { animation: urgentPulseGold 0.6s ease-in-out 3 !important; }
+        /* ── Info Cards Row ── */
+        /* Mobile: stack vertically for readability */
+        .info-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        /* Side by side only on tablets+ */
+        @media (min-width: 520px) {
+            .info-row { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        }
 
-        .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        @media (max-width: 500px) { .info-row { grid-template-columns: 1fr; } }
-        .info-card { border-radius: 20px; padding: 16px 18px; position: relative; overflow: hidden; }
-        .info-card-label { display: flex; align-items: center; gap: 8px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-3); margin-bottom: 10px; }
-        .info-card-content { font-size: 0.9rem; line-height: 1.55; color: var(--text-1); transition: all 0.2s; }
-        .info-card-time { font-size: 0.65rem; color: var(--text-3); margin-top: 10px; text-align: right; }
+        .info-card {
+            border-radius: 18px;
+            padding: 14px 16px;
+            transition: box-shadow 0.2s;
+            /* Prevent tap highlight on mobile */
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (min-width: 520px) {
+            .info-card { border-radius: 20px; padding: 16px 18px; }
+        }
+        /* news: blue accent tint */
+        .news-card {
+            background: linear-gradient(135deg,
+                rgba(255,255,255,0.09) 0%,
+                rgba(255,255,255,0.04) 50%,
+                rgba(96,165,250,0.06) 100%
+            ) !important;
+        }
+        /* economy: gold accent tint */
+        .economy-card {
+            background: linear-gradient(135deg,
+                rgba(255,255,255,0.09) 0%,
+                rgba(255,255,255,0.04) 50%,
+                rgba(245,166,35,0.08) 100%
+            ) !important;
+        }
+        [data-theme="light"] .news-card {
+            background: linear-gradient(135deg,
+                rgba(255,255,255,0.82) 0%,
+                rgba(255,255,255,0.6) 55%,
+                rgba(96,165,250,0.06) 100%
+            ) !important;
+        }
+        [data-theme="light"] .economy-card {
+            background: linear-gradient(135deg,
+                rgba(255,255,255,0.82) 0%,
+                rgba(255,255,255,0.6) 55%,
+                rgba(245,166,35,0.08) 100%
+            ) !important;
+        }
+        .info-card:hover {
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.2),
+                inset 0 -1px 0 rgba(0,0,0,0.12),
+                0 10px 36px rgba(0,0,0,0.32) !important;
+        }
 
-        /* 玩家卡片 & 低生命值特效 */
-        .player-card { border-radius: 20px; padding: 24px; margin-bottom: 16px; position: relative; transition: all 0.3s ease; }
+        .info-card-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-3);
+            margin-bottom: 10px;
+            position: relative; z-index: 1;
+        }
+        .info-card-label .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+        /* ── Dot states ── */
+        /* News dot: always pulses (slow by default) */
+        .news-card .info-card-label .dot {
+            background: var(--blue);
+            box-shadow: 0 0 6px var(--blue);
+            animation: dot-slow 3s ease-in-out infinite;
+        }
+        /* Economy dot: slow by default */
+        .economy-card .info-card-label .dot {
+            background: var(--gold);
+            box-shadow: 0 0 6px var(--gold);
+            animation: dot-slow 3s ease-in-out infinite;
+        }
+        /* Fast pulse on new notification */
+        .dot-alert {
+            animation: dot-fast 0.5s ease-in-out infinite !important;
+        }
+
+        @keyframes dot-slow {
+            0%, 100% { opacity: 1;   transform: scale(1);    box-shadow: 0 0 4px currentColor; }
+            50%       { opacity: 0.5; transform: scale(0.75); box-shadow: 0 0 2px currentColor; }
+        }
+        @keyframes dot-fast {
+            0%, 100% { opacity: 1;   transform: scale(1.3); box-shadow: 0 0 10px currentColor; }
+            50%       { opacity: 0.3; transform: scale(0.7); box-shadow: 0 0 3px currentColor; }
+        }
+
+        .info-card-content {
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: var(--text-1);
+            position: relative; z-index: 1;
+            transition: opacity 0.3s;
+        }
+        @media (min-width: 520px) {
+            .info-card-content { font-size: 0.9rem; line-height: 1.55; }
+        }
+        .info-card-time {
+            font-size: 0.65rem;
+            color: var(--text-3);
+            margin-top: 10px;
+            text-align: right;
+            position: relative; z-index: 1;
+        }
+        @keyframes content-flash {
+            0%   { opacity: 0.2; transform: translateY(-4px); }
+            100% { opacity: 1;   transform: translateY(0); }
+        }
+        .content-updated { animation: content-flash 0.4s ease-out; }
+
+        /* ════════════════════════════════════════
+           PLAYER CARD — liquid glass + HP danger
+        ════════════════════════════════════════ */
+        .player-card {
+            border-radius: 22px;
+            padding: 20px 18px;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (min-width: 520px) {
+            .player-card { border-radius: 24px; padding: 24px; margin-bottom: 16px; }
+        }
+
+        /* Color top stripe */
+        .player-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            border-radius: 24px 24px 0 0;
+            transition: background 0.5s ease;
+        }
+        .player-card.color-green::after  { background: linear-gradient(90deg, transparent, #4caf50, transparent); }
+        .player-card.color-yellow::after { background: linear-gradient(90deg, transparent, #ffc107, transparent); }
+        .player-card.color-orange::after { background: linear-gradient(90deg, transparent, #ff9800, transparent); }
+        .player-card.color-red::after    { background: linear-gradient(90deg, transparent, #f44336, transparent); }
+        .player-card.color-black::after  { background: linear-gradient(90deg, transparent, #546e7a, transparent); }
+
+        /* Per-HP-state card border glow */
+        .player-card.color-green  { border-color: rgba(76,175,80,0.2) !important; }
+        .player-card.color-yellow { border-color: rgba(255,193,7,0.3) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 24px rgba(255,193,7,0.08), 0 8px 32px rgba(0,0,0,0.28) !important; }
+        .player-card.color-orange { border-color: rgba(255,152,0,0.4) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 32px rgba(255,100,0,0.15), 0 8px 32px rgba(0,0,0,0.3) !important; }
+        .player-card.color-red    {
+            border-color: rgba(244,67,54,0.55) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 48px rgba(244,67,54,0.25), 0 8px 32px rgba(0,0,0,0.35) !important;
+            animation: card-danger-pulse 2s ease-in-out infinite;
+        }
+        .player-card.color-black  {
+            border-color: rgba(80,80,90,0.6) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 60px rgba(0,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5) !important;
+        }
+
+        @keyframes card-danger-pulse {
+            0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 40px rgba(244,67,54,0.2), 0 8px 32px rgba(0,0,0,0.35); border-color: rgba(244,67,54,0.45) !important; }
+            50%       { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 70px rgba(244,67,54,0.45), 0 8px 32px rgba(0,0,0,0.35); border-color: rgba(244,67,54,0.75) !important; }
+        }
+
+        /* ── Player Name Block ── */
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 18px;
+            gap: 10px;
+        }
+        .player-name-block { position: relative; flex: 1; min-width: 0; }
         .player-name {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 2rem;
+            font-size: 2.6rem; /* bigger on mobile for impact */
             font-weight: 700;
             letter-spacing: 1px;
             line-height: 1;
             color: var(--text-1);
-            transition: all 0.3s ease;
-            display: inline-block;
+            transition: color 0.5s ease, text-shadow 0.5s ease;
+            position: relative;
+            /* Prevent overflow on very long names */
+            word-break: break-word;
         }
-        .name-effect-yellow { text-shadow: 0 0 4px rgba(255,193,7,0.6); animation: subtleShake 0.2s ease-in-out 0s 2; }
-        .name-effect-orange { text-shadow: 0 0 6px rgba(255,152,0,0.9); animation: subtleShake 0.25s ease-in-out 0s 3; filter: blur(0.3px); }
-        .name-effect-red { text-shadow: 0 0 10px rgba(244,67,54,1); animation: subtleShake 0.3s ease-in-out infinite; filter: blur(0.5px); position: relative; }
-        .name-effect-red::after { content: '⚡'; position: absolute; right: -20px; top: 0; opacity: 0.7; animation: flickerDanger 0.3s infinite; }
-        .name-effect-black { text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 0 2px rgba(120,120,120,0.5); animation: violentShake 0.15s ease-in-out infinite; filter: blur(1px); opacity: 0.85; letter-spacing: -0.5px; }
-        .name-effect-black::before { content: '💀'; position: absolute; left: -24px; top: 4px; font-size: 1.2rem; filter: blur(0); animation: ghostFade 1s infinite; }
+        @media (min-width: 520px) {
+            .player-name { font-size: 2.2rem; }
+            .player-header { margin-bottom: 20px; }
+        }
 
-        @keyframes subtleShake { 0% { transform: translateX(0); } 25% { transform: translateX(-1.5px); } 75% { transform: translateX(1.5px); } 100% { transform: translateX(0); } }
-        @keyframes violentShake { 0% { transform: translateX(0) rotate(0deg); } 20% { transform: translateX(-2px) rotate(-1deg); } 40% { transform: translateX(2px) rotate(1deg); } 60% { transform: translateX(-1px) rotate(-0.5deg); } 80% { transform: translateX(1px) rotate(0.5deg); } 100% { transform: translateX(0) rotate(0); } }
-        @keyframes flickerDanger { 0%, 100% { opacity: 0.8; } 50% { opacity: 0.2; } }
-        @keyframes ghostFade { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.1; } }
+        /* HP-based name chromatic aberration / crack effects */
+        .color-orange .player-name { color: #e8d5b0; text-shadow: 1px 0 0 rgba(255,100,0,0.3), -1px 0 0 rgba(0,80,255,0.15); }
+        .color-red .player-name {
+            color: #f5c6c6;
+            text-shadow:
+                2px 0 0 rgba(255,50,30,0.5),
+                -2px 0 0 rgba(0,100,255,0.2),
+                0 0 20px rgba(255,60,60,0.4);
+            animation: name-shake 2.5s ease-in-out infinite;
+        }
+        .color-black .player-name {
+            color: #9aa0b0;
+            text-shadow:
+                3px 0 0 rgba(180,30,20,0.35),
+                -3px 0 0 rgba(0,60,200,0.15),
+                0 0 30px rgba(255,20,20,0.2);
+            animation: name-flicker 3s ease-in-out infinite;
+        }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
-        .stat-box { background: rgba(0,0,0,0.25); backdrop-filter: blur(4px); border-radius: 14px; padding: 12px; text-align: center; border: 1px solid var(--border); }
-        [data-theme="light"] .stat-box { background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); }
-        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); margin-bottom: 8px; }
-        .stat-value { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; line-height: 1; color: var(--text-1); }
-        .rbc-value { color: var(--gold); }
-        .color-orb { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 6px; border: 2px solid rgba(255,255,255,0.2); transition: box-shadow 0.2s; }
-        .orb-green { background: #4caf50; animation: hb-green 0.8s ease-in-out infinite; }
+        @keyframes name-shake {
+            0%, 85%, 100% { transform: translate(0, 0); }
+            87% { transform: translate(-1px, 0); }
+            89% { transform: translate(2px, 0); }
+            91% { transform: translate(-1px, 0); }
+            93% { transform: translate(1px, 0); }
+            95% { transform: translate(0, 0); }
+        }
+        @keyframes name-flicker {
+            0%, 100% { opacity: 1; }
+            25%  { opacity: 0.85; }
+            27%  { opacity: 1; }
+            50%  { opacity: 0.7; }
+            52%  { opacity: 0.9; }
+            75%  { opacity: 0.6; }
+            77%  { opacity: 1; }
+        }
+
+        /* HP crack overlay on name area */
+        .player-name-block::after {
+            content: '';
+            position: absolute;
+            inset: -4px -8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+            /* SVG crack pattern encoded */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='60'%3E%3Cpath d='M60 5 L58 20 L65 25 L55 55' stroke='rgba(244,67,54,0.5)' fill='none' stroke-width='0.8'/%3E%3Cpath d='M120 0 L118 15 L125 18 L115 58' stroke='rgba(244,67,54,0.35)' fill='none' stroke-width='0.6'/%3E%3Cpath d='M58 20 L45 35' stroke='rgba(244,67,54,0.3)' fill='none' stroke-width='0.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .color-red .player-name-block::after    { opacity: 0.7; }
+        .color-black .player-name-block::after  { opacity: 1; }
+
+        .player-group {
+            font-size: 0.75rem;
+            color: var(--text-3);
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+        .player-group strong { color: var(--text-2); }
+
+        /* HP badge replaces plain group badge */
+        .player-id-badge {
+            border-radius: 10px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-2);
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1px;
+            background: var(--surface-4);
+            border: 1px solid var(--border-2);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        /* HP status bar inside badge */
+        .player-id-badge::before {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; height: 2px;
+            border-radius: 0 0 10px 10px;
+            transition: width 0.6s ease, background 0.6s ease;
+        }
+        .color-green  .player-id-badge::before { width: 100%; background: #4caf50; }
+        .color-yellow .player-id-badge::before { width: 75%;  background: #ffc107; }
+        .color-orange .player-id-badge::before { width: 50%;  background: #ff9800; }
+        .color-red    .player-id-badge::before { width: 25%;  background: #f44336; animation: bar-pulse 1.5s ease-in-out infinite; }
+        .color-black  .player-id-badge::before { width: 5%;   background: #546e7a; }
+
+        @keyframes bar-pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+        }
+
+        /* ── Stats Grid ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        @media (min-width: 400px) { .stats-grid { gap: 10px; } }
+
+        .stat-box {
+            border-radius: 14px;
+            padding: 12px 6px 10px;
+            text-align: center;
+            position: relative;
+            /* liquid glass for stat boxes */
+            background: linear-gradient(
+                135deg,
+                rgba(255,255,255,0.07) 0%,
+                rgba(255,255,255,0.03) 100%
+            );
+            backdrop-filter: blur(16px) saturate(1.4);
+            -webkit-backdrop-filter: blur(16px) saturate(1.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                inset 0 -1px 0 rgba(0,0,0,0.1),
+                0 4px 16px rgba(0,0,0,0.18);
+        }
+        @media (min-width: 400px) { .stat-box { padding: 13px 8px 11px; border-radius: 15px; } }
+        @media (min-width: 520px) { .stat-box { padding: 14px 12px 12px; border-radius: 16px; } }
+        [data-theme="light"] .stat-box {
+            background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.45) 100%);
+            border: 1px solid rgba(255,255,255,0.75);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        .stat-label {
+            font-size: 0.58rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-3);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        @media (min-width: 400px) { .stat-label { font-size: 0.62rem; letter-spacing: 0.8px; } }
+        @media (min-width: 520px) { .stat-label { font-size: 0.65rem; letter-spacing: 1px; margin-bottom: 10px; } }
+
+        .stat-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-1);
+        }
+        @media (min-width: 380px) { .stat-value { font-size: 2.1rem; } }
+        @media (min-width: 520px) { .stat-value { font-size: 2.2rem; } }
+        .stat-value.rbc-value { color: var(--gold); }
+
+        /* ── Color Orb ── */
+        .color-orb-wrap { display: flex; justify-content: center; }
+        .color-orb {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+            margin-bottom: 4px;
+        }
+        @media (min-width: 400px) { .color-orb { width: 38px; height: 38px; } }
+        @media (min-width: 520px) { .color-orb { width: 40px; height: 40px; } }
+        .orb-label { font-size: 0.75rem; color: var(--text-2); font-weight: 500; }
+        @media (min-width: 400px) { .orb-label { font-size: 0.8rem; } }
+
+        @keyframes hb-green {
+            0%   { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
+            8%   { transform: scale(1.22); box-shadow: 0 0 20px rgba(76,175,80,0.85); }
+            16%  { transform: scale(1.05); box-shadow: 0 0 10px rgba(76,175,80,0.5); }
+            24%  { transform: scale(1.18); box-shadow: 0 0 17px rgba(76,175,80,0.7); }
+            40%  { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
+            100% { transform: scale(1);    box-shadow: 0 0 8px rgba(76,175,80,0.4); }
+        }
+        @keyframes hb-yellow {
+            0%   { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.4); }
+            10%  { transform: scale(1.17); box-shadow: 0 0 16px rgba(255,193,7,0.75); }
+            20%  { transform: scale(1.04); box-shadow: 0 0 9px rgba(255,193,7,0.45); }
+            30%  { transform: scale(1.13); box-shadow: 0 0 13px rgba(255,193,7,0.65); }
+            48%  { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.35); }
+            100% { transform: scale(1);    box-shadow: 0 0 8px rgba(255,193,7,0.35); }
+        }
+        @keyframes hb-orange {
+            0%   { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.4); }
+            12%  { transform: scale(1.13); box-shadow: 0 0 13px rgba(255,152,0,0.7); }
+            24%  { transform: scale(1.03); box-shadow: 0 0 8px rgba(255,152,0,0.4); }
+            36%  { transform: scale(1.09); box-shadow: 0 0 11px rgba(255,152,0,0.6); }
+            56%  { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.3); }
+            100% { transform: scale(1);    box-shadow: 0 0 7px rgba(255,152,0,0.3); }
+        }
+        @keyframes hb-red {
+            0%   { transform: scale(1);    box-shadow: 0 0 6px rgba(244,67,54,0.35); }
+            16%  { transform: scale(1.08); box-shadow: 0 0 11px rgba(244,67,54,0.6); }
+            32%  { transform: scale(1.02); box-shadow: 0 0 6px rgba(244,67,54,0.3); }
+            48%  { transform: scale(1.06); box-shadow: 0 0 9px rgba(244,67,54,0.5); }
+            72%  { transform: scale(1);    box-shadow: 0 0 5px rgba(244,67,54,0.25); }
+            100% { transform: scale(1);    box-shadow: 0 0 5px rgba(244,67,54,0.25); }
+        }
+
+        .orb-green  { background: #4caf50; animation: hb-green  0.8s ease-in-out infinite; }
         .orb-yellow { background: #ffc107; animation: hb-yellow 1.2s ease-in-out infinite; }
         .orb-orange { background: #ff9800; animation: hb-orange 1.7s ease-in-out infinite; }
-        .orb-red { background: #f44336; animation: hb-red 2.5s ease-in-out infinite; }
-        .orb-black { background: #546e7a; animation: none; box-shadow: none; }
-        @keyframes hb-green { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(76,175,80,0.4); } 14% { transform: scale(1.22); box-shadow: 0 0 0 6px rgba(76,175,80,0.2); } 28% { transform: scale(1); } 42% { transform: scale(1.15); } 70% { transform: scale(1); } 100% { transform: scale(1); } }
-        @keyframes hb-yellow { 0% { transform: scale(1); } 20% { transform: scale(1.18); } 40% { transform: scale(1); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes hb-orange { 0% { transform: scale(1); } 25% { transform: scale(1.12); } 50% { transform: scale(1); } 75% { transform: scale(1.06); } 100% { transform: scale(1); } }
-        @keyframes hb-red { 0% { transform: scale(1); } 30% { transform: scale(1.08); } 60% { transform: scale(1); } 100% { transform: scale(1); } }
+        .orb-red    { background: #f44336; animation: hb-red    2.5s ease-in-out infinite; }
+        .orb-black  { background: #546e7a; box-shadow: none; }
 
-        .warning-banner { background: var(--red-dim); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; padding: 10px; margin-top: 16px; text-align: center; font-size: 0.8rem; color: var(--red); font-weight: 600; }
+        /* ── Progress bar ── */
+        .progress-bar-bg {
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            height: 4px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        [data-theme="light"] .progress-bar-bg { background: rgba(0,0,0,0.08); }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--brand), #ffb347);
+            transition: width 0.6s cubic-bezier(.4,0,.2,1);
+        }
 
-        .stock-card { border-radius: 24px; padding: 22px; margin-top: 8px; }
-        .stock-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text-1); }
+        /* ── Warning Banner ── */
+        .warning-banner {
+            background: var(--red-dim);
+            border: 1px solid rgba(248,113,113,0.25);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--red);
+            font-weight: 600;
+            animation: banner-pulse 1.5s ease-in-out infinite;
+            line-height: 1.4;
+        }
+        @keyframes banner-pulse {
+            0%, 100% { border-color: rgba(248,113,113,0.25); }
+            50%       { border-color: rgba(248,113,113,0.6); }
+        }
+        .warning-banner .wi { font-size: 1.2rem; flex-shrink: 0; }
+
+        /* ── Black/flatline special overlay ── */
+        .flatline-msg {
+            margin-top: 14px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(84,110,122,0.4);
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-align: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.88rem;
+            letter-spacing: 2px;
+            color: #607080;
+            animation: flatline-text 4s ease-in-out infinite;
+        }
+        @keyframes flatline-text {
+            0%, 100% { opacity: 0.6; letter-spacing: 2px; }
+            50%       { opacity: 0.9; letter-spacing: 3px; }
+        }
+
+        /* ══════════════════════════════════════
+           STOCK CARD — liquid glass + gold glow
+        ══════════════════════════════════════ */
+        .stock-card {
+            position: relative;
+            border-radius: 20px;
+            padding: 18px 18px 14px;
+            margin-bottom: 14px;
+            overflow: hidden;
+            background: linear-gradient(
+                135deg,
+                rgba(255,255,255,0.09) 0%,
+                rgba(255,255,255,0.04) 50%,
+                rgba(245,166,35,0.06) 100%
+            );
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border: 1px solid rgba(255,255,255,0.13);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.15),
+                inset 0 -1px 0 rgba(0,0,0,0.15),
+                0 8px 32px rgba(0,0,0,0.25),
+                0 2px 8px rgba(245,166,35,0.06);
+        }
+        @media (min-width: 520px) {
+            .stock-card { border-radius: 24px; padding: 22px 24px 18px; margin-bottom: 16px; }
+        }
+        [data-theme="light"] .stock-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 50%, rgba(245,166,35,0.08) 100%);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 8px 32px rgba(0,0,0,0.07);
+        }
+        .stock-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -60%; width: 50%; height: 100%;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+            pointer-events: none;
+        }
+        .stock-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30px; right: -20px;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(245,166,35,0.14) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .stock-top-row {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px; position: relative; z-index: 1;
+        }
+        @media (min-width: 520px) { .stock-top-row { margin-bottom: 18px; } }
+
+        .stock-left { display: flex; flex-direction: column; justify-content: center; }
+        .stock-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.3rem; font-weight: 700;
+            color: var(--text-1); letter-spacing: 2px; line-height: 1;
+        }
+        @media (min-width: 520px) { .stock-title { font-size: 1.55rem; } }
         .stock-title em { color: var(--gold); font-style: normal; }
-        .stock-price { font-family: 'Rajdhani', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--gold); text-align: right; }
-        canvas { max-height: 120px; width: 100%; margin-top: 12px; }
+        .stock-ticker { font-size: 0.6rem; color: var(--text-3); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; }
+        .stock-right { text-align: right; }
+        .stock-price {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.2rem; font-weight: 700;
+            color: var(--gold); line-height: 1;
+            text-shadow: 0 0 20px rgba(245,166,35,0.35);
+        }
+        @media (min-width: 520px) { .stock-price { font-size: 2.4rem; } }
+        .stock-unit { font-size: 0.65rem; color: var(--text-3); margin-top: 3px; letter-spacing: 0.5px; }
+        .stock-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(245,166,35,0.25), transparent);
+            margin-bottom: 12px; position: relative; z-index: 1;
+        }
+        /* Shorter chart on mobile to save vertical space */
+        canvas { width: 100% !important; max-height: 110px; position: relative; z-index: 1; }
+        @media (min-width: 520px) { canvas { max-height: 150px; } }
+        .stock-note { font-size: 0.6rem; color: var(--text-3); text-align: center; margin-top: 10px; letter-spacing: 0.3px; position: relative; z-index: 1; }
 
-        .selector-card { border-radius: 20px; padding: 28px 24px; margin-bottom: 32px; text-align: center; }
-        select, .btn-primary { width: 100%; padding: 12px; border-radius: 12px; background: var(--surface-3); border: 1px solid var(--border-2); color: var(--text-1); font-size: 0.9rem; margin-top: 12px; cursor: pointer; }
-        .btn-primary { background: var(--brand); color: white; border: none; font-weight: 700; }
-        .footer { text-align: center; font-size: 0.65rem; color: var(--text-3); margin-top: 24px; }
-        .theme-toggle { background: var(--surface-3); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+        /* ── Selector Card — liquid glass ── */
+        .selector-card {
+            border-radius: 20px;
+            padding: 22px 18px;
+            margin-bottom: 24px;
+        }
+        @media (min-width: 520px) {
+            .selector-card { border-radius: 24px; padding: 28px 24px; margin-bottom: 32px; }
+        }
+        .selector-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.6rem; font-weight: 700;
+            color: var(--text-1); letter-spacing: 1px; margin-bottom: 6px;
+        }
+        .selector-sub { font-size: 0.85rem; color: var(--text-3); margin-bottom: 18px; line-height: 1.55; }
+        select {
+            width: 100%;
+            background: rgba(30,36,53,0.8);
+            border: 1px solid var(--border-2);
+            color: var(--text-1);
+            border-radius: 12px;
+            /* Tall enough for comfortable touch */
+            padding: 14px 36px 14px 16px;
+            font-size: 1rem;
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            cursor: pointer; outline: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a94a8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center;
+            transition: border-color 0.2s;
+            backdrop-filter: blur(12px);
+            /* Remove iOS default styling */
+            -webkit-appearance: none;
+        }
+        [data-theme="light"] select { background-color: rgba(255,255,255,0.7); }
+        select:focus { border-color: var(--brand); outline: none; }
+
+        .btn-primary {
+            width: 100%; background: var(--brand); color: white; border: none;
+            border-radius: 14px;
+            /* 52px min height = comfortable thumb target */
+            padding: 15px 20px;
+            font-size: 1rem; font-weight: 700;
+            font-family: 'Rajdhani', sans-serif; letter-spacing: 1.5px; cursor: pointer;
+            margin-top: 12px; transition: all 0.2s;
+            /* Remove tap highlight */
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-primary:hover { background: #d44516; }
+        .btn-primary:active { transform: scale(0.98); background: #c43d12; }
+
+        /* ── Footer ── */
+        .footer { text-align: center; font-size: 0.65rem; color: var(--text-3); margin-top: 28px; letter-spacing: 0.5px; }
+        .footer-dot { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--brand); margin: 0 6px; vertical-align: middle; animation: pulse 2s infinite; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
+
+<!-- HP ambient overlays (always in DOM, toggled via body class) -->
+<div class="hp-vignette"></div>
+<div class="hp-scanlines"></div>
+
 <div class="container">
+
+    <!-- Header -->
     <div class="header">
         <div class="logo">
+            <div class="fire-logo">
+                <svg viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g class="flame-main">
+                        <path d="M18 42C10 42 4 36 4 28C4 20 9 16 12 12C12 16 14 18 16 18C14 12 17 6 18 2C19 8 22 10 24 14C26 10 25 6 24 4C28 8 32 14 32 22C32 32 26 42 18 42Z" fill="url(#fg1)"/>
+                    </g>
+                    <g class="flame-inner">
+                        <path d="M18 38C13 38 9 34 9 28C9 23 12 20 14 17C14 20 16 22 17.5 22C16 18 17 14 18 10C19 14 21 16 22 19C23 16 22.5 13 22 11C25 15 27 19 27 25C27 32 23 38 18 38Z" fill="url(#fg2)"/>
+                    </g>
+                    <g class="flame-tip">
+                        <path d="M18 34C15 34 12 31 12 27C12 24 14 22 15.5 20C15.5 22.5 17 24 18 24C17 21 17.5 19 18 17C18.5 19 20 21 20.5 23C21 21 20.5 19 20 18C22 21 24 23 24 27C24 31 21 34 18 34Z" fill="url(#fg3)"/>
+                    </g>
+                    <defs>
+                        <linearGradient id="fg1" x1="18" y1="2" x2="18" y2="42" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ff6b1a"/><stop offset="100%" stop-color="#e8501a"/>
+                        </linearGradient>
+                        <linearGradient id="fg2" x1="18" y1="10" x2="18" y2="38" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffcc00"/><stop offset="100%" stop-color="#ff8800"/>
+                        </linearGradient>
+                        <linearGradient id="fg3" x1="18" y1="17" x2="18" y2="34" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#fff5aa"/><stop offset="100%" stop-color="#ffdd00"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
             <div class="logo-text">RE<span>:</span>Ignite</div>
-            <div id="statusBadge" class="status-pill status-connecting">
-                <span class="status-dot"></span>
-                连接中…
+            <div id="statusBadge" class="status-pill disconnected">
+                <span class="status-dot"></span>连接中…
             </div>
         </div>
         <div class="header-right">
-            <button class="theme-toggle" id="themeToggle">🌙</button>
+            <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
             <div class="header-sub">每一个决定都将影响最终结果</div>
         </div>
     </div>
+
+    <!-- News + Economy Row -->
     <div class="info-row">
-        <div class="info-card news-card"><div class="info-card-label"><span class="dot" id="newsDot"></span>RE:Ignite 快报</div><div class="info-card-content" id="newsContent">加载中…</div><div class="info-card-time" id="newsTime"></div></div>
-        <div class="info-card economy-card"><div class="info-card-label"><span class="dot" id="economyDot"></span>经济动态</div><div class="info-card-content" id="economyContent">加载中…</div><div class="info-card-time" id="economyTime"></div></div>
+        <div class="info-card news-card glass">
+            <div class="info-card-label">
+                <span class="dot" id="newsDot"></span>
+                RE:Ignite 快报
+            </div>
+            <div class="info-card-content" id="newsContent">加载中…</div>
+            <div class="info-card-time" id="newsTime"></div>
+        </div>
+        <div class="info-card economy-card glass">
+            <div class="info-card-label">
+                <span class="dot" id="economyDot"></span>
+                经济动态
+            </div>
+            <div class="info-card-content" id="economyContent">加载中…</div>
+            <div class="info-card-time" id="economyTime"></div>
+        </div>
     </div>
+
+    <!-- Main Player / Selector -->
     <div id="mainContent"></div>
-    <div class="stock-card"><div class="stock-title">RE<em>:</em>Set 股</div><div class="stock-price" id="currentPrice">--</div><canvas id="priceChart" height="130"></canvas><div class="stock-note" style="font-size:0.65rem; text-align:center; margin-top:8px;">中控发布经济动态或随机波动时自动更新</div></div>
-    <div class="footer">数据实时同步<span style="display:inline-block; width:4px; height:4px; background:var(--brand); border-radius:50%; margin:0 6px; vertical-align:middle;"></span>无需刷新页面</div>
+
+    <!-- Stock Card -->
+    <div class="stock-card">
+        <div class="stock-top-row">
+            <div class="stock-left">
+                <div class="stock-title">RE<em>:</em>Set 股</div>
+                <div class="stock-ticker">实时行情 · RESET</div>
+            </div>
+            <div class="stock-right">
+                <div class="stock-price" id="currentPrice">--</div>
+                <div class="stock-unit">R币 / 股</div>
+            </div>
+        </div>
+        <div class="stock-divider"></div>
+        <canvas id="priceChart" height="130"></canvas>
+        <div class="stock-note">中控发布经济动态或随机波动时自动更新</div>
+    </div>
+
+    <div class="footer">
+        数据实时同步<span class="footer-dot"></span>无需刷新页面
+    </div>
+
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-    // --- 主题切换 ---
-    const btn = document.getElementById('themeToggle');
-    const saved = localStorage.getItem('reignite_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    btn.textContent = saved === 'dark' ? '☀️' : '🌙';
-    btn.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('reignite_theme', next);
-        btn.textContent = next === 'dark' ? '☀️' : '🌙';
-    });
+    /* ── Theme Toggle ── */
+    (function(){
+        const btn = document.getElementById('themeToggle');
+        const saved = localStorage.getItem('reignite_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+        btn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('reignite_theme', next);
+            btn.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+    })();
 
     const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-    let supabaseClient = window.__supabasePlayerClient || (window.__supabasePlayerClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+
+    let sb = window.__supabasePlayerClient || (window.__supabasePlayerClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
 
     let allPlayers = [], currentPlayer = null, priceHistory = [5], chart = null;
 
-    // 连接状态管理
-    const statusBadge = document.getElementById('statusBadge');
-    function setConnectionState(state) { // 'connecting', 'connected', 'disconnected'
-        statusBadge.classList.remove('status-connecting', 'status-connected', 'status-disconnected');
-        if (state === 'connected') {
-            statusBadge.classList.add('status-connected');
-            statusBadge.innerHTML = '<span class="status-dot"></span>已连接';
-        } else if (state === 'disconnected') {
-            statusBadge.classList.add('status-disconnected');
-            statusBadge.innerHTML = '<span class="status-dot"></span>失联';
-        } else {
-            statusBadge.classList.add('status-connecting');
-            statusBadge.innerHTML = '<span class="status-dot"></span>连接中…';
+    /* ════════════════════════════════════════
+       NOTIFICATION DOT — fast/slow pulse
+    ════════════════════════════════════════ */
+    let newsDotTimer = null, econDotTimer = null;
+
+    function triggerDotAlert(dotId, timerRef) {
+        const dot = document.getElementById(dotId);
+        if (!dot) return;
+        dot.classList.add('dot-alert');
+        clearTimeout(timerRef);
+        return setTimeout(() => dot.classList.remove('dot-alert'), 5000);
+    }
+
+    /* ════════════════════════════════════════
+       HP DANGER SYSTEM
+    ════════════════════════════════════════ */
+    const HP_CLASSES = ['hp-green', 'hp-yellow', 'hp-orange', 'hp-red', 'hp-black'];
+
+    function applyHpEffect(color) {
+        const body = document.body;
+        HP_CLASSES.forEach(c => body.classList.remove(c));
+        if (color && color !== 'green') {
+            body.classList.add('hp-' + color);
         }
     }
-    setConnectionState('connecting');
 
-    // 股票图表
+    /* ── Stock Chart ── */
     function renderStockChart() {
         const ctx = document.getElementById('priceChart').getContext('2d');
         if (chart) chart.destroy();
-        const last = priceHistory[priceHistory.length-1];
-        const prev = priceHistory[priceHistory.length-2] ?? last;
+        const last = priceHistory[priceHistory.length - 1];
+        const prev = priceHistory[priceHistory.length - 2] ?? last;
         const rising = last >= prev;
+        const lineColor = rising ? '#34d399' : '#f87171';
+        const fillColor = rising ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)';
         chart = new Chart(ctx, {
-            type: 'line', data: { labels: priceHistory.map((_, i) => i+1), datasets: [{ data: priceHistory, borderColor: rising ? '#34d399' : '#f87171', backgroundColor: rising ? 'rgba(52,211,153,0.05)' : 'rgba(248,113,113,0.05)', borderWidth: 2, tension: 0.3, fill: true, pointRadius: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false }, y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#5a6377', callback: v => v + ' R' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `  ${ctx.raw} R币` } } } }
+            type: 'line',
+            data: {
+                labels: priceHistory.map((_, i) => i + 1),
+                datasets: [{
+                    data: priceHistory,
+                    borderColor: lineColor,
+                    backgroundColor: fillColor,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHoverBackgroundColor: lineColor
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { display: false, grid: { display: false } },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                        ticks: { color: '#5a6377', font: { size: 11 }, callback: v => v + ' R' },
+                        border: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e2435',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        titleColor: '#8a94a8',
+                        bodyColor: '#f0f2f8',
+                        callbacks: { label: c => `  ${c.raw} R币` }
+                    }
+                }
+            }
         });
         document.getElementById('currentPrice').innerText = last;
     }
-    async function loadLatestPrice() { try { const { data, error } = await supabaseClient.from('stock_prices').select('price').order('id', { ascending: false }).limit(1); if (!error && data?.length && priceHistory[priceHistory.length-1] !== data[0].price) { priceHistory.push(data[0].price); renderStockChart(); } } catch(e) {} }
-    function subscribeStockPrice() { supabaseClient.channel('stock-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, (payload) => { if (payload.new.price && priceHistory[priceHistory.length-1] !== payload.new.price) { priceHistory.push(payload.new.price); renderStockChart(); } }).subscribe(); }
 
-    // 触发脉冲动画
-    let newsTimeout, economyTimeout;
-    function animateDot(dotElement, isGold = false) {
-        if (!dotElement) return;
-        dotElement.classList.remove('pulse-urgent', 'pulse-urgent-gold');
-        void dotElement.offsetWidth;
-        dotElement.classList.add(isGold ? 'pulse-urgent-gold' : 'pulse-urgent');
-        if (isGold) { if (economyTimeout) clearTimeout(economyTimeout); economyTimeout = setTimeout(() => dotElement.classList.remove('pulse-urgent-gold'), 800); }
-        else { if (newsTimeout) clearTimeout(newsTimeout); newsTimeout = setTimeout(() => dotElement.classList.remove('pulse-urgent'), 800); }
-    }
-
-    let lastNews = '', lastEconomy = '';
-    async function loadLatestNews() {
+    async function loadLatestPrice() {
         try {
-            const { data, error } = await supabaseClient.from('news').select('*').order('id', { ascending: false }).limit(1);
-            const newText = (!error && data?.length) ? data[0].content : '暂无快报';
-            const newTime = (!error && data?.length) ? data[0].time : '';
-            if (lastNews !== newText) { animateDot(document.getElementById('newsDot'), false); lastNews = newText; }
-            document.getElementById('newsContent').innerHTML = newText; document.getElementById('newsTime').innerHTML = newTime;
-            setConnectionState('connected');
-        } catch(e) { setConnectionState('disconnected'); }
-    }
-    async function loadLatestEconomy() {
-        try {
-            const { data, error } = await supabaseClient.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
-            const newText = (!error && data?.length) ? data[0].content : '暂无经济动态';
-            const newTime = (!error && data?.length) ? data[0].time : '';
-            if (lastEconomy !== newText) { animateDot(document.getElementById('economyDot'), true); lastEconomy = newText; }
-            document.getElementById('economyContent').innerHTML = newText; document.getElementById('economyTime').innerHTML = newTime;
-        } catch(e) {}
+            const { data, error } = await sb.from('stock_prices').select('price').order('id', { ascending: false }).limit(1);
+            if (!error && data?.length) {
+                const p = data[0].price;
+                if (priceHistory[priceHistory.length - 1] !== p) { priceHistory.push(p); renderStockChart(); }
+            }
+        } catch(e) { console.warn(e); }
     }
 
-    function getProgress(p) { return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100); }
-    const colorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' };
-    
-    function getHealthEffectClass(color) {
-        if (color === 'yellow') return 'name-effect-yellow';
-        if (color === 'orange') return 'name-effect-orange';
-        if (color === 'red') return 'name-effect-red';
-        if (color === 'black') return 'name-effect-black';
-        return '';
+    function subscribeStockPrice() {
+        sb.channel('stock-channel')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, payload => {
+                const p = payload.new.price;
+                if (p && priceHistory[priceHistory.length - 1] !== p) { priceHistory.push(p); renderStockChart(); }
+            }).subscribe();
     }
 
+    function updateStatus(connected) {
+        const el = document.getElementById('statusBadge');
+        if (!el) return;
+        el.className = `status-pill ${connected ? 'connected' : 'disconnected'}`;
+        el.innerHTML = `<span class="status-dot"></span>${connected ? '实时在线' : '离线'}`;
+    }
+
+    /* ── Players ── */
     async function loadPlayers() {
-        try {
-            const { data, error } = await supabaseClient.from('players').select('*').order('group_name');
-            if (error) throw error;
-            allPlayers = data;
-            setConnectionState('connected');
-            if (currentPlayer) renderPlayerView();
-        } catch(e) { setConnectionState('disconnected'); }
+        const { data, error } = await sb.from('players').select('*').order('group_name');
+        if (error) { updateStatus(false); return; }
+        allPlayers = data;
+        updateStatus(true);
+        if (currentPlayer) renderPlayerView();
     }
+
+    async function loadLatestNews() {
+        const { data, error } = await sb.from('news').select('*').order('id', { ascending: false }).limit(1);
+        const el = document.getElementById('newsContent');
+        const newText = (!error && data?.length) ? data[0].content : '暂无快报';
+        if (el.innerHTML !== newText) {
+            el.innerHTML = newText;
+            el.classList.remove('content-updated');
+            void el.offsetWidth;
+            el.classList.add('content-updated');
+            // Trigger fast dot pulse on new content
+            newsDotTimer = triggerDotAlert('newsDot', newsDotTimer);
+        }
+        document.getElementById('newsTime').innerHTML = (!error && data?.length) ? data[0].time : '';
+    }
+
+    async function loadLatestEconomy() {
+        const { data, error } = await sb.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
+        const el = document.getElementById('economyContent');
+        const newText = (!error && data?.length) ? data[0].content : '暂无经济动态';
+        if (el.innerHTML !== newText) {
+            el.innerHTML = newText;
+            el.classList.remove('content-updated');
+            void el.offsetWidth;
+            el.classList.add('content-updated');
+            // Trigger fast dot pulse on new content
+            econDotTimer = triggerDotAlert('economyDot', econDotTimer);
+        }
+        document.getElementById('economyTime').innerHTML = (!error && data?.length) ? data[0].time : '';
+    }
+
+    function getProgress(p) {
+        return Math.round(((p.s1 ? 1 : 0) + (p.s2 ? 1 : 0) + (p.s3 ? 1 : 0) + (p.s4 ? 1 : 0)) / 4 * 100);
+    }
+
+    const colorMap  = { green:'green', yellow:'yellow', orange:'orange', red:'red', black:'black' };
+    const colorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' };
+    const colorLabel = {
+        green:  '生命活跃',
+        yellow: '轻微损伤',
+        orange: '警戒状态',
+        red:    '危急告警',
+        black:  '已出局'
+    };
 
     function renderPlayerView() {
         if (!currentPlayer) return;
         const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
         if (!p) { showSelector(); return; }
-        const prog = getProgress(p); const isWarning = p.rbc < 5; const col = p.color;
-        const healthClass = getHealthEffectClass(col);
+
+        const prog = getProgress(p);
+        const isWarning = p.rbc < 5;
+        const col = colorMap[p.color] || 'green';
+        const isDead = col === 'black';
+
+        // Apply body-level HP effect
+        applyHpEffect(col);
+
+        // Extra warning banners per severity
+        let warningHtml = '';
+        if (isDead) {
+            warningHtml = `<div class="flatline-msg">— — — FLATLINE · 你已出局 · FLATLINE — — —</div>`;
+        } else if (isWarning) {
+            warningHtml = `<div class="warning-banner"><span class="wi">⚠️</span>生存警告！R币不足 5，请尽快补充资源！</div>`;
+        }
+        if (col === 'orange' && !isWarning) {
+            warningHtml += `<div style="margin-top:12px;padding:8px 14px;background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.25);border-radius:10px;font-size:0.78rem;color:#ff9800;font-weight:600;">⚡ 注意：你的状态正在恶化</div>`;
+        }
+
         document.getElementById('mainContent').innerHTML = `
-            <div class="player-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
-                    <div><div class="player-name ${healthClass}">${p.name}</div><div style="font-size:0.7rem; color:var(--text-3); margin-top:4px;">组别 · ${p.group_name}</div></div>
-                    <div style="background:var(--surface-3); padding:4px 12px; border-radius:20px; font-size:0.7rem; font-weight:600;">${p.group_name}</div>
+            <div class="player-card glass color-${col}" style="margin-bottom:16px;">
+                <div class="player-header">
+                    <div class="player-name-block">
+                        <div class="player-name">${p.name}</div>
+                        <div class="player-group">组别 &nbsp;<strong>${p.group_name}</strong></div>
+                    </div>
+                    <div class="player-id-badge">${p.group_name.toUpperCase()}</div>
                 </div>
                 <div class="stats-grid">
-                    <div class="stat-box"><div class="stat-label">生命颜色</div><div class="color-orb orb-${col}"></div><div style="font-size:0.75rem;">${colorName[col]}</div></div>
-                    <div class="stat-box"><div class="stat-label">R 币</div><div class="stat-value rbc-value">${p.rbc}</div></div>
-                    <div class="stat-box"><div class="stat-label">章节进度</div><div class="stat-value">${prog}<span style="font-size:1rem;">%</span></div><div style="height:4px; background:var(--surface-4); border-radius:2px; margin-top:6px;"><div style="width:${prog}%; height:4px; background:var(--brand); border-radius:2px;"></div></div></div>
+                    <div class="stat-box">
+                        <div class="stat-label">生命颜色</div>
+                        <div class="color-orb-wrap">
+                            <div class="color-orb orb-${col}"></div>
+                        </div>
+                        <div class="orb-label">${colorName[p.color] || p.color}</div>
+                        <div style="font-size:0.6rem;color:var(--text-3);margin-top:3px;letter-spacing:0.5px;">${colorLabel[col] || ''}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">R 币</div>
+                        <div class="stat-value rbc-value">${p.rbc}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">章节进度</div>
+                        <div class="stat-value">${prog}<span style="font-size:1rem;color:var(--text-3)">%</span></div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width:${prog}%"></div>
+                        </div>
+                    </div>
                 </div>
-                ${isWarning ? `<div class="warning-banner">⚠️ 生存警告！R币不足 5，请尽快补充资源！</div>` : ''}
+                ${warningHtml}
             </div>
-            <div style="text-align:right; margin-top:8px;"><button onclick="window.__resetPlayer()" style="background:var(--surface-3); border:1px solid var(--border); color:var(--text-2); border-radius:20px; padding:4px 12px; font-size:0.7rem; cursor:pointer;">切换角色</button></div>
+            <div style="text-align:right;margin-bottom:16px;">
+                <button onclick="window.__resetPlayer()"
+                    style="background:none;border:1px solid var(--border-2);color:var(--text-3);border-radius:8px;padding:6px 14px;font-size:0.75rem;cursor:pointer;transition:all 0.2s;"
+                    onmouseover="this.style.color='var(--text-1)'"
+                    onmouseout="this.style.color='var(--text-3)'">切换角色</button>
+            </div>
         `;
     }
 
-    window.__resetPlayer = function() { currentPlayer = null; localStorage.removeItem('current_player'); showSelector(); };
+    window.__resetPlayer = function() {
+        currentPlayer = null;
+        localStorage.removeItem('current_player');
+        applyHpEffect('green'); // clear body effects
+        showSelector();
+    };
+
     function showSelector() {
-        if (!allPlayers.length) { document.getElementById('mainContent').innerHTML = `<div class="selector-card"><div class="selector-sub">加载玩家名单中…</div></div>`; return; }
-        const sorted = [...allPlayers].sort((a,b) => a.group_name.localeCompare(b.group_name));
+        applyHpEffect('green'); // clear body effects when in selector
+        if (!allPlayers.length) {
+            document.getElementById('mainContent').innerHTML = `<div class="selector-card glass"><div class="selector-sub">加载玩家名单中，请稍候…</div></div>`;
+            return;
+        }
+        const sorted = [...allPlayers].sort((a, b) => a.group_name.localeCompare(b.group_name));
         let opts = '<option value="">—— 请选择你的角色 ——</option>';
-        sorted.forEach(p => opts += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name}</option>`);
+        sorted.forEach(p => { opts += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name}</option>`; });
         document.getElementById('mainContent').innerHTML = `
-            <div class="selector-card"><div class="selector-title" style="font-size:1.4rem;">欢迎来到R城</div><div class="selector-sub">请选择你的角色，即可查看实时游戏状态与数据</div><select id="playerSelect">${opts}</select><button id="confirmBtn" class="btn-primary">确认身份 →</button></div>
+            <div class="selector-card glass">
+                <div class="selector-title">欢迎来到R区</div>
+                <div class="selector-sub">请选择你的角色，即可查看实时游戏状态与数据</div>
+                <select id="playerSelect">${opts}</select>
+                <button id="confirmBtn" class="btn-primary">确认身份 →</button>
+            </div>
         `;
         document.getElementById('confirmBtn').onclick = () => {
             const val = document.getElementById('playerSelect').value;
@@ -410,21 +1281,40 @@
         };
     }
 
+    /* ── Realtime ── */
     function setupRealtime() {
-        supabaseClient.channel('players-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers()).subscribe();
-        supabaseClient.channel('news-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews()).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'news' }, () => loadLatestNews()).subscribe();
-        supabaseClient.channel('economy-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy()).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy()).subscribe();
+        sb.channel('players-channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
+            .subscribe();
+        sb.channel('news-channel')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews())
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'news' }, () => loadLatestNews())
+            .subscribe();
+        sb.channel('economy-channel')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
+            .subscribe();
         subscribeStockPrice();
     }
 
+    /* ── Init ── */
     const urlParams = new URLSearchParams(window.location.search);
     const urlName = urlParams.get('name'), urlGroup = urlParams.get('group');
-    if (urlName && urlGroup) { currentPlayer = { name: urlName, group_name: urlGroup }; localStorage.setItem('current_player', JSON.stringify(currentPlayer)); }
-    else { try { const s = localStorage.getItem('current_player'); if (s) currentPlayer = JSON.parse(s); } catch(e){} }
+    if (urlName && urlGroup) {
+        currentPlayer = { name: urlName, group_name: urlGroup };
+        localStorage.setItem('current_player', JSON.stringify(currentPlayer));
+    } else {
+        try { const s = localStorage.getItem('current_player'); if (s) currentPlayer = JSON.parse(s); } catch(e){}
+    }
 
-    loadPlayers(); loadLatestNews(); loadLatestEconomy(); setupRealtime(); renderStockChart(); loadLatestPrice();
-    if (currentPlayer) { let iv = setInterval(() => { if (allPlayers.length) { clearInterval(iv); renderPlayerView(); } }, 200); }
-    else { setTimeout(showSelector, 500); }
+    loadPlayers(); loadLatestNews(); loadLatestEconomy();
+    setupRealtime(); renderStockChart(); loadLatestPrice();
+
+    if (currentPlayer) {
+        let iv = setInterval(() => { if (allPlayers.length) { clearInterval(iv); renderPlayerView(); } }, 200);
+    } else {
+        setTimeout(showSelector, 800);
+    }
 })();
 </script>
 </body>
