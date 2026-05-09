@@ -70,7 +70,6 @@
         }
         .container { max-width: 1600px; margin: 0 auto; position: relative; z-index: 1; }
         
-        /* 玻璃态卡片 */
         .glass-card {
             background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 60%, rgba(96,165,250,0.04) 100%);
             backdrop-filter: blur(16px) saturate(1.5);
@@ -141,16 +140,33 @@
         th { background: var(--surface-3); color: var(--text-2); font-weight: 600; font-size: 0.8rem; }
         .warning-row { background: var(--red-dim); }
         
-        .color-selector { display: flex; gap: 6px; justify-content: center; }
-        .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: all 0.1s; }
+        /* 颜色圆点增强：外发光 + 轻微缩放动画，更醒目 */
+        .color-selector { display: flex; gap: 8px; justify-content: center; }
+        .color-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.2);
+        }
+        .color-dot:hover { transform: scale(1.1); }
+        /* 当前选中的颜色增加外发光 */
+        .dot-green.active-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #4caf50, 0 0 8px 2px #4caf50; }
+        .dot-yellow.active-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ffc107, 0 0 8px 2px #ffc107; }
+        .dot-orange.active-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ff9800, 0 0 8px 2px #ff9800; }
+        .dot-red.active-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f44336, 0 0 8px 2px #f44336; }
+        .dot-black.active-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #546e7a, 0 0 8px 2px #546e7a; }
+        
         .dot-green { background: #4caf50; }
         .dot-yellow { background: #ffc107; }
         .dot-orange { background: #ff9800; }
         .dot-red { background: #f44336; }
         .dot-black { background: #2c3e2f; }
         
-        .rbc-control { display: flex; gap: 8px; justify-content: center; align-items: center; }
+        .rbc-control, .loan-check { display: flex; gap: 8px; justify-content: center; align-items: center; }
         .rbc-btn { background: var(--surface-4); border: none; width: 32px; height: 32px; border-radius: 40px; cursor: pointer; font-weight: bold; }
+        .loan-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: var(--brand); transform: scale(1.1); }
         .checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: var(--brand); }
         
         .toast-msg { position: fixed; bottom: 30px; right: 30px; background: var(--surface-2); padding: 10px 20px; border-radius: 40px; color: var(--text-1); border-left: 4px solid var(--brand); opacity: 0; transition: 0.2s; z-index: 200; pointer-events: none; }
@@ -211,7 +227,7 @@
     <div class="table-wrapper glass-card">
         <table>
             <thead>
-                <tr><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th>
+                <tr><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -241,6 +257,10 @@
     
     let uniquePlayers = [], currentGroup = "all", currentColorFilter = null, priceHistory = [5], chart = null, autoTimer = null;
     let currentNewsId = null, currentEconomyId = null;
+    
+    // 注意：需要在 Supabase 的 players 表中添加 loan 列 (BOOLEAN DEFAULT FALSE)
+    // 执行 SQL: ALTER TABLE players ADD COLUMN loan BOOLEAN DEFAULT FALSE;
+    // 如果你还没有添加，前端会临时存储，但刷新后可能丢失。强烈建议执行上述 SQL。
     
     function setConnectionState(state) {
         const badge = document.getElementById('statusBadge');
@@ -275,16 +295,16 @@
     }
     function startAutoAdjust() { if(autoTimer) clearInterval(autoTimer); autoTimer = setInterval(()=>randomFluctuation(), 30*60*1000); }
     
-    // 玩家数据 - 初始R币改为3，排序稳定（按组别+姓名）
+    // 玩家数据 - 初始R币为3，贷款为布尔值
     async function loadPlayers() {
         try {
             const { data, error } = await supabaseClient.from('players').select('*').order('group_name').order('name');
             if(error) throw error;
-            // 去重
             const map = new Map();
             for(const p of data) { const key=`${p.name}|${p.group_name}`; if(!map.has(key)) map.set(key,p); }
             uniquePlayers = Array.from(map.values());
-            // 再次确保排序稳定
+            // 确保 loan 字段存在且为 boolean
+            for(const p of uniquePlayers) { if(p.loan === undefined) p.loan = false; else p.loan = !!p.loan; }
             uniquePlayers.sort((a,b) => {
                 if(a.group_name !== b.group_name) return a.group_name.localeCompare(b.group_name);
                 return a.name.localeCompare(b.name);
@@ -304,6 +324,7 @@
         } else showToast('更新失败',true); 
     }
     window.changeRbc = (p, d) => updatePlayer(p.id, { rbc: Math.max(0, p.rbc + d) });
+    window.toggleLoan = (p) => updatePlayer(p.id, { loan: !p.loan });
     window.setColor = (p, c) => { if(['green','yellow','orange','red','black'].includes(c)) updatePlayer(p.id, { color: c }); };
     window.toggleStation = (p, s) => updatePlayer(p.id, { [s]: !p[s] });
     function getProgress(p) { const done = (p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0); return Math.round(done/4*100); }
@@ -319,11 +340,11 @@
     
     async function resetAll() { 
         if(confirm('重置所有玩家？')) { 
-            for(let p of uniquePlayers) await updatePlayer(p.id, { color: 'green', rbc: 3, s1: false, s2: false, s3: false, s4: false }); 
+            for(let p of uniquePlayers) await updatePlayer(p.id, { color: 'green', rbc: 3, loan: false, s1: false, s2: false, s3: false, s4: false }); 
         } 
     }
     
-    // UI渲染 - 保持稳定排序
+    // UI渲染
     function renderStats() {
         const stats = { total: uniquePlayers.length, green:0, yellow:0, orange:0, red:0, black:0, warn:0 };
         for(let p of uniquePlayers) { 
@@ -352,7 +373,6 @@
             if(currentColorFilter === 'warn') f = f.filter(p=>p.rbc<5); 
             else f = f.filter(p=>p.color === currentColorFilter); 
         } 
-        // 保持排序稳定
         f.sort((a,b) => {
             if(a.group_name !== b.group_name) return a.group_name.localeCompare(b.group_name);
             return a.name.localeCompare(b.name);
@@ -373,6 +393,8 @@
             if(p.rbc<5) row.classList.add('warning-row');
             row.insertCell(0).innerText = p.name;
             row.insertCell(1).innerText = p.group_name;
+            
+            // 颜色选择器（增强外发光效果）
             const colorCell = row.insertCell(2);
             const colors = ['green','yellow','orange','red','black'];
             const cDiv = document.createElement('div'); 
@@ -380,11 +402,13 @@
             colors.forEach(c => { 
                 const dot = document.createElement('div'); 
                 dot.className = `color-dot dot-${c}`; 
-                if(p.color === c) dot.style.border = '2px solid #fff'; 
+                if(p.color === c) dot.classList.add('active-dot'); 
                 dot.addEventListener('click', ()=>window.setColor(p,c)); 
                 cDiv.appendChild(dot); 
             });
             colorCell.appendChild(cDiv);
+            
+            // R币控制
             const rbcCell = row.insertCell(3);
             const rbDiv = document.createElement('div'); 
             rbDiv.className = 'rbc-control';
@@ -397,13 +421,34 @@
             btns[5].onclick = () => window.changeRbc(p,2); 
             btns[6].onclick = () => window.changeRbc(p,5);
             rbcCell.appendChild(rbDiv);
+            
+            // 贷款复选框
+            const loanCell = row.insertCell(4);
+            const loanCheck = document.createElement('input');
+            loanCheck.type = 'checkbox';
+            loanCheck.className = 'loan-checkbox';
+            loanCheck.checked = p.loan === true;
+            loanCheck.addEventListener('change', () => window.toggleLoan(p));
+            loanCell.appendChild(loanCheck);
+            
             const createCheck = (s,chk) => { const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=chk; cb.onchange = () => window.toggleStation(p,s); return cb; };
-            row.insertCell(4).appendChild(createCheck('s1',p.s1));
-            row.insertCell(5).appendChild(createCheck('s2',p.s2));
-            row.insertCell(6).appendChild(createCheck('s3',p.s3));
-            row.insertCell(7).appendChild(createCheck('s4',p.s4));
-            row.insertCell(8).innerHTML = `<span style="background:var(--surface-4); padding:4px 8px; border-radius:40px;">${getProgress(p)}%</span>`;
+            row.insertCell(5).appendChild(createCheck('s1',p.s1));
+            row.insertCell(6).appendChild(createCheck('s2',p.s2));
+            row.insertCell(7).appendChild(createCheck('s3',p.s3));
+            row.insertCell(8).appendChild(createCheck('s4',p.s4));
+            row.insertCell(9).innerHTML = `<span style="background:var(--surface-4); padding:4px 8px; border-radius:40px;">${getProgress(p)}%</span>`;
         });
+    }
+    
+    // 在 Supabase 中为 players 表添加 loan 列（如果尚未添加）
+    async function ensureLoanColumn() {
+        // 此函数仅作提示，实际需在 Supabase SQL 中手动执行：
+        // ALTER TABLE players ADD COLUMN IF NOT EXISTS loan BOOLEAN DEFAULT FALSE;
+        // 如果未添加，前端仍可使用临时状态，但刷新后可能丢失。
+        const sample = uniquePlayers[0];
+        if(sample && sample.loan === undefined) {
+            console.warn("提示：数据库 players 表中没有 'loan' 列，贷款状态不会持久化。请执行 SQL: ALTER TABLE players ADD COLUMN loan BOOLEAN DEFAULT FALSE;");
+        }
     }
     
     function setupRealtime() {
@@ -434,6 +479,7 @@
     loadLatestNews();
     loadLatestEconomy();
     setupRealtime();
+    setTimeout(ensureLoanColumn, 1000);
 })();
 </script>
 </body>
