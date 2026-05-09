@@ -29,6 +29,26 @@
             --blue-dim: rgba(96,165,250,0.1);
         }
 
+        [data-theme="light"] {
+            --surface: #f4f5f7;
+            --surface-2: #ffffff;
+            --surface-3: #f0f1f4;
+            --surface-4: #e4e6ec;
+            --text-1: #111827;
+            --text-2: #4b5563;
+            --text-3: #9ca3af;
+            --border: rgba(0,0,0,0.08);
+            --border-2: rgba(0,0,0,0.14);
+            --gold: #d97706;
+            --gold-dim: rgba(217,119,6,0.1);
+            --green: #059669;
+            --green-dim: rgba(5,150,105,0.1);
+            --red: #dc2626;
+            --red-dim: rgba(220,38,38,0.08);
+            --blue: #2563eb;
+            --blue-dim: rgba(37,99,235,0.08);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -44,8 +64,8 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background:
-                radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,80,26,0.06) 0%, transparent 60%),
-                radial-gradient(ellipse 40% 30% at 80% 80%, rgba(96,165,250,0.04) 0%, transparent 60%);
+                radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,80,26,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 80% 80%, rgba(96,165,250,0.03) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
         }
@@ -66,13 +86,6 @@
             align-items: center;
             gap: 10px;
         }
-        .logo-icon {
-            width: 36px; height: 36px;
-            background: var(--brand);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
-        }
         .logo-text {
             font-family: 'Rajdhani', sans-serif;
             font-size: 1.5rem;
@@ -81,7 +94,7 @@
             color: var(--text-1);
         }
         .logo-text span { color: var(--brand); }
-        .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
         .header-sub { font-size: 0.7rem; color: var(--text-3); letter-spacing: 0.5px; }
 
         .status-pill {
@@ -104,6 +117,34 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.6; transform: scale(0.85); }
         }
+
+        /* ── Animated Fire ── */
+        .fire-logo { width: 36px; height: 36px; position: relative; }
+        .fire-logo svg { width: 100%; height: 100%; }
+        .flame-main { animation: flicker 1.8s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+        .flame-inner { animation: flicker 1.2s ease-in-out infinite alternate-reverse; transform-origin: 50% 90%; }
+        .flame-tip { animation: flicker 0.9s ease-in-out infinite alternate; transform-origin: 50% 95%; }
+        @keyframes flicker {
+            0%   { transform: scaleX(1) scaleY(1) rotate(-1deg); }
+            33%  { transform: scaleX(0.95) scaleY(1.04) rotate(1.5deg); }
+            66%  { transform: scaleX(1.04) scaleY(0.97) rotate(-2deg); }
+            100% { transform: scaleX(0.97) scaleY(1.06) rotate(1deg); }
+        }
+
+        /* ── Theme Toggle ── */
+        .theme-toggle {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-2);
+            background: var(--surface-3);
+            color: var(--text-2);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover { background: var(--surface-4); color: var(--text-1); border-color: var(--brand); }
 
         /* ── Info Cards Row ── */
         .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
@@ -336,6 +377,7 @@
             border: 1px solid var(--border);
             border-radius: 20px;
             padding: 28px 24px;
+            margin-bottom: 32px;
         }
         .selector-title {
             font-family: 'Rajdhani', sans-serif;
@@ -410,14 +452,41 @@
     <!-- Header -->
     <div class="header">
         <div class="logo">
-            <div class="logo-icon">🔥</div>
+            <div class="fire-logo">
+                <svg viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g class="flame-main">
+                        <path d="M18 42C10 42 4 36 4 28C4 20 9 16 12 12C12 16 14 18 16 18C14 12 17 6 18 2C19 8 22 10 24 14C26 10 25 6 24 4C28 8 32 14 32 22C32 32 26 42 18 42Z" fill="url(#fg1)"/>
+                    </g>
+                    <g class="flame-inner">
+                        <path d="M18 38C13 38 9 34 9 28C9 23 12 20 14 17C14 20 16 22 17.5 22C16 18 17 14 18 10C19 14 21 16 22 19C23 16 22.5 13 22 11C25 15 27 19 27 25C27 32 23 38 18 38Z" fill="url(#fg2)"/>
+                    </g>
+                    <g class="flame-tip">
+                        <path d="M18 34C15 34 12 31 12 27C12 24 14 22 15.5 20C15.5 22.5 17 24 18 24C17 21 17.5 19 18 17C18.5 19 20 21 20.5 23C21 21 20.5 19 20 18C22 21 24 23 24 27C24 31 21 34 18 34Z" fill="url(#fg3)"/>
+                    </g>
+                    <defs>
+                        <linearGradient id="fg1" x1="18" y1="2" x2="18" y2="42" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ff6b1a"/>
+                            <stop offset="100%" stop-color="#e8501a"/>
+                        </linearGradient>
+                        <linearGradient id="fg2" x1="18" y1="10" x2="18" y2="38" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffcc00"/>
+                            <stop offset="100%" stop-color="#ff8800"/>
+                        </linearGradient>
+                        <linearGradient id="fg3" x1="18" y1="17" x2="18" y2="34" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#fff5aa"/>
+                            <stop offset="100%" stop-color="#ffdd00"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
             <div class="logo-text">RE<span>:</span>Ignite</div>
-        </div>
-        <div class="header-right">
             <div id="statusBadge" class="status-pill disconnected">
                 <span class="status-dot"></span>
                 连接中…
             </div>
+        </div>
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
             <div class="header-sub">每一个决定都将影响最终结果</div>
         </div>
     </div>
@@ -471,6 +540,21 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
+    /* ── Theme Toggle ── */
+    (function(){
+        const btn = document.getElementById('themeToggle');
+        const saved = localStorage.getItem('reignite_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+        btn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('reignite_theme', next);
+            btn.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+    })();
+
     const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
 
@@ -644,7 +728,7 @@
         let opts = '<option value="">—— 请选择你的角色 ——</option>';
         sorted.forEach(p => { opts += `<option value="${p.name}|${p.group_name}">${p.group_name} · ${p.name}</option>`; });
         document.getElementById('mainContent').innerHTML = `
-            <div class="selector-card" style="margin-bottom:16px;">
+            <div class="selector-card">
                 <div class="selector-title">欢迎来到第七城区</div>
                 <div class="selector-sub">请选择你的角色，即可查看实时游戏状态与数据</div>
                 <select id="playerSelect">${opts}</select>
