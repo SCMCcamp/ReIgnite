@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RE:Ignite · 中控端</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --brand: #e8501a;
+            --brand-dim: rgba(232,80,26,0.15);
+            --brand-glow: rgba(232,80,26,0.3);
+            --surface: #0f1117;
+            --surface-2: #161b26;
+            --surface-3: #1e2435;
+            --surface-4: #252d3f;
+            --text-1: #f0f2f8;
+            --text-2: #8a94a8;
+            --text-3: #5a6377;
+            --border: rgba(255,255,255,0.07);
+            --border-2: rgba(255,255,255,0.12);
+            --gold: #f5a623;
+            --gold-dim: rgba(245,166,35,0.12);
+            --green: #34d399;
+            --green-dim: rgba(52,211,153,0.12);
+            --red: #f87171;
+            --red-dim: rgba(248,113,113,0.12);
+            --blue: #60a5fa;
+            --blue-dim: rgba(96,165,250,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--surface);
+            color: var(--text-1);
+            min-height: 100vh;
+            padding: 20px 16px 60px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 15% 8%, rgba(232,80,26,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 85% 85%, rgba(96,165,250,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 30% 20% at 50% 50%, rgba(245,166,35,0.02) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-text {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-1);
+        }
+        .logo-text span { color: var(--brand); }
+        .admin-badge {
+            background: var(--brand-dim);
+            border: 1px solid rgba(232,80,26,0.3);
+            color: var(--brand);
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 40px;
+        }
+
+        .fire-logo { width: 34px; height: 34px; flex-shrink: 0; }
+        .fire-logo svg { width: 100%; height: 100%; }
+        .flame-main { animation: flicker 1.8s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+        .flame-inner { animation: flicker 1.2s ease-in-out infinite alternate-reverse; transform-origin: 50% 90%; }
+        .flame-tip { animation: flicker 0.9s ease-in-out infinite alternate; transform-origin: 50% 95%; }
+        @keyframes flicker {
+            0%   { transform: scaleX(1) scaleY(1) rotate(-1deg); }
+            33%  { transform: scaleX(0.95) scaleY(1.04) rotate(1.5deg); }
+            66%  { transform: scaleX(1.04) scaleY(0.97) rotate(-2deg); }
+            100% { transform: scaleX(0.97) scaleY(1.06) rotate(1deg); }
+        }
+
+        .status-pill {
+            display: flex; align-items: center; gap: 6px;
+            padding: 4px 12px 4px 8px;
+            border-radius: 40px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid;
+            transition: all 0.3s;
+        }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .connected { background: var(--green-dim); border-color: rgba(52,211,153,0.3); color: var(--green); }
+        .connected .status-dot { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse-dot 2s infinite; }
+        .disconnected { background: var(--red-dim); border-color: rgba(248,113,113,0.3); color: var(--red); }
+        .disconnected .status-dot { background: var(--red); }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.85); }
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .btn-reset {
+            background: rgba(248,113,113,0.1);
+            border: 1px solid rgba(248,113,113,0.25);
+            color: var(--red);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .btn-reset:hover { background: rgba(248,113,113,0.2); border-color: rgba(248,113,113,0.4); }
+
+        /* ── Glass Panel (base) ── */
+        .glass-panel {
+            position: relative;
+            border-radius: 24px;
+            padding: 22px 24px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 60%, rgba(96,165,250,0.03) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -60%; width: 45%; height: 100%;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.05) 50%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* ── Section Label ── */
+        .section-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── Control Panels Row ── */
+        .control-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 700px) { .control-row { grid-template-columns: 1fr; } }
+
+        .ctrl-panel { background: var(--surface-2); border: 1px solid var(--border); border-radius: 24px; padding: 22px 24px; }
+
+        .panel-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-1);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-title .icon { font-size: 1rem; }
+
+        .ctrl-input {
+            width: 100%;
+            background: var(--surface-3);
+            border: 1px solid var(--border-2);
+            color: var(--text-1);
+            border-radius: 12px;
+            padding: 11px 16px;
+            font-size: 0.88rem;
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 12px;
+        }
+        .ctrl-input:focus { border-color: var(--brand); }
+        .ctrl-input::placeholder { color: var(--text-3); }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--brand);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 11px 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { background: #d44516; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .preset-chip {
+            background: var(--surface-4);
+            border: 1px solid var(--border-2);
+            color: var(--text-2);
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .preset-chip:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-dim); }
+
+        /* Latest item */
+        .latest-box {
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px 10px;
+            margin-top: 14px;
+            position: relative;
+        }
+        .latest-box-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 6px;
+        }
+        .latest-box-content {
+            font-size: 0.85rem;
+            color: var(--text-1);
+            line-height: 1.5;
+            word-break: break-word;
+            padding-right: 28px;
+        }
+        .latest-box-time { font-size: 0.62rem; color: var(--text-3); text-align: right; margin-top: 6px; }
+        .delete-btn {
+            position: absolute;
+            top: 10px; right: 12px;
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: var(--red);
+            opacity: 0.5;
+            transition: opacity 0.15s;
+            padding: 2px;
+        }
+        .delete-btn:hover { opacity: 1; }
+
+        /* ── Stock Section ── */
+        .stock-section {
+            position: relative;
+            border-radius: 24px;
+            padding: 0;
+            margin-bottom: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 50%, rgba(245,166,35,0.06) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .stock-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30px; right: -20px;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(245,166,35,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .stock-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            cursor: pointer;
+            transition: background 0.15s;
+            position: relative;
+            z-index: 1;
+        }
+        .stock-header:hover { background: rgba(255,255,255,0.02); }
+        .stock-header-left { display: flex; align-items: center; gap: 14px; }
+        .stock-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .stock-title em { color: var(--gold); font-style: normal; }
+        .stock-cur-price {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-shadow: 0 0 16px rgba(245,166,35,0.4);
+        }
+        .stock-chevron { color: var(--text-3); font-size: 0.8rem; transition: transform 0.2s; }
+        .stock-chevron.open { transform: rotate(180deg); }
+
+        .stock-body {
+            display: none;
+            padding: 0 24px 22px;
+            border-top: 1px solid var(--border);
+            position: relative;
+            z-index: 1;
+        }
+        .stock-body.expanded { display: block; }
+
+        .stock-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 18px; margin-bottom: 4px; }
+        .stock-btn {
+            background: var(--surface-4);
+            border: 1px solid var(--border-2);
+            color: var(--text-2);
+            padding: 7px 16px;
+            border-radius: 40px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .stock-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+        .stock-manual { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .stock-manual-label { font-size: 0.78rem; color: var(--text-3); white-space: nowrap; }
+        .stock-manual-input {
+            background: var(--surface-3);
+            border: 1px solid var(--border-2);
+            color: var(--text-1);
+            border-radius: 10px;
+            padding: 7px 14px;
+            font-size: 0.88rem;
+            width: 120px;
+            outline: none;
+            font-family: 'Rajdhani', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .stock-manual-input:focus { border-color: var(--gold); }
+        .stock-set-btn {
+            background: var(--gold-dim);
+            border: 1px solid rgba(245,166,35,0.3);
+            color: var(--gold);
+            padding: 7px 16px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-weight: 600;
+        }
+        .stock-set-btn:hover { background: rgba(245,166,35,0.2); }
+        .stock-note { font-size: 0.62rem; color: var(--text-3); text-align: center; margin-top: 10px; letter-spacing: 0.4px; }
+        canvas { width: 100% !important; max-height: 200px; margin-top: 10px; }
+
+        /* ── Filter Bar ── */
+        .filter-bar {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 60px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .group-chip {
+            padding: 5px 16px;
+            border-radius: 40px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: var(--text-2);
+            background: transparent;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .group-chip:hover { border-color: var(--border-2); color: var(--text-1); }
+        .group-chip.active { background: var(--brand); color: white; border-color: var(--brand); }
+        .clear-filter-btn {
+            margin-left: auto;
+            font-size: 0.72rem;
+            color: var(--text-3);
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 40px;
+            background: var(--surface-4);
+            border: 1px solid var(--border-2);
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .clear-filter-btn:hover { color: var(--text-1); border-color: var(--border-2); }
+
+        /* ── Stats Grid ── */
+        .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .stat-chip {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 10px 18px;
+            text-align: center;
+            flex: 1;
+            min-width: 70px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .stat-chip:hover { background: var(--surface-3); border-color: var(--border-2); }
+        .stat-chip.active { background: var(--blue-dim); border-color: rgba(96,165,250,0.4); color: var(--blue); }
+        .stat-chip-label { font-size: 0.62rem; color: var(--text-3); font-family: 'Noto Sans SC', sans-serif; display: block; margin-bottom: 2px; font-weight: 400; }
+
+        /* ── Table ── */
+        .table-wrap {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 860px; }
+        thead tr { background: var(--surface-3); }
+        th {
+            padding: 13px 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-3);
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 11px 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.87rem;
+            vertical-align: middle;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: rgba(255,255,255,0.02); }
+        .row-warn td { background: rgba(248,113,113,0.05) !important; }
+        .row-warn:hover td { background: rgba(248,113,113,0.08) !important; }
+
+        .player-name-cell { font-weight: 600; color: var(--text-1); }
+        .group-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            background: var(--surface-4);
+            color: var(--text-2);
+            border: 1px solid var(--border-2);
+        }
+
+        /* Color selector dots */
+        .color-picker { display: flex; gap: 5px; justify-content: center; }
+        .color-dot {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .color-dot:hover { transform: scale(1.15); }
+        .color-dot.selected { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 8px rgba(255,255,255,0.3); }
+        .dot-green  { background: #4caf50; }
+        .dot-yellow { background: #ffc107; }
+        .dot-orange { background: #ff9800; }
+        .dot-red    { background: #f44336; }
+        .dot-black  { background: #546e7a; }
+
+        /* RBC control */
+        .rbc-ctrl { display: flex; align-items: center; gap: 4px; justify-content: center; }
+        .rbc-btn {
+            width: 32px; height: 28px;
+            border-radius: 8px;
+            border: 1px solid var(--border-2);
+            background: var(--surface-4);
+            color: var(--text-2);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.12s;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .rbc-btn:hover { background: var(--surface-3); color: var(--text-1); border-color: var(--brand); }
+        .rbc-val {
+            min-width: 32px;
+            text-align: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .checkbox-custom {
+            width: 20px; height: 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            accent-color: var(--brand);
+        }
+
+        .progress-pill {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 40px;
+            background: var(--surface-3);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-2);
+            border: 1px solid var(--border);
+        }
+        .progress-pill.full { color: var(--green); border-color: rgba(52,211,153,0.3); background: var(--green-dim); }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 24px; right: 24px;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 1000;
+            transform: translateY(10px);
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { background: var(--green-dim); border: 1px solid rgba(52,211,153,0.35); color: var(--green); }
+        .toast-error   { background: var(--red-dim);   border: 1px solid rgba(248,113,113,0.35); color: var(--red); }
+        .toast-info    { background: var(--blue-dim);  border: 1px solid rgba(96,165,250,0.35);  color: var(--blue); }
+
+        .footer {
+            text-align: center;
+            font-size: 0.62rem;
+            color: var(--text-3);
+            margin-top: 32px;
+            letter-spacing: 0.5px;
+        }
+        .footer-dot { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--brand); margin: 0 6px; vertical-align: middle; animation: pulse-dot 2s infinite; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="fire-logo">
+                <svg viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g class="flame-main">
+                        <path d="M18 42C10 42 4 36 4 28C4 20 9 16 12 12C12 16 14 18 16 18C14 12 17 6 18 2C19 8 22 10 24 14C26 10 25 6 24 4C28 8 32 14 32 22C32 32 26 42 18 42Z" fill="url(#fg1)"/>
+                    </g>
+                    <g class="flame-inner">
+                        <path d="M18 38C13 38 9 34 9 28C9 23 12 20 14 17C14 20 16 22 17.5 22C16 18 17 14 18 10C19 14 21 16 22 19C23 16 22.5 13 22 11C25 15 27 19 27 25C27 32 23 38 18 38Z" fill="url(#fg2)"/>
+                    </g>
+                    <g class="flame-tip">
+                        <path d="M18 34C15 34 12 31 12 27C12 24 14 22 15.5 20C15.5 22.5 17 24 18 24C17 21 17.5 19 18 17C18.5 19 20 21 20.5 23C21 21 20.5 19 20 18C22 21 24 23 24 27C24 31 21 34 18 34Z" fill="url(#fg3)"/>
+                    </g>
+                    <defs>
+                        <linearGradient id="fg1" x1="18" y1="2" x2="18" y2="42" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ff6b1a"/><stop offset="100%" stop-color="#e8501a"/>
+                        </linearGradient>
+                        <linearGradient id="fg2" x1="18" y1="10" x2="18" y2="38" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffcc00"/><stop offset="100%" stop-color="#ff8800"/>
+                        </linearGradient>
+                        <linearGradient id="fg3" x1="18" y1="17" x2="18" y2="34" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#fff5aa"/><stop offset="100%" stop-color="#ffdd00"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="logo-text">RE<span>:</span>Ignite</div>
+            <span class="admin-badge">中控端</span>
+            <div id="statusBadge" class="status-pill disconnected">
+                <span class="status-dot"></span>连接中…
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-reset" id="resetAllBtn">🔄 重置所有玩家</button>
+        </div>
+    </div>
+
+    <!-- Control Panels Row -->
+    <div class="section-label">广播 &amp; 经济</div>
+    <div class="control-row">
+        <!-- News -->
+        <div class="ctrl-panel">
+            <div class="panel-title"><span class="icon">📢</span> 快报广播</div>
+            <input class="ctrl-input" type="text" id="newsInput" placeholder="输入快报内容…">
+            <button class="btn-primary" id="sendNewsBtn">发 送 快 报</button>
+            <div class="latest-box">
+                <div class="latest-box-label">📌 最新快报</div>
+                <div class="latest-box-content" id="latestNewsContent">暂无</div>
+                <div class="latest-box-time" id="latestNewsTime"></div>
+                <button class="delete-btn" id="deleteNewsBtn" style="display:none;" title="删除">✕</button>
+            </div>
+        </div>
+        <!-- Economy -->
+        <div class="ctrl-panel">
+            <div class="panel-title"><span class="icon">💰</span> 经济动态</div>
+            <div class="preset-row">
+                <button class="preset-chip" data-preset="normal">📊 正常</button>
+                <button class="preset-chip" data-preset="inflation">📈 通胀</button>
+                <button class="preset-chip" data-preset="deflation">📉 通缩</button>
+            </div>
+            <input class="ctrl-input" type="text" id="economyInput" placeholder="或自定义经济动态…">
+            <button class="btn-primary" id="setEconomyBtn">发 布 经 济 动 态</button>
+            <div class="latest-box">
+                <div class="latest-box-label">📌 最新经济动态</div>
+                <div class="latest-box-content" id="latestEconomyContent">暂无</div>
+                <div class="latest-box-time" id="latestEconomyTime"></div>
+                <button class="delete-btn" id="deleteEconomyBtn" style="display:none;" title="删除">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Section -->
+    <div class="section-label">股票行情</div>
+    <div class="stock-section" id="stockSection">
+        <div class="stock-header" id="stockHeader">
+            <div class="stock-header-left">
+                <div class="stock-title">RE<em>:</em>Set 股 · 实时走势</div>
+                <div class="stock-cur-price" id="currentPrice">-- R</div>
+            </div>
+            <span class="stock-chevron" id="stockChevron">▼</span>
+        </div>
+        <div class="stock-body" id="stockBody">
+            <div class="stock-actions">
+                <button class="stock-btn" id="addRandomPriceBtn">🎲 随机波动 + 记录</button>
+                <button class="stock-btn" id="syncEconomyBtn">📉 根据当前经济调整</button>
+            </div>
+            <canvas id="priceChart" height="160"></canvas>
+            <div class="stock-manual">
+                <span class="stock-manual-label">手动设置股价：</span>
+                <input class="stock-manual-input" type="number" id="manualPriceInput" step="1" placeholder="输入数字">
+                <button class="stock-set-btn" id="manualSetPriceBtn">✏️ 确认</button>
+            </div>
+            <div class="stock-note">每30分钟自动随机波动一次 · 中控发布经济动态时同步调整</div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="section-label">玩家数据</div>
+    <div class="filter-bar">
+        <span class="group-chip active" data-group="all">全部</span>
+        <span class="group-chip" data-group="尼西米">尼西米</span>
+        <span class="group-chip" data-group="以利亚">以利亚</span>
+        <span class="group-chip" data-group="约拿">约拿</span>
+        <span class="group-chip" data-group="基甸">基甸</span>
+        <span class="group-chip" data-group="拿单">拿单</span>
+        <span class="group-chip" data-group="撒母耳">撒母耳</span>
+        <span class="clear-filter-btn" id="clearFilterBtn">✖ 清除颜色筛选</span>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row" id="statsPanel"></div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>玩家</th>
+                    <th>组别</th>
+                    <th>颜色</th>
+                    <th>R 币</th>
+                    <th>站 1</th>
+                    <th>站 2</th>
+                    <th>站 3</th>
+                    <th>站 4</th>
+                    <th>进度</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        数据实时同步<span class="footer-dot"></span>RE:Ignite 中控端
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+    /* ── Supabase ── */
+    const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
+    const sb = window.__supabaseAdminClient
+        || (window.__supabaseAdminClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+
+    /* ── State ── */
+    let players = [];
+    let currentGroup = 'all';
+    let currentColorFilter = null;
+    let priceHistory = [5];
+    let chart = null;
+    let autoTimer = null;
+    let currentNewsId = null;
+    let currentEconomyId = null;
+
+    /* ── Toast ── */
+    let toastTimer = null;
+    function showToast(msg, type = 'info') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = `toast toast-${type} show`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    /* ── Status ── */
+    function setStatus(connected) {
+        const el = document.getElementById('statusBadge');
+        el.className = `status-pill ${connected ? 'connected' : 'disconnected'}`;
+        el.innerHTML = `<span class="status-dot"></span>${connected ? '● 已连接云端' : '● 离线'}`;
+    }
+
+    /* ══════════════════════════════════════════
+       STOCK
+    ══════════════════════════════════════════ */
+    async function savePriceToDB(price) {
+        const { error } = await sb.from('stock_prices').insert([{ price }]);
+        if (error) console.error('保存股价失败:', error);
+    }
+
+    async function initPriceHistoryFromDB() {
+        const { data, error } = await sb.from('stock_prices').select('price').order('id', { ascending: true });
+        if (!error && data && data.length) {
+            priceHistory = data.map(r => r.price);
+        } else {
+            await savePriceToDB(5);
+            priceHistory = [5];
+        }
+        renderChart();
+    }
+
+    function renderChart() {
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        if (chart) chart.destroy();
+        const last = priceHistory[priceHistory.length - 1];
+        const prev = priceHistory[priceHistory.length - 2] ?? last;
+        const rising = last >= prev;
+        const lineColor = rising ? '#34d399' : '#f87171';
+        const fillColor = rising ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)';
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: priceHistory.map((_, i) => i + 1),
+                datasets: [{
+                    label: 'RE:Set股 价格 (R币)',
+                    data: priceHistory,
+                    borderColor: lineColor,
+                    backgroundColor: fillColor,
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHoverBackgroundColor: lineColor,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { display: false, grid: { display: false } },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                        ticks: { color: '#5a6377', font: { size: 11 }, callback: v => v + ' R' },
+                        border: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e2435',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        titleColor: '#8a94a8',
+                        bodyColor: '#f0f2f8',
+                        callbacks: { label: ctx => `  ${ctx.raw} R币` }
+                    }
+                }
+            }
+        });
+        document.getElementById('currentPrice').innerText = Math.round(last * 100) / 100 + ' R';
+    }
+
+    // BUG FIX: only push+save if we initiated the change (not from realtime echo)
+    async function addPricePoint(newPrice) {
+        newPrice = Math.max(1, Math.round(newPrice * 100) / 100);
+        await savePriceToDB(newPrice);
+        // Realtime will push it into priceHistory via subscribeStockPrice; but
+        // we optimistically update locally too so the chart feels instant.
+        if (priceHistory[priceHistory.length - 1] !== newPrice) {
+            priceHistory.push(newPrice);
+            renderChart();
+        }
+    }
+
+    async function randomFluctuation() {
+        const last = priceHistory[priceHistory.length - 1];
+        const change = (Math.random() - 0.5) * 0.2;
+        await addPricePoint(last * (1 + change));
+        showToast('📈 股价已随机波动', 'info');
+    }
+
+    async function adjustPriceByEconomy(content) {
+        const last = priceHistory[priceHistory.length - 1];
+        let pct = 0;
+        if (content.includes('通胀') || content.includes('涨价')) pct = (Math.random() * 10 + 5) / 100;
+        else if (content.includes('通缩') || content.includes('降价')) pct = -(Math.random() * 10 + 5) / 100;
+        else pct = (Math.random() * 4 - 2) / 100;
+        await addPricePoint(last * (1 + pct));
+    }
+
+    function startAutoAdjust() {
+        if (autoTimer) clearInterval(autoTimer);
+        autoTimer = setInterval(randomFluctuation, 30 * 60 * 1000);
+    }
+
+    function subscribeStockPrice() {
+        // BUG FIX: avoid duplicate appends — only push if value differs from last known
+        sb.channel('admin-stock-channel')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, payload => {
+                const p = payload.new?.price;
+                if (p != null && priceHistory[priceHistory.length - 1] !== p) {
+                    priceHistory.push(p);
+                    renderChart();
+                }
+            })
+            .subscribe();
+    }
+
+    /* ══════════════════════════════════════════
+       PLAYERS
+    ══════════════════════════════════════════ */
+    async function loadPlayers() {
+        const { data, error } = await sb.from('players').select('*').order('group_name');
+        if (error) { setStatus(false); return; }
+        // Deduplicate by name + group
+        const map = new Map();
+        for (const p of data) {
+            const key = `${p.name}|${p.group_name}`;
+            if (!map.has(key)) map.set(key, p);
+        }
+        players = Array.from(map.values());
+        setStatus(true);
+        renderUI();
+    }
+
+    async function updatePlayer(id, updates) {
+        const { error } = await sb.from('players').update(updates).eq('id', id);
+        if (error) { showToast('更新失败: ' + error.message, 'error'); return; }
+        showToast('✓ 已同步', 'success');
+        await loadPlayers();
+    }
+
+    window.changeRbc = (p, delta) => updatePlayer(p.id, { rbc: Math.max(0, p.rbc + delta) });
+    window.setColor = (p, color) => updatePlayer(p.id, { color });
+    window.toggleStation = (p, station) => updatePlayer(p.id, { [station]: !p[station] });
+
+    function getProgress(p) {
+        return Math.round(((p.s1 ? 1 : 0) + (p.s2 ? 1 : 0) + (p.s3 ? 1 : 0) + (p.s4 ? 1 : 0)) / 4 * 100);
+    }
+
+    /* ══════════════════════════════════════════
+       NEWS
+    ══════════════════════════════════════════ */
+    async function loadLatestNews() {
+        const { data, error } = await sb.from('news').select('*').order('id', { ascending: false }).limit(1);
+        if (!error && data?.length) {
+            document.getElementById('latestNewsContent').innerText = data[0].content;
+            document.getElementById('latestNewsTime').innerText = data[0].time;
+            currentNewsId = data[0].id;
+            document.getElementById('deleteNewsBtn').style.display = 'block';
+        } else {
+            document.getElementById('latestNewsContent').innerText = '暂无';
+            document.getElementById('latestNewsTime').innerText = '';
+            currentNewsId = null;
+            document.getElementById('deleteNewsBtn').style.display = 'none';
+        }
+    }
+
+    async function sendNews() {
+        const content = document.getElementById('newsInput').value.trim();
+        if (!content) { showToast('请输入快报内容', 'error'); return; }
+        const timeStr = new Date().toLocaleTimeString();
+        const { error } = await sb.from('news').insert([{ content, time: timeStr }]);
+        if (error) { showToast('发送失败: ' + error.message, 'error'); return; }
+        showToast('📢 快报已发送', 'success');
+        document.getElementById('newsInput').value = '';
+    }
+
+    async function deleteLatestNews() {
+        if (!currentNewsId) return;
+        const { error } = await sb.from('news').delete().eq('id', currentNewsId);
+        if (error) { showToast('删除失败: ' + error.message, 'error'); return; }
+        showToast('已删除快报', 'info');
+        await loadLatestNews();
+    }
+
+    /* ══════════════════════════════════════════
+       ECONOMY
+    ══════════════════════════════════════════ */
+    async function loadLatestEconomy() {
+        const { data, error } = await sb.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
+        if (!error && data?.length) {
+            document.getElementById('latestEconomyContent').innerText = data[0].content;
+            document.getElementById('latestEconomyTime').innerText = data[0].time;
+            currentEconomyId = data[0].id;
+            document.getElementById('deleteEconomyBtn').style.display = 'block';
+        } else {
+            document.getElementById('latestEconomyContent').innerText = '暂无';
+            document.getElementById('latestEconomyTime').innerText = '';
+            currentEconomyId = null;
+            document.getElementById('deleteEconomyBtn').style.display = 'none';
+        }
+    }
+
+    const presetMap = {
+        normal:    '正常经济 · 甜品原价 · R币获取正常',
+        inflation: '📈 通胀来袭！超市甜品价格上涨2R币，R币获取减半',
+        deflation: '📉 通缩来临！超市甜品降价2R币，R币获取翻倍'
+    };
+
+    async function publishEconomy(content) {
+        if (!content) { showToast('请输入经济动态内容', 'error'); return; }
+        const timeStr = new Date().toLocaleTimeString();
+        const { error } = await sb.from('economy_status').insert([{ content, time: timeStr }]);
+        if (error) { showToast('发布失败: ' + error.message, 'error'); return; }
+        showToast('💰 经济动态已发布', 'success');
+        document.getElementById('economyInput').value = '';
+        await adjustPriceByEconomy(content);
+    }
+
+    async function deleteLatestEconomy() {
+        if (!currentEconomyId) return;
+        const { error } = await sb.from('economy_status').delete().eq('id', currentEconomyId);
+        if (error) { showToast('删除失败: ' + error.message, 'error'); return; }
+        showToast('已删除经济动态', 'info');
+        await loadLatestEconomy();
+    }
+
+    /* ══════════════════════════════════════════
+       RESET ALL
+    ══════════════════════════════════════════ */
+    async function resetAll() {
+        if (!confirm('确认重置所有玩家数据？此操作不可撤销。')) return;
+        for (const p of players) {
+            await sb.from('players').update({ color: 'green', rbc: 10, s1: false, s2: false, s3: false, s4: false }).eq('id', p.id);
+        }
+        showToast('🔄 已重置所有玩家', 'info');
+        await loadPlayers();
+    }
+
+    /* ══════════════════════════════════════════
+       RENDER UI
+    ══════════════════════════════════════════ */
+    function getFiltered() {
+        let list = [...players];
+        if (currentGroup !== 'all') list = list.filter(p => p.group_name === currentGroup);
+        if (currentColorFilter) {
+            if (currentColorFilter === 'warn') list = list.filter(p => p.rbc < 5);
+            else list = list.filter(p => p.color === currentColorFilter);
+        }
+        return list;
+    }
+
+    function renderStats() {
+        const s = { total: players.length, green: 0, yellow: 0, orange: 0, red: 0, black: 0, warn: 0 };
+        players.forEach(p => {
+            if (p.color in s) s[p.color]++;
+            if (p.rbc < 5) s.warn++;
+        });
+        const chips = [
+            { key: null,     label: '👥 全部', val: s.total },
+            { key: 'green',  label: '🟢 绿',   val: s.green },
+            { key: 'yellow', label: '🟡 黄',   val: s.yellow },
+            { key: 'orange', label: '🟠 橙',   val: s.orange },
+            { key: 'red',    label: '🔴 红',   val: s.red },
+            { key: 'black',  label: '⚫ 黑',   val: s.black },
+            { key: 'warn',   label: '⚠️ 危险', val: s.warn }
+        ];
+        document.getElementById('statsPanel').innerHTML = chips.map(c => `
+            <div class="stat-chip ${currentColorFilter === c.key ? 'active' : ''}" data-key="${c.key}">
+                <span class="stat-chip-label">${c.label}</span>${c.val}
+            </div>
+        `).join('');
+        document.querySelectorAll('.stat-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const k = chip.getAttribute('data-key');
+                currentColorFilter = (k === 'null' || k === null) ? null : k;
+                renderUI();
+            });
+        });
+    }
+
+    function renderTable() {
+        const filtered = getFiltered();
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        const colors = ['green', 'yellow', 'orange', 'red', 'black'];
+        filtered.forEach(p => {
+            const row = tbody.insertRow();
+            if (p.rbc < 5) row.classList.add('row-warn');
+
+            // Name
+            const nameCell = row.insertCell(); nameCell.className = 'player-name-cell'; nameCell.innerText = p.name;
+
+            // Group
+            const grpCell = row.insertCell();
+            grpCell.innerHTML = `<span class="group-tag">${p.group_name}</span>`;
+
+            // Color
+            const colorCell = row.insertCell();
+            const picker = document.createElement('div'); picker.className = 'color-picker';
+            colors.forEach(c => {
+                const dot = document.createElement('div');
+                dot.className = `color-dot dot-${c}${p.color === c ? ' selected' : ''}`;
+                dot.addEventListener('click', (function (player, color) {
+                    return () => window.setColor(player, color);
+                })(p, c));
+                picker.appendChild(dot);
+            });
+            colorCell.appendChild(picker);
+
+            // RBC
+            const rbcCell = row.insertCell();
+            const ctrl = document.createElement('div'); ctrl.className = 'rbc-ctrl';
+            ctrl.innerHTML = `
+                <button class="rbc-btn" title="-5">-5</button>
+                <button class="rbc-btn" title="-2">-2</button>
+                <button class="rbc-btn" title="-1">-1</button>
+                <span class="rbc-val">${p.rbc}</span>
+                <button class="rbc-btn" title="+1">+1</button>
+                <button class="rbc-btn" title="+2">+2</button>
+                <button class="rbc-btn" title="+5">+5</button>
+            `;
+            const btns = ctrl.querySelectorAll('.rbc-btn');
+            btns[0].onclick = () => window.changeRbc(p, -5);
+            btns[1].onclick = () => window.changeRbc(p, -2);
+            btns[2].onclick = () => window.changeRbc(p, -1);
+            btns[3].onclick = () => window.changeRbc(p, 1);
+            btns[4].onclick = () => window.changeRbc(p, 2);
+            btns[5].onclick = () => window.changeRbc(p, 5);
+            rbcCell.appendChild(ctrl);
+
+            // Stations
+            ['s1', 's2', 's3', 's4'].forEach(station => {
+                const cell = row.insertCell();
+                const cb = document.createElement('input');
+                cb.type = 'checkbox'; cb.checked = !!p[station]; cb.className = 'checkbox-custom';
+                cb.onchange = () => window.toggleStation(p, station);
+                cell.appendChild(cb);
+            });
+
+            // Progress
+            const prog = getProgress(p);
+            const progCell = row.insertCell();
+            progCell.innerHTML = `<span class="progress-pill${prog === 100 ? ' full' : ''}">${prog}%</span>`;
+        });
+    }
+
+    function renderGroupChips() {
+        document.querySelectorAll('.group-chip').forEach(chip => {
+            chip.classList.toggle('active', chip.getAttribute('data-group') === currentGroup);
+        });
+    }
+
+    function renderUI() {
+        renderStats();
+        renderGroupChips();
+        renderTable();
+    }
+
+    /* ══════════════════════════════════════════
+       REALTIME
+    ══════════════════════════════════════════ */
+    function setupRealtime() {
+        sb.channel('admin-players-channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
+            .subscribe();
+
+        // BUG FIX: subscribe to both INSERT and DELETE for news/economy
+        sb.channel('admin-news-channel')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews())
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'news' }, () => loadLatestNews())
+            .subscribe();
+
+        sb.channel('admin-economy-channel')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
+            .subscribe();
+
+        subscribeStockPrice();
+    }
+
+    /* ══════════════════════════════════════════
+       EVENT BINDINGS (bound once, not on every render)
+    ══════════════════════════════════════════ */
+    function bindEvents() {
+        document.getElementById('sendNewsBtn').addEventListener('click', sendNews);
+        document.getElementById('newsInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendNews(); });
+        document.getElementById('deleteNewsBtn').addEventListener('click', deleteLatestNews);
+
+        document.getElementById('setEconomyBtn').addEventListener('click', () => {
+            publishEconomy(document.getElementById('economyInput').value.trim());
+        });
+        document.getElementById('economyInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') publishEconomy(document.getElementById('economyInput').value.trim());
+        });
+        document.getElementById('deleteEconomyBtn').addEventListener('click', deleteLatestEconomy);
+
+        document.querySelectorAll('.preset-chip').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = btn.getAttribute('data-preset');
+                if (preset && presetMap[preset]) document.getElementById('economyInput').value = presetMap[preset];
+            });
+        });
+
+        document.getElementById('resetAllBtn').addEventListener('click', resetAll);
+
+        document.getElementById('addRandomPriceBtn').addEventListener('click', randomFluctuation);
+        document.getElementById('syncEconomyBtn').addEventListener('click', async () => {
+            const econ = document.getElementById('latestEconomyContent').innerText;
+            if (!econ || econ === '暂无') { showToast('暂无经济动态', 'error'); return; }
+            await adjustPriceByEconomy(econ);
+            showToast('📉 已根据经济动态调整股价', 'info');
+        });
+        document.getElementById('manualSetPriceBtn').addEventListener('click', async () => {
+            const val = parseFloat(document.getElementById('manualPriceInput').value);
+            if (isNaN(val) || val <= 0) { showToast('请输入有效正数', 'error'); return; }
+            await addPricePoint(val);
+            document.getElementById('manualPriceInput').value = '';
+            showToast(`✏️ 股价已设为 ${Math.round(val * 100) / 100} R币`, 'success');
+        });
+
+        // BUG FIX: group chips bound once here, not in renderUI
+        document.querySelectorAll('.group-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                currentGroup = chip.getAttribute('data-group');
+                renderUI();
+            });
+        });
+
+        document.getElementById('clearFilterBtn').addEventListener('click', () => {
+            currentColorFilter = null;
+            renderUI();
+        });
+
+        // Collapsible stock
+        const header = document.getElementById('stockHeader');
+        const body = document.getElementById('stockBody');
+        const chevron = document.getElementById('stockChevron');
+        let expanded = false;
+        header.addEventListener('click', () => {
+            expanded = !expanded;
+            body.classList.toggle('expanded', expanded);
+            chevron.classList.toggle('open', expanded);
+        });
+    }
+
+    /* ── Init ── */
+    bindEvents();
+    loadPlayers();
+    loadLatestNews();
+    loadLatestEconomy();
+    initPriceHistoryFromDB();
+    setupRealtime();
+    startAutoAdjust();
+})();
+</script>
+</body>
+</html>
