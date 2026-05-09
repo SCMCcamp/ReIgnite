@@ -602,6 +602,39 @@
             border-radius: 10px; font-size: 0.8rem; color: #ff9800; font-weight: 600;
         }
 
+        /* ── Dead / Flatline banner (no text, just atmosphere) ── */
+        .flatline-msg {
+            margin-top: 14px;
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(84,110,122,0.35);
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            animation: flatline-fade 4s ease-in-out infinite;
+        }
+        .flatline-skull {
+            font-size: 1.4rem;
+            animation: skull-drift 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(84,110,122,0.6));
+        }
+        .flatline-skull:nth-child(2) { animation-delay: 0.4s; font-size: 1.7rem; }
+        .flatline-skull:nth-child(3) { animation-delay: 0.8s; }
+        .flatline-line {
+            flex: 1; height: 1px; max-width: 60px;
+            background: linear-gradient(90deg, transparent, rgba(84,110,122,0.5), transparent);
+            animation: flatline-fade 4s ease-in-out infinite;
+        }
+        @keyframes flatline-fade {
+            0%, 100% { opacity: 0.5; } 50% { opacity: 0.9; }
+        }
+        @keyframes skull-drift {
+            0%, 100% { transform: translateY(0) scale(1);   opacity: 0.6; }
+            50%       { transform: translateY(-3px) scale(1.1); opacity: 1; }
+        }
+
         /* ── Stock Card ── */
         .stock-card {
             position: relative; border-radius: 20px; padding: 18px 18px 14px;
@@ -1040,6 +1073,16 @@
 
         /* ── Extra warning banners ── */
         let warningHtml = '';
+        if (isDead) {
+            warningHtml = `
+                <div class="flatline-msg">
+                    <div class="flatline-line"></div>
+                    <span class="flatline-skull">💀</span>
+                    <span class="flatline-skull">💀</span>
+                    <span class="flatline-skull">💀</span>
+                    <div class="flatline-line"></div>
+                </div>`;
+        }
         if (isWarning && !isDead) {
             warningHtml = `
                 <div class="warning-banner">
