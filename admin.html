@@ -37,7 +37,7 @@
         .logo-pipe { color: #e8501a; font-size: 1.6rem; font-weight: 700; }
         .badge { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 600; color: #111827; letter-spacing: 1px; }
         .status-pill { display: flex; align-items: center; gap: 8px; padding: 4px 14px; border-radius: 40px; font-size: 0.7rem; background: white; border: 1px solid rgba(0,0,0,0.08); }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; box-shadow: 0 0 6px #059669; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
         .btn { background: white; border: 1px solid rgba(0,0,0,0.1); padding: 6px 16px; border-radius: 40px; cursor: pointer; color: #111827; font-weight: 500; font-size: 0.85rem; }
         .btn-primary { background: #e8501a; border: none; color: white; }
         
@@ -52,6 +52,11 @@
         .quick-group { display: flex; gap: 8px; margin-bottom: 10px; }
         .quick-btn { background: #f3f4f6; border: none; padding: 5px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
         input, select { background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 48px; padding: 10px 14px; font-size: 0.85rem; width: 100%; margin-bottom: 10px; }
+        
+        .event-options { background: #f9fafb; border-radius: 20px; padding: 12px; margin: 12px 0; border: 1px solid #e5e7eb; }
+        .event-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+        .event-row label { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer; }
+        .event-select { width: auto; margin-bottom: 0; padding: 6px 12px; }
         
         .latest-item { background: rgba(0,0,0,0.03); border-radius: 20px; padding: 10px 14px; margin-top: 16px; border-left: 3px solid #e8501a; }
         .latest-content { font-size: 0.85rem; word-break: break-word; }
@@ -79,9 +84,11 @@
         
         .table-wrapper { overflow-x: auto; margin-top: 20px; padding: 0 0 20px 0; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 6px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 0.78rem; }
+        th, td { padding: 10px 6px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 0.78rem; }
         th { background: #f9fafb; color: #4b5563; font-weight: 600; }
         .warning-row { background: rgba(220,38,38,0.08); }
+        .detail-btn { background: none; border: 1px solid #d1d5db; border-radius: 20px; padding: 4px 10px; cursor: pointer; font-size: 0.7rem; color: #4b5563; }
+        .detail-btn:hover { background: #e5e7eb; }
         
         .color-selector { display: flex; gap: 6px; justify-content: center; }
         .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
@@ -97,7 +104,45 @@
         .loan-checkbox { width: 16px; height: 16px; cursor: pointer; }
         .checkbox { width: 16px; height: 16px; cursor: pointer; }
         
-        .toast-msg { position: fixed; bottom: 30px; right: 30px; background: white; padding: 8px 16px; border-radius: 40px; border-left: 4px solid #e8501a; opacity: 0; transition: 0.2s; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 0.8rem; }
+        /* 侧边栏样式 */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #e5e7eb;
+        }
+        .sidebar-overlay.open { transform: translateX(0); }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        .sidebar-header h3 { font-size: 1.2rem; font-weight: 600; }
+        .sidebar-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
+        .sidebar-content { flex: 1; padding: 20px 24px; overflow-y: auto; }
+        .info-row-side { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
+        .info-label { font-weight: 600; color: #4b5563; }
+        .info-value { font-weight: 500; }
+        .log-list { margin-top: 20px; }
+        .log-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: #374151; }
+        .log-item { font-size: 0.75rem; padding: 10px 0; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .log-time { color: #9ca3af; min-width: 70px; font-size: 0.7rem; }
+        .log-detail { flex: 1; color: #4b5563; word-break: break-word; }
+        .undo-btn { background: none; border: 1px solid #d1d5db; border-radius: 20px; padding: 2px 10px; cursor: pointer; font-size: 0.65rem; color: #dc2626; }
+        .undo-btn:hover { background: #fee2e2; }
+        
+        .toast-msg { position: fixed; bottom: 30px; right: 30px; background: white; padding: 8px 16px; border-radius: 40px; border-left: 4px solid #e8501a; opacity: 0; transition: 0.2s; z-index: 1001; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 0.8rem; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -113,9 +158,7 @@
         <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
     </div>
 
-    <!-- 两栏并排布局：快报 | 经济状况 -->
     <div class="panels">
-        <!-- 快报面板 -->
         <div class="panel glass-card">
             <div class="panel-header">
                 <div class="panel-title">📢 快报广播</div>
@@ -123,56 +166,53 @@
             </div>
             <div class="input-area">
                 <input type="text" id="newsInput" placeholder="输入快报内容...">
+                <div class="event-options">
+                    <div class="event-row"><label><input type="checkbox" id="globalEventCheckbox"> 🌍 同时作为全局事件执行</label></div>
+                    <div class="event-row" id="globalEventOptions" style="display: none;">
+                        <span>影响范围：</span>
+                        <label><input type="radio" name="eventScope" value="all" checked> 全体玩家</label>
+                        <label><input type="radio" name="eventScope" value="filtered"> 当前筛选玩家</label>
+                        <span style="margin-left: 12px;">R币变化：</span>
+                        <select id="eventRbcDelta" class="event-select">
+                            <option value="-5">-5 R币</option><option value="-3">-3 R币</option><option value="-1">-1 R币</option>
+                            <option value="0">无变化</option><option value="1">+1 R币</option><option value="3">+3 R币</option><option value="5">+5 R币</option>
+                        </select>
+                    </div>
+                </div>
                 <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
             </div>
-            <div id="newsLatest" class="latest-item">
-                <div class="latest-content" id="newsLatestContent">暂无快报</div>
-                <div class="latest-time" id="newsLatestTime"></div>
-            </div>
+            <div id="newsLatest" class="latest-item"><div class="latest-content" id="newsLatestContent">暂无快报</div><div class="latest-time" id="newsLatestTime"></div></div>
             <div id="newsHistory" class="history-list"></div>
         </div>
 
-        <!-- 经济状况面板 -->
         <div class="panel glass-card">
             <div class="panel-header">
                 <div class="panel-title">💰 经济状况</div>
                 <button class="toggle-history-btn" data-target="economy">▼ 展开历史</button>
             </div>
             <div class="input-area">
-                <div class="quick-group">
-                    <button class="quick-btn" data-preset="normal">📊 正常</button>
-                    <button class="quick-btn" data-preset="inflation">📈 通胀</button>
-                    <button class="quick-btn" data-preset="deflation">📉 通缩</button>
-                </div>
+                <div class="quick-group"><button class="quick-btn" data-preset="normal">📊 正常</button><button class="quick-btn" data-preset="inflation">📈 通胀</button><button class="quick-btn" data-preset="deflation">📉 通缩</button></div>
                 <input type="text" id="economyInput" placeholder="或自定义经济动态...">
                 <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
             </div>
-            <div id="economyLatest" class="latest-item">
-                <div class="latest-content" id="economyLatestContent">暂无经济动态</div>
-                <div class="latest-time" id="economyLatestTime"></div>
-            </div>
+            <div id="economyLatest" class="latest-item"><div class="latest-content" id="economyLatestContent">暂无经济动态</div><div class="latest-time" id="economyLatestTime"></div></div>
             <div id="economyHistory" class="history-list"></div>
         </div>
     </div>
 
-    <!-- 可折叠股票区域 -->
     <div class="glass-card" style="margin-bottom: 24px;">
         <div class="collapsible-header" id="stockHeader">📈 RE:Set股 · 实时价格走势 <span>▼</span></div>
         <div class="collapsible-content" id="stockContent">
-            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-                <button id="addRandomPriceBtn" class="btn">🎲 随机波动</button>
-                <button id="syncEconomyBtn" class="btn">📉 经济联动调整</button>
-            </div>
+            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;"><button id="addRandomPriceBtn" class="btn">🎲 随机波动</button><button id="syncEconomyBtn" class="btn">📉 经济联动调整</button></div>
             <canvas id="priceChart" height="160" style="max-height: 160px;"></canvas>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; flex-wrap: wrap; gap: 12px;">
-                <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size:0.8rem;">手动设置股价：</span><input type="number" id="manualPriceInput" style="width: 100px; padding: 6px;"><button id="manualSetPriceBtn" class="btn" style="margin-left: 8px; padding: 4px 12px;">设置</button></div>
-                <div style="font-size:0.8rem;">当前: <strong id="currentPrice">--</strong> R币</div>
+                <div><span>手动设置股价：</span><input type="number" id="manualPriceInput" style="width: 100px; padding: 6px;"><button id="manualSetPriceBtn" class="btn">设置</button></div>
+                <div>当前: <strong id="currentPrice">--</strong> R币</div>
             </div>
             <div style="font-size:0.65rem; text-align:center; margin-top: 12px; color: #6b7280;">每30分钟自动随机波动 | 价格变动自动保存</div>
         </div>
     </div>
 
-    <!-- 可折叠税收栏 -->
     <div class="glass-card" style="margin-bottom: 24px;">
         <div class="collapsible-header" id="taxHeader">🏛️ 税收管理 <span>▼</span></div>
         <div class="collapsible-content" id="taxContent">
@@ -183,26 +223,18 @@
         </div>
     </div>
 
-    <!-- 筛选栏 -->
-    <div class="filter-bar">
-        <div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
-        <span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span>
-    </div>
-
-    <!-- 统计卡片 -->
+    <div class="filter-bar"><div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div><span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span></div>
     <div class="stats-grid" id="statsPanel"></div>
-
-    <!-- 玩家表格 -->
     <div class="table-wrapper glass-card" style="padding: 0 0 20px 0;">
-        <table id="playerTable">
-            <thead>
-                <tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></table>
     </div>
 </div>
+
+<div id="playerSidebar" class="sidebar-overlay">
+    <div class="sidebar-header"><h3>📋 玩家日志</h3><button class="sidebar-close" id="closeSidebarBtn">&times;</button></div>
+    <div class="sidebar-content" id="sidebarContent"><div style="text-align:center; padding:20px;">加载中...</div></div>
+</div>
+
 <div class="toast-msg" id="toastMsg"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -211,10 +243,78 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
     let supabase = window.__supabaseAdmin || (window.__supabaseAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
     let uniquePlayers = [], currentGroup = "all", currentColorFilter = null, priceHistory = [5], chart = null, autoTimer = null;
+    let currentSidebarPlayer = null;
 
     function showToast(msg, isErr=false) { const t=document.getElementById('toastMsg'); t.innerText=msg; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2000); }
 
-    // 更新税收栏的提示文本
+    // 撤销操作
+    async function undoAction(log, playerId) {
+        if (!log) return;
+        let updates = {};
+        if (log.action_type === 'rbc_change') {
+            const oldRbc = parseInt(log.old_value);
+            if (!isNaN(oldRbc)) updates.rbc = oldRbc;
+        } else if (log.action_type === 'loan_change') {
+            updates.loan = log.old_value === 'true';
+        } else {
+            showToast('无法撤销此操作', true);
+            return;
+        }
+        if (Object.keys(updates).length > 0) {
+            await supabase.from('players').update(updates).eq('id', playerId);
+        }
+        await supabase.from('player_logs').delete().eq('id', log.id);
+        showToast('已撤销并恢复状态');
+        if (currentSidebarPlayer?.id === playerId) {
+            await openSidebar(currentSidebarPlayer);
+        } else {
+            await loadPlayers();
+        }
+    }
+
+    async function fetchPlayerLogs(playerId) {
+        const { data, error } = await supabase.from('player_logs').select('*').eq('player_id', playerId).order('created_at', { ascending: false }).limit(50);
+        if (error) return [];
+        return data || [];
+    }
+
+    async function openSidebar(player) {
+        currentSidebarPlayer = player;
+        const logs = await fetchPlayerLogs(player.id);
+        const logsHtml = logs.map(log => {
+            let displayDetail = log.detail || '';
+            if (!displayDetail) {
+                if (log.action_type === 'rbc_change') displayDetail = `R币变化: ${log.old_value} → ${log.new_value}`;
+                else if (log.action_type === 'loan_change') displayDetail = `贷款: ${log.old_value === 'true' ? '是' : '否'} → ${log.new_value === 'true' ? '是' : '否'}`;
+                else displayDetail = log.detail || log.action_type;
+            }
+            return `<div class="log-item">
+                        <span class="log-time">${new Date(log.created_at).toLocaleTimeString()}</span>
+                        <span class="log-detail">${displayDetail}</span>
+                        <button class="undo-btn" data-log-id="${log.id}" data-log-action="${log.action_type}" data-log-old="${log.old_value}" data-log-new="${log.new_value}">↩️ 撤销</button>
+                    </div>`;
+        }).join('');
+        document.getElementById('sidebarContent').innerHTML = `
+            <div class="info-row-side"><span class="info-label">玩家ID</span><span class="info-value">${player.id}</span></div>
+            <div class="info-row-side"><span class="info-label">姓名</span><span class="info-value">${player.name}</span></div>
+            <div class="info-row-side"><span class="info-label">组别</span><span class="info-value">${player.group_name}</span></div>
+            <div class="log-list"><div class="log-title">📜 操作记录（可撤销）</div>${logsHtml || '<div style="color:#9ca3af; text-align:center;">暂无记录</div>'}</div>
+        `;
+        document.querySelectorAll('.undo-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const logId = parseInt(btn.getAttribute('data-log-id'));
+                const logAction = btn.getAttribute('data-log-action');
+                const logOld = btn.getAttribute('data-log-old');
+                const logNew = btn.getAttribute('data-log-new');
+                await undoAction({ id: logId, action_type: logAction, old_value: logOld, new_value: logNew }, player.id);
+            });
+        });
+        document.getElementById('playerSidebar').classList.add('open');
+    }
+    function closeSidebar() { document.getElementById('playerSidebar').classList.remove('open'); currentSidebarPlayer = null; }
+    document.getElementById('closeSidebarBtn').onclick = closeSidebar;
+
     function updateTaxTargetDesc() {
         const descSpan = document.getElementById('taxTargetDesc');
         if(!descSpan) return;
@@ -222,34 +322,38 @@
         if(currentGroup !== 'all') desc = `组别「${currentGroup}」`;
         if(currentColorFilter) {
             if(currentColorFilter === 'warn') desc += (desc ? ' + ' : '') + 'R币不足5的玩家';
-            else if(currentColorFilter === 'green') desc += (desc ? ' + ' : '') + '绿色状态';
-            else if(currentColorFilter === 'yellow') desc += (desc ? ' + ' : '') + '黄色状态';
-            else if(currentColorFilter === 'orange') desc += (desc ? ' + ' : '') + '橙色状态';
-            else if(currentColorFilter === 'red') desc += (desc ? ' + ' : '') + '红色状态';
-            else if(currentColorFilter === 'black') desc += (desc ? ' + ' : '') + '黑色状态';
+            else if(['green','yellow','orange','red','black'].includes(currentColorFilter)) desc += (desc ? ' + ' : '') + `${currentColorFilter}色状态`;
         }
         if(desc === '') desc = '所有玩家';
         descSpan.innerText = desc;
     }
 
-    // 扣除每位玩家3 R币 (基于当前筛选)
-    async function deduct3RbcFromFiltered() {
-        const filtered = getFilteredPlayers();
-        if(filtered.length === 0) {
-            showToast('当前筛选下没有玩家', true);
-            return;
+    function getFilteredPlayers() {
+        let f = [...uniquePlayers];
+        if(currentGroup !== 'all') f = f.filter(p=>p.group_name === currentGroup);
+        if(currentColorFilter) {
+            if(currentColorFilter === 'warn') f = f.filter(p=>p.rbc<5);
+            else f = f.filter(p=>p.color === currentColorFilter);
         }
-        if(!confirm(`确定对 ${filtered.length} 位玩家（${currentGroup !== 'all' ? currentGroup + '组 ' : ''}${currentColorFilter ? currentColorFilter + '状态' : '全部'}）每人扣除 3 R币吗？`)) return;
-        
-        let success = 0, fail = 0;
-        for(let p of filtered) {
-            const newRbc = Math.max(0, p.rbc - 3);
-            const { error } = await supabase.from('players').update({ rbc: newRbc }).eq('id', p.id);
-            if(error) fail++;
-            else success++;
+        return f;
+    }
+
+    async function executeGlobalEvent(content, scope, rbcDelta) {
+        const delta = parseInt(rbcDelta);
+        if (delta === 0) return;
+        let targets = scope === 'all' ? [...uniquePlayers] : getFilteredPlayers();
+        if (targets.length === 0) { showToast('没有符合条件的玩家', true); return; }
+        let success = 0;
+        for(let p of targets) {
+            const newRbc = Math.max(0, p.rbc + delta);
+            await supabase.from('players').update({ rbc: newRbc }).eq('id', p.id);
+            await supabase.from('player_logs').insert([{
+                player_id: p.id, action_type: 'rbc_change', old_value: String(p.rbc), new_value: String(newRbc), detail: `全局事件: ${delta>0?'+':''}${delta} R币`
+            }]);
+            success++;
         }
         await loadPlayers();
-        showToast(`税收完成：成功 ${success} 人，失败 ${fail} 人`);
+        showToast(`全局事件执行完成：${success} 位玩家${delta>0?'增加':'减少'} ${Math.abs(delta)} R币`);
     }
 
     // 股票
@@ -269,7 +373,6 @@
         await addPrice(priceHistory[priceHistory.length-1] * (1 + percent));
     }
 
-    // 玩家数据 (初始R币=5)
     async function loadPlayers() {
         const { data } = await supabase.from('players').select('*').order('id');
         if(!data) return;
@@ -277,15 +380,23 @@
         for(let p of uniquePlayers) { if(p.loan === undefined) p.loan = false; }
         renderUI();
         updateTaxTargetDesc();
+        if (currentSidebarPlayer) {
+            const updated = uniquePlayers.find(p => p.id === currentSidebarPlayer.id);
+            if (updated) openSidebar(updated);
+        }
     }
-    async function updatePlayer(id, updates) { await supabase.from('players').update(updates).eq('id', id); loadPlayers(); showToast('已同步'); }
-    window.changeRbc = (p, d) => updatePlayer(p.id, { rbc: Math.max(0, p.rbc + d) });
-    window.toggleLoan = (p) => updatePlayer(p.id, { loan: !p.loan });
-    window.setColor = (p, c) => updatePlayer(p.id, { color: c });
-    window.toggleStation = (p, s) => updatePlayer(p.id, { [s]: !p[s] });
+    async function updatePlayer(id, updates, actionType, oldVal, newVal, detail) {
+        await supabase.from('players').update(updates).eq('id', id);
+        await supabase.from('player_logs').insert([{ player_id: id, action_type: actionType, old_value: String(oldVal), new_value: String(newVal), detail: detail || '' }]);
+        await loadPlayers();
+        showToast('已同步');
+    }
+    window.changeRbc = (p, d) => { const newRbc = Math.max(0, p.rbc + d); updatePlayer(p.id, { rbc: newRbc }, 'rbc_change', p.rbc, newRbc, `手动调整 ${d>0?'+'+d:d} R币`); };
+    window.toggleLoan = (p) => { const newLoan = !p.loan; updatePlayer(p.id, { loan: newLoan }, 'loan_change', p.loan, newLoan, `贷款状态变更`); };
+    window.setColor = (p, c) => { updatePlayer(p.id, { color: c }, 'color_change', p.color, c, `生命颜色变更`); };
+    window.toggleStation = (p, s) => { const newVal = !p[s]; const stationName = { s1:'站1', s2:'站2', s3:'站3', s4:'站4' }[s]; updatePlayer(p.id, { [s]: newVal }, 'station_complete', p[s], newVal, `${stationName} ${newVal ? '完成' : '取消完成'}`); };
     function getProgress(p) { return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100); }
 
-    // 历史记录与最新播报
     let newsHistory = [], economyHistory = [];
     async function loadNewsHistory() { const { data } = await supabase.from('news').select('*').order('id', { ascending: false }).limit(10); if(data) { newsHistory = data; if(data[0]) { document.getElementById('newsLatestContent').innerText = data[0].content; document.getElementById('newsLatestTime').innerText = data[0].time; } else { document.getElementById('newsLatestContent').innerText = '暂无快报'; document.getElementById('newsLatestTime').innerText = ''; } renderHistory('news'); } }
     async function loadEconomyHistory() { const { data } = await supabase.from('economy_status').select('*').order('id', { ascending: false }).limit(10); if(data) { economyHistory = data; if(data[0]) { document.getElementById('economyLatestContent').innerText = data[0].content; document.getElementById('economyLatestTime').innerText = data[0].time; } else { document.getElementById('economyLatestContent').innerText = '暂无经济动态'; document.getElementById('economyLatestTime').innerText = ''; } renderHistory('economy'); } }
@@ -304,17 +415,47 @@
             });
         });
     }
-    async function sendNews() { const content = document.getElementById('newsInput').value.trim(); if(!content) return; await supabase.from('news').insert([{ content, time: new Date().toLocaleTimeString() }]); document.getElementById('newsInput').value=''; loadNewsHistory(); }
+    async function sendNews() {
+        const content = document.getElementById('newsInput').value.trim();
+        if (!content) return;
+        const isGlobal = document.getElementById('globalEventCheckbox').checked;
+        let scope = 'all', rbcDelta = 0;
+        if (isGlobal) { scope = document.querySelector('input[name="eventScope"]:checked').value; rbcDelta = parseInt(document.getElementById('eventRbcDelta').value); }
+        const timeStr = new Date().toLocaleTimeString();
+        let finalContent = content;
+        if (isGlobal && rbcDelta !== 0) finalContent = `${content} 【全局事件：${scope === 'all' ? '全体' : '当前筛选'} R币${rbcDelta>0?'+':''}${rbcDelta}】`;
+        await supabase.from('news').insert([{ content: finalContent, time: timeStr }]);
+        if (isGlobal && rbcDelta !== 0) await executeGlobalEvent(content, scope, rbcDelta);
+        document.getElementById('newsInput').value = '';
+        document.getElementById('globalEventCheckbox').checked = false;
+        document.getElementById('globalEventOptions').style.display = 'none';
+        await loadNewsHistory();
+        showToast('快报已发送');
+    }
     async function publishEconomy(content) { if(!content) return; await supabase.from('economy_status').insert([{ content, time: new Date().toLocaleTimeString() }]); await adjustByEconomy(content); document.getElementById('economyInput').value=''; loadEconomyHistory(); }
     const presetMap = { normal:"正常经济 · 甜品原价 · R币获取正常", inflation:"通胀来袭！超市甜品价格上涨2R币，R币获取减半", deflation:"通缩来临！超市甜品降价2R币，R币获取翻倍" };
-
     async function resetAll() {
         if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、取消贷款')) return;
-        for(let p of uniquePlayers) await updatePlayer(p.id, { color: 'green', rbc: 5, loan: false, s1: false, s2: false, s3: false, s4: false });
+        for(let p of uniquePlayers) {
+            await supabase.from('players').update({ color: 'green', rbc: 5, loan: false, s1: false, s2: false, s3: false, s4: false }).eq('id', p.id);
+            await supabase.from('player_logs').insert([{ player_id: p.id, action_type: 'reset', old_value: '', new_value: '', detail: '管理员重置玩家' }]);
+        }
+        await loadPlayers();
         showToast('重置完成');
     }
+    async function deduct3RbcFromFiltered() {
+        const filtered = getFilteredPlayers();
+        if(filtered.length === 0) { showToast('当前筛选下没有玩家', true); return; }
+        if(!confirm(`确定对 ${filtered.length} 位玩家每人扣除 3 R币吗？`)) return;
+        for(let p of filtered) {
+            const newRbc = Math.max(0, p.rbc - 3);
+            await supabase.from('players').update({ rbc: newRbc }).eq('id', p.id);
+            await supabase.from('player_logs').insert([{ player_id: p.id, action_type: 'rbc_change', old_value: String(p.rbc), new_value: String(newRbc), detail: '税收扣除 3 R币' }]);
+        }
+        await loadPlayers();
+        showToast(`税收完成`);
+    }
 
-    // UI 渲染
     function renderStats() {
         const stats = { total: uniquePlayers.length, green:0, yellow:0, orange:0, red:0, black:0, warn:0 };
         for(let p of uniquePlayers) { stats[p.color]++; if(p.rbc<5) stats.warn++; }
@@ -326,21 +467,11 @@
         `;
         document.querySelectorAll('.stat-card').forEach(c => c.onclick = () => { currentColorFilter = c.getAttribute('data-filter') === 'all' ? null : c.getAttribute('data-filter'); renderUI(); updateTaxTargetDesc(); });
     }
-    function getFilteredPlayers() {
-        let f = [...uniquePlayers];
-        if(currentGroup !== 'all') f = f.filter(p=>p.group_name === currentGroup);
-        if(currentColorFilter) {
-            if(currentColorFilter === 'warn') f = f.filter(p=>p.rbc<5);
-            else f = f.filter(p=>p.color === currentColorFilter);
-        }
-        return f;
-    }
     function renderUI() {
         renderStats();
         const groups = [...new Set(uniquePlayers.map(p=>p.group_name))];
         document.getElementById('groupFilter').innerHTML = `<span class="group-chip ${currentGroup==='all'?'active':''}" data-group="all">全部</span>` + groups.map(g => `<span class="group-chip ${currentGroup===g?'active':''}" data-group="${g}">${g}</span>`).join('');
         document.querySelectorAll('.group-chip').forEach(chip => chip.onclick = () => { currentGroup = chip.getAttribute('data-group'); renderUI(); updateTaxTargetDesc(); });
-        
         const filtered = getFilteredPlayers();
         const tbody = document.getElementById('tableBody'); tbody.innerHTML='';
         filtered.forEach(p => {
@@ -353,38 +484,28 @@
             colorCell.appendChild(cDiv);
             const rbcCell = row.insertCell(4); const rbDiv = document.createElement('div'); rbDiv.className = 'rbc-control';
             rbDiv.innerHTML = `<button class="rbc-btn">-5</button><button class="rbc-btn">-2</button><button class="rbc-btn">-1</button><span style="min-width:50px;">${p.rbc}</span><button class="rbc-btn">+1</button><button class="rbc-btn">+2</button><button class="rbc-btn">+5</button>`;
-            const btns = rbDiv.children;
-            btns[0].onclick = () => window.changeRbc(p,-5); btns[1].onclick = () => window.changeRbc(p,-2); btns[2].onclick = () => window.changeRbc(p,-1);
-            btns[4].onclick = () => window.changeRbc(p,1); btns[5].onclick = () => window.changeRbc(p,2); btns[6].onclick = () => window.changeRbc(p,5);
+            const btns = rbDiv.children; btns[0].onclick = () => window.changeRbc(p,-5); btns[1].onclick = () => window.changeRbc(p,-2); btns[2].onclick = () => window.changeRbc(p,-1); btns[4].onclick = () => window.changeRbc(p,1); btns[5].onclick = () => window.changeRbc(p,2); btns[6].onclick = () => window.changeRbc(p,5);
             rbcCell.appendChild(rbDiv);
             const loanCell = row.insertCell(5); const chk = document.createElement('input'); chk.type='checkbox'; chk.className='loan-checkbox'; chk.checked = p.loan; chk.onchange = () => window.toggleLoan(p); loanCell.appendChild(chk);
             ['s1','s2','s3','s4'].forEach((s,idx) => { const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = p[s]; cb.onchange = () => window.toggleStation(p,s); row.insertCell(6+idx).appendChild(cb); });
             row.insertCell(10).innerHTML = `<span style="background:#f3f4f6; padding:4px 8px; border-radius:40px;">${getProgress(p)}%</span>`;
+            const detailCell = row.insertCell(11); const detailBtn = document.createElement('button'); detailBtn.innerText = '详情'; detailBtn.className = 'detail-btn'; detailBtn.onclick = () => openSidebar(p); detailCell.appendChild(detailBtn);
         });
         updateTaxTargetDesc();
     }
 
-    // 可展开历史记录
+    document.getElementById('globalEventCheckbox').addEventListener('change', (e) => { document.getElementById('globalEventOptions').style.display = e.target.checked ? 'block' : 'none'; });
     document.querySelectorAll('.toggle-history-btn').forEach(btn => {
         const target = btn.getAttribute('data-target');
         const historyDiv = document.getElementById(`${target}History`);
         let isOpen = false;
-        btn.addEventListener('click', () => {
-            isOpen = !isOpen;
-            historyDiv.classList.toggle('open', isOpen);
-            btn.innerHTML = isOpen ? '▲ 收起历史' : '▼ 展开历史';
-        });
+        btn.addEventListener('click', () => { isOpen = !isOpen; historyDiv.classList.toggle('open', isOpen); btn.innerHTML = isOpen ? '▲ 收起历史' : '▼ 展开历史'; });
     });
-    // 折叠股票区域
-    const stockHeader = document.getElementById('stockHeader'), stockContent = document.getElementById('stockContent');
-    let stockOpen = false;
+    const stockHeader = document.getElementById('stockHeader'), stockContent = document.getElementById('stockContent'); let stockOpen = false;
     stockHeader.addEventListener('click', () => { stockOpen = !stockOpen; stockContent.classList.toggle('show', stockOpen); stockHeader.querySelector('span').innerHTML = stockOpen ? '▲' : '▼'; });
-    // 折叠税收区域
-    const taxHeader = document.getElementById('taxHeader'), taxContent = document.getElementById('taxContent');
-    let taxOpen = false;
+    const taxHeader = document.getElementById('taxHeader'), taxContent = document.getElementById('taxContent'); let taxOpen = false;
     taxHeader.addEventListener('click', () => { taxOpen = !taxOpen; taxContent.classList.toggle('show', taxOpen); taxHeader.querySelector('span').innerHTML = taxOpen ? '▲' : '▼'; });
     
-    // 事件绑定
     document.getElementById('sendNewsBtn').onclick = sendNews;
     document.getElementById('setEconomyBtn').onclick = () => { const c = document.getElementById('economyInput').value.trim(); if(c) publishEconomy(c); else showToast('输入内容',true); };
     document.getElementById('clearFilterBtn').onclick = () => { currentColorFilter = null; renderUI(); updateTaxTargetDesc(); };
