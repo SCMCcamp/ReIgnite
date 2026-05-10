@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>RE:Ignite | 娱乐区</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f5f7;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        h1 { font-size: 1.5rem; color: #111827; }
+        h1 span { color: #e8501a; }
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
+        
+        .filter-bar {
+            background: white;
+            border-radius: 60px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            border: 1px solid #e5e7eb;
+        }
+        .group-chip {
+            padding: 5px 16px;
+            border-radius: 40px;
+            background: #f3f4f6;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .group-chip.active { background: #e8501a; color: white; }
+        
+        .table-wrapper {
+            background: white;
+            border-radius: 24px;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #edf2f7; font-size: 0.85rem; }
+        th { background: #f9fafb; color: #4b5563; font-weight: 600; }
+        .warning-row { background: #ffebee; }
+        
+        /* 贷款复选框样式 */
+        .loan-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #e8501a;
+        }
+        
+        .rbc-control { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .rbc-btn {
+            background: #f3f4f6;
+            border: none;
+            width: 44px;
+            height: 40px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.1s;
+        }
+        .rbc-btn:active { transform: scale(0.95); }
+        .rbc-btn.plus { background: #e0f2fe; color: #0284c7; }
+        .rbc-btn.minus { background: #fee2e2; color: #dc2626; }
+        
+        .player-name { font-weight: 600; }
+        .group-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            background: #e5e7eb;
+        }
+        
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1f2937;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            opacity: 0;
+            transition: 0.2s;
+            z-index: 1000;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>🎮 RE:Ignite <span>| 娱乐区</span></h1>
+            <div style="font-size: 0.7rem; color: #6b7280; margin-top: 4px;">R币增减 · 贷款管理 · 自动记录日志</div>
+        </div>
+        <div class="status-pill"><span class="status-dot"></span>实时在线</div>
+    </div>
+
+    <div class="filter-bar">
+        <div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="playerTable">
+            <thead>
+                <tr><th>#</th><th>玩家</th><th>组别</th><th>贷款</th><th>当前R币</th><th colspan="6">调整R币</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+<div class="toast-msg" id="toastMsg"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    (function(){
+        const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
+        let supabase = window.__supabaseStation || (window.__supabaseStation = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+        let allPlayers = [];
+        let currentGroup = "all";
+
+        function showToast(msg) { const t=document.getElementById('toastMsg'); t.innerText=msg; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2000); }
+
+        // 记录R币变化日志（保留站点标识）
+        async function logRbcAction(playerId, oldVal, newVal, delta) {
+            try {
+                await supabase.from('player_logs').insert([{
+                    player_id: playerId,
+                    action_type: 'rbc_change',
+                    old_value: String(oldVal),
+                    new_value: String(newVal),
+                    detail: `[站3-娱乐区] ${delta>0 ? '+' : ''}${delta} R币`
+                }]);
+            } catch(e) { console.warn('日志记录失败:', e); }
+        }
+
+        // 记录贷款变化日志
+        async function logLoanAction(playerId, oldVal, newVal) {
+            try {
+                await supabase.from('player_logs').insert([{
+                    player_id: playerId,
+                    action_type: 'loan_change',
+                    old_value: String(oldVal),
+                    new_value: String(newVal),
+                    detail: `[站3-娱乐区] 贷款 ${newVal === 'true' ? '启用' : '取消'}`
+                }]);
+            } catch(e) { console.warn('日志记录失败:', e); }
+        }
+
+        async function loadPlayers() {
+            const { data } = await supabase.from('players').select('*').order('id');
+            if(data) { 
+                allPlayers = data;
+                for(let p of allPlayers) if(p.loan === undefined) p.loan = false;
+                renderUI(); 
+            }
+        }
+
+        async function updatePlayerRbc(player, delta) {
+            const newRbc = Math.max(0, player.rbc + delta);
+            await supabase.from('players').update({ rbc: newRbc }).eq('id', player.id);
+            await logRbcAction(player.id, player.rbc, newRbc, delta);
+            await loadPlayers();
+            showToast(`${player.name} R币: ${player.rbc} → ${newRbc}`);
+        }
+
+        async function toggleLoan(player) {
+            const newLoan = !player.loan;
+            await supabase.from('players').update({ loan: newLoan }).eq('id', player.id);
+            await logLoanAction(player.id, player.loan, newLoan);
+            await loadPlayers();
+            showToast(`${player.name} 贷款 ${newLoan ? '已启用' : '已取消'}`);
+        }
+
+        function renderUI() {
+            let filtered = currentGroup === "all" ? allPlayers : allPlayers.filter(p => p.group_name === currentGroup);
+            const groups = [...new Set(allPlayers.map(p=>p.group_name))];
+            document.getElementById('groupFilter').innerHTML = `<span class="group-chip ${currentGroup==='all'?'active':''}" data-group="all">全部</span>` + groups.map(g => `<span class="group-chip ${currentGroup===g?'active':''}" data-group="${g}">${g}</span>`).join('');
+            document.querySelectorAll('.group-chip').forEach(chip => chip.onclick = () => { currentGroup = chip.getAttribute('data-group'); renderUI(); });
+            
+            const tbody = document.getElementById('tableBody'); tbody.innerHTML='';
+            filtered.forEach(p => {
+                const row = tbody.insertRow(); if(p.rbc<5) row.classList.add('warning-row');
+                row.insertCell(0).innerText = p.id;
+                row.insertCell(1).innerHTML = `<span class="player-name">${p.name}</span>`;
+                row.insertCell(2).innerHTML = `<span class="group-badge">${p.group_name}</span>`;
+                
+                // 贷款复选框
+                const loanCell = row.insertCell(3);
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.className = 'loan-checkbox';
+                chk.checked = p.loan === true;
+                chk.onclick = (e) => { e.stopPropagation(); toggleLoan(p); };
+                loanCell.appendChild(chk);
+                
+                row.insertCell(4).innerHTML = `<strong style="font-size:1.1rem;">${p.rbc}</strong>`;
+                
+                const actionCell = row.insertCell(5);
+                actionCell.colSpan = 6;
+                const btnContainer = document.createElement('div');
+                btnContainer.className = 'rbc-control';
+                const buttons = [
+                    { val: -5, class: 'minus' }, { val: -2, class: 'minus' }, { val: -1, class: 'minus' },
+                    { val: 1, class: 'plus' }, { val: 2, class: 'plus' }, { val: 5, class: 'plus' }
+                ];
+                buttons.forEach(btn => {
+                    const button = document.createElement('button');
+                    button.innerText = btn.val > 0 ? `+${btn.val}` : `${btn.val}`;
+                    button.className = `rbc-btn ${btn.class}`;
+                    button.onclick = () => updatePlayerRbc(p, btn.val);
+                    btnContainer.appendChild(button);
+                });
+                actionCell.appendChild(btnContainer);
+            });
+        }
+
+        loadPlayers();
+        supabase.channel('players-channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
+            .subscribe();
+    })();
+</script>
+</body>
+</html>
