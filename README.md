@@ -1,10 +1,12 @@
-# ReIgnite# 🔥 RE:Ignite · 营会模拟游戏系统
+# 🔥 RE:Ignite · 营会模拟游戏系统
 
 > **在忙碌与压力中重新点燃生命，兴起职场青年活出信仰见证**
 
 RE:Ignite 是一个**沉浸式「迷你人生模拟」营会游戏系统**。玩家在「R城」中通过真实的选择改变生命颜色（🟢绿 / 🟡黄 / 🟠橙 / 🔴红 / ⚫黑），赚取/花费 R币（人生资源），经历忙碌、压力、诱惑、修复等职场人生场景。
 
 系统由**中控端**、**玩家端**及**分区 NPC 操作端**组成，所有数据通过 **Supabase** 实时同步，适合 30–50 人的营会活动。
+
+👉 项目地址：[https://github.com/SCMCcamp/ReIgnite](https://github.com/SCMCcamp/ReIgnite)
 
 ---
 
@@ -134,24 +136,23 @@ const SUPABASE_ANON_KEY = "你的 anon key";
 
 ### 4. 上传到 GitHub
 
-1. 创建一个新仓库（例如 `reignite-game`）
+1. 创建一个新仓库（例如 `ReIgnite`）
 2. 将以下文件上传到仓库根目录：
    - `admin.html`
    - `player.html`
    - `station2-supermarket.html`
    - `station3-entertainment.html`
    - `README.md`（本文件）
-
 3. 进入仓库 **Settings → Pages**，将 **Branch** 设为 `main`，保存
 
 ### 5. 访问地址
 
 | 页面 | 地址 |
 |------|------|
-| 中控端 | `https://你的用户名.github.io/仓库名/admin.html` |
-| 玩家端 | `https://你的用户名.github.io/仓库名/player.html` |
-| 超市区 | `https://你的用户名.github.io/仓库名/station2-supermarket.html` |
-| 娱乐区 | `https://你的用户名.github.io/仓库名/station3-entertainment.html` |
+| 中控端 | `https://scmccamp.github.io/ReIgnite/admin` |
+| 玩家端 | `https://scmccamp.github.io/ReIgnite/player` |
+| 超市区 | `https://scmccamp.github.io/ReIgnite/supermarket` |
+| 娱乐区 | `https://scmccamp.github.io/ReIgnite/game` |
 
 > 💡 玩家端支持 URL 参数直接进入：`player.html?name=张三&group=A组`
 
