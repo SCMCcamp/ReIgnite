@@ -99,7 +99,6 @@
         .loan-checkbox { width: 16px; height: 16px; cursor: pointer; }
         .checkbox { width: 16px; height: 16px; cursor: pointer; }
         
-        /* 侧边栏样式 */
         .sidebar-overlay {
             position: fixed;
             top: 0; right: 0; bottom: 0;
@@ -115,14 +114,7 @@
             border-left: 1px solid #e5e7eb;
         }
         .sidebar-overlay.open { transform: translateX(0); }
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 24px;
-            border-bottom: 1px solid #e5e7eb;
-            background: #f9fafb;
-        }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; }
         .sidebar-header h3 { font-size: 1.2rem; font-weight: 600; }
         .sidebar-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
         .sidebar-content { flex: 1; padding: 20px 24px; overflow-y: auto; }
@@ -154,7 +146,6 @@
     </div>
 
     <div class="panels">
-        <!-- 快报面板 - 已移除全局事件选项 -->
         <div class="panel glass-card">
             <div class="panel-header">
                 <div class="panel-title">📢 快报广播</div>
@@ -164,32 +155,21 @@
                 <input type="text" id="newsInput" placeholder="输入快报内容...">
                 <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
             </div>
-            <div id="newsLatest" class="latest-item">
-                <div class="latest-content" id="newsLatestContent">暂无快报</div>
-                <div class="latest-time" id="newsLatestTime"></div>
-            </div>
+            <div id="newsLatest" class="latest-item"><div class="latest-content" id="newsLatestContent">暂无快报</div><div class="latest-time" id="newsLatestTime"></div></div>
             <div id="newsHistory" class="history-list"></div>
         </div>
 
-        <!-- 经济状况面板 -->
         <div class="panel glass-card">
             <div class="panel-header">
                 <div class="panel-title">💰 经济状况</div>
                 <button class="toggle-history-btn" data-target="economy">▼ 展开历史</button>
             </div>
             <div class="input-area">
-                <div class="quick-group">
-                    <button class="quick-btn" data-preset="normal">📊 正常</button>
-                    <button class="quick-btn" data-preset="inflation">📈 通胀</button>
-                    <button class="quick-btn" data-preset="deflation">📉 通缩</button>
-                </div>
+                <div class="quick-group"><button class="quick-btn" data-preset="normal">📊 正常</button><button class="quick-btn" data-preset="inflation">📈 通胀</button><button class="quick-btn" data-preset="deflation">📉 通缩</button></div>
                 <input type="text" id="economyInput" placeholder="或自定义经济动态...">
                 <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
             </div>
-            <div id="economyLatest" class="latest-item">
-                <div class="latest-content" id="economyLatestContent">暂无经济动态</div>
-                <div class="latest-time" id="economyLatestTime"></div>
-            </div>
+            <div id="economyLatest" class="latest-item"><div class="latest-content" id="economyLatestContent">暂无经济动态</div><div class="latest-time" id="economyLatestTime"></div></div>
             <div id="economyHistory" class="history-list"></div>
         </div>
     </div>
@@ -197,10 +177,7 @@
     <div class="glass-card" style="margin-bottom: 24px;">
         <div class="collapsible-header" id="stockHeader">📈 RE:Set股 · 实时价格走势 <span>▼</span></div>
         <div class="collapsible-content" id="stockContent">
-            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-                <button id="addRandomPriceBtn" class="btn">🎲 随机波动</button>
-                <button id="syncEconomyBtn" class="btn">📉 经济联动调整</button>
-            </div>
+            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;"><button id="addRandomPriceBtn" class="btn">🎲 随机波动</button><button id="syncEconomyBtn" class="btn">📉 经济联动调整</button></div>
             <canvas id="priceChart" height="160" style="max-height: 160px;"></canvas>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; flex-wrap: wrap; gap: 12px;">
                 <div><span>手动设置股价：</span><input type="number" id="manualPriceInput" style="width: 100px; padding: 6px;"><button id="manualSetPriceBtn" class="btn">设置</button></div>
@@ -220,21 +197,10 @@
         </div>
     </div>
 
-    <div class="filter-bar">
-        <div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
-        <span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span>
-    </div>
-
+    <div class="filter-bar"><div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div><span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span></div>
     <div class="stats-grid" id="statsPanel"></div>
-
     <div class="table-wrapper glass-card" style="padding: 0 0 20px 0;">
-        <table id="playerTable">
-            <thead>
-                <tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></table>
     </div>
 </div>
 
@@ -255,7 +221,6 @@
 
     function showToast(msg, isErr=false) { const t=document.getElementById('toastMsg'); t.innerText=msg; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2000); }
 
-    // 撤销操作
     async function undoAction(log, playerId) {
         if (!log) return;
         let updates = {};
@@ -346,7 +311,6 @@
         return f;
     }
 
-    // 股票相关
     async function savePrice(p) { await supabase.from('stock_prices').insert([{ price: p }]); }
     async function initPrice() { const { data } = await supabase.from('stock_prices').select('price').order('id'); if(data?.length) priceHistory = data.map(r=>r.price); else { await savePrice(5); priceHistory=[5]; } renderChart(); }
     function renderChart() {
@@ -363,7 +327,6 @@
         await addPrice(priceHistory[priceHistory.length-1] * (1 + percent));
     }
 
-    // 玩家数据管理
     async function loadPlayers() {
         const { data } = await supabase.from('players').select('*').order('id');
         if(!data) return;
@@ -385,14 +348,14 @@
     window.changeRbc = (p, d) => { const newRbc = Math.max(0, p.rbc + d); updatePlayer(p.id, { rbc: newRbc }, 'rbc_change', p.rbc, newRbc, `手动调整 ${d>0?'+'+d:d} R币`); };
     window.toggleLoan = (p) => { const newLoan = !p.loan; updatePlayer(p.id, { loan: newLoan }, 'loan_change', p.loan, newLoan, `贷款状态变更`); };
     window.setColor = (p, c) => { 
-    const oldColorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' }[p.color] || p.color;
-    const newColorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' }[c] || c;
-    updatePlayer(p.id, { color: c }, 'color_change', p.color, c, `生命颜色变更: ${oldColorName} → ${newColorName}`); 
-};
+        const colorNameMap = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' };
+        const oldColorName = colorNameMap[p.color] || p.color;
+        const newColorName = colorNameMap[c] || c;
+        updatePlayer(p.id, { color: c }, 'color_change', p.color, c, `生命颜色变更: ${oldColorName} → ${newColorName}`); 
+    };
     window.toggleStation = (p, s) => { const newVal = !p[s]; const stationName = { s1:'站1', s2:'站2', s3:'站3', s4:'站4' }[s]; updatePlayer(p.id, { [s]: newVal }, 'station_complete', p[s], newVal, `${stationName} ${newVal ? '完成' : '取消完成'}`); };
     function getProgress(p) { return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100); }
 
-    // 历史记录与最新播报
     let newsHistory = [], economyHistory = [];
     async function loadNewsHistory() { const { data } = await supabase.from('news').select('*').order('id', { ascending: false }).limit(10); if(data) { newsHistory = data; if(data[0]) { document.getElementById('newsLatestContent').innerText = data[0].content; document.getElementById('newsLatestTime').innerText = data[0].time; } else { document.getElementById('newsLatestContent').innerText = '暂无快报'; document.getElementById('newsLatestTime').innerText = ''; } renderHistory('news'); } }
     async function loadEconomyHistory() { const { data } = await supabase.from('economy_status').select('*').order('id', { ascending: false }).limit(10); if(data) { economyHistory = data; if(data[0]) { document.getElementById('economyLatestContent').innerText = data[0].content; document.getElementById('economyLatestTime').innerText = data[0].time; } else { document.getElementById('economyLatestContent').innerText = '暂无经济动态'; document.getElementById('economyLatestTime').innerText = ''; } renderHistory('economy'); } }
@@ -412,7 +375,6 @@
         });
     }
     
-    // 发送快报（已移除全局事件）
     async function sendNews() {
         const content = document.getElementById('newsInput').value.trim();
         if (!content) return;
@@ -449,7 +411,6 @@
         showToast(`税收完成`);
     }
 
-    // UI 渲染
     function renderStats() {
         const stats = { total: uniquePlayers.length, green:0, yellow:0, orange:0, red:0, black:0, warn:0 };
         for(let p of uniquePlayers) { stats[p.color]++; if(p.rbc<5) stats.warn++; }
@@ -491,6 +452,38 @@
         updateTaxTargetDesc();
     }
 
+    // ========== 实时订阅（关键修复） ==========
+    function setupRealtime() {
+        console.log('🔄 正在启动 Realtime 订阅...');
+        
+        // 监听 players 表的变化
+        supabase.channel('players-channel')
+            .on('postgres_changes', 
+                { event: '*', schema: 'public', table: 'players' }, 
+                (payload) => {
+                    console.log('📡 收到 players 表变化:', payload);
+                    loadPlayers(); // 重新加载数据
+                }
+            )
+            .subscribe((status) => {
+                console.log('players 订阅状态:', status);
+            });
+        
+        // 监听 player_logs 表，当有新日志时刷新侧边栏
+        supabase.channel('logs-channel')
+            .on('postgres_changes', 
+                { event: 'INSERT', schema: 'public', table: 'player_logs' }, 
+                () => {
+                    console.log('📝 收到新日志，刷新侧边栏');
+                    if (currentSidebarPlayer) {
+                        openSidebar(currentSidebarPlayer);
+                    }
+                }
+            )
+            .subscribe();
+    }
+    // =======================================
+
     // 可展开历史记录
     document.querySelectorAll('.toggle-history-btn').forEach(btn => {
         const target = btn.getAttribute('data-target');
@@ -499,15 +492,12 @@
         btn.addEventListener('click', () => { isOpen = !isOpen; historyDiv.classList.toggle('open', isOpen); btn.innerHTML = isOpen ? '▲ 收起历史' : '▼ 展开历史'; });
     });
     
-    // 折叠股票区域
     const stockHeader = document.getElementById('stockHeader'), stockContent = document.getElementById('stockContent'); let stockOpen = false;
     stockHeader.addEventListener('click', () => { stockOpen = !stockOpen; stockContent.classList.toggle('show', stockOpen); stockHeader.querySelector('span').innerHTML = stockOpen ? '▲' : '▼'; });
     
-    // 折叠税收区域
     const taxHeader = document.getElementById('taxHeader'), taxContent = document.getElementById('taxContent'); let taxOpen = false;
     taxHeader.addEventListener('click', () => { taxOpen = !taxOpen; taxContent.classList.toggle('show', taxOpen); taxHeader.querySelector('span').innerHTML = taxOpen ? '▲' : '▼'; });
     
-    // 事件绑定
     document.getElementById('sendNewsBtn').onclick = sendNews;
     document.getElementById('setEconomyBtn').onclick = () => { const c = document.getElementById('economyInput').value.trim(); if(c) publishEconomy(c); else showToast('输入内容',true); };
     document.getElementById('clearFilterBtn').onclick = () => { currentColorFilter = null; renderUI(); updateTaxTargetDesc(); };
@@ -518,7 +508,14 @@
     document.getElementById('deduct3RbcBtn').onclick = deduct3RbcFromFiltered;
     document.querySelectorAll('.quick-btn').forEach(btn => btn.onclick = () => { document.getElementById('economyInput').value = presetMap[btn.getAttribute('data-preset')]; });
     
-    initPrice(); loadPlayers(); loadNewsHistory(); loadEconomyHistory(); startAutoAdjust();
+    // 初始化所有功能
+    initPrice(); 
+    loadPlayers(); 
+    loadNewsHistory(); 
+    loadEconomyHistory(); 
+    startAutoAdjust();
+    setupRealtime();  // 启动实时订阅
+    
     function startAutoAdjust() { if(autoTimer) clearInterval(autoTimer); autoTimer = setInterval(randomFluctuation, 30*60*1000); }
 })();
 </script>
