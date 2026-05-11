@@ -53,11 +53,6 @@
         .quick-btn { background: #f3f4f6; border: none; padding: 5px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
         input, select { background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 48px; padding: 10px 14px; font-size: 0.85rem; width: 100%; margin-bottom: 10px; }
         
-        .event-options { background: #f9fafb; border-radius: 20px; padding: 12px; margin: 12px 0; border: 1px solid #e5e7eb; }
-        .event-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
-        .event-row label { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer; }
-        .event-select { width: auto; margin-bottom: 0; padding: 6px 12px; }
-        
         .latest-item { background: rgba(0,0,0,0.03); border-radius: 20px; padding: 10px 14px; margin-top: 16px; border-left: 3px solid #e8501a; }
         .latest-content { font-size: 0.85rem; word-break: break-word; }
         .latest-time { font-size: 0.6rem; color: #6b7280; text-align: right; margin-top: 6px; }
@@ -159,6 +154,7 @@
     </div>
 
     <div class="panels">
+        <!-- 快报面板 - 已移除全局事件选项 -->
         <div class="panel glass-card">
             <div class="panel-header">
                 <div class="panel-title">📢 快报广播</div>
@@ -166,36 +162,34 @@
             </div>
             <div class="input-area">
                 <input type="text" id="newsInput" placeholder="输入快报内容...">
-                <div class="event-options">
-                    <div class="event-row"><label><input type="checkbox" id="globalEventCheckbox"> 🌍 同时作为全局事件执行</label></div>
-                    <div class="event-row" id="globalEventOptions" style="display: none;">
-                        <span>影响范围：</span>
-                        <label><input type="radio" name="eventScope" value="all" checked> 全体玩家</label>
-                        <label><input type="radio" name="eventScope" value="filtered"> 当前筛选玩家</label>
-                        <span style="margin-left: 12px;">R币变化：</span>
-                        <select id="eventRbcDelta" class="event-select">
-                            <option value="-5">-5 R币</option><option value="-3">-3 R币</option><option value="-1">-1 R币</option>
-                            <option value="0">无变化</option><option value="1">+1 R币</option><option value="3">+3 R币</option><option value="5">+5 R币</option>
-                        </select>
-                    </div>
-                </div>
                 <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
             </div>
-            <div id="newsLatest" class="latest-item"><div class="latest-content" id="newsLatestContent">暂无快报</div><div class="latest-time" id="newsLatestTime"></div></div>
+            <div id="newsLatest" class="latest-item">
+                <div class="latest-content" id="newsLatestContent">暂无快报</div>
+                <div class="latest-time" id="newsLatestTime"></div>
+            </div>
             <div id="newsHistory" class="history-list"></div>
         </div>
 
+        <!-- 经济状况面板 -->
         <div class="panel glass-card">
             <div class="panel-header">
                 <div class="panel-title">💰 经济状况</div>
                 <button class="toggle-history-btn" data-target="economy">▼ 展开历史</button>
             </div>
             <div class="input-area">
-                <div class="quick-group"><button class="quick-btn" data-preset="normal">📊 正常</button><button class="quick-btn" data-preset="inflation">📈 通胀</button><button class="quick-btn" data-preset="deflation">📉 通缩</button></div>
+                <div class="quick-group">
+                    <button class="quick-btn" data-preset="normal">📊 正常</button>
+                    <button class="quick-btn" data-preset="inflation">📈 通胀</button>
+                    <button class="quick-btn" data-preset="deflation">📉 通缩</button>
+                </div>
                 <input type="text" id="economyInput" placeholder="或自定义经济动态...">
                 <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
             </div>
-            <div id="economyLatest" class="latest-item"><div class="latest-content" id="economyLatestContent">暂无经济动态</div><div class="latest-time" id="economyLatestTime"></div></div>
+            <div id="economyLatest" class="latest-item">
+                <div class="latest-content" id="economyLatestContent">暂无经济动态</div>
+                <div class="latest-time" id="economyLatestTime"></div>
+            </div>
             <div id="economyHistory" class="history-list"></div>
         </div>
     </div>
@@ -203,7 +197,10 @@
     <div class="glass-card" style="margin-bottom: 24px;">
         <div class="collapsible-header" id="stockHeader">📈 RE:Set股 · 实时价格走势 <span>▼</span></div>
         <div class="collapsible-content" id="stockContent">
-            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;"><button id="addRandomPriceBtn" class="btn">🎲 随机波动</button><button id="syncEconomyBtn" class="btn">📉 经济联动调整</button></div>
+            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                <button id="addRandomPriceBtn" class="btn">🎲 随机波动</button>
+                <button id="syncEconomyBtn" class="btn">📉 经济联动调整</button>
+            </div>
             <canvas id="priceChart" height="160" style="max-height: 160px;"></canvas>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; flex-wrap: wrap; gap: 12px;">
                 <div><span>手动设置股价：</span><input type="number" id="manualPriceInput" style="width: 100px; padding: 6px;"><button id="manualSetPriceBtn" class="btn">设置</button></div>
@@ -223,10 +220,21 @@
         </div>
     </div>
 
-    <div class="filter-bar"><div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div><span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span></div>
+    <div class="filter-bar">
+        <div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+        <span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span>
+    </div>
+
     <div class="stats-grid" id="statsPanel"></div>
+
     <div class="table-wrapper glass-card" style="padding: 0 0 20px 0;">
-        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></table>
+        <table id="playerTable">
+            <thead>
+                <tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
     </div>
 </div>
 
@@ -286,7 +294,7 @@
             if (!displayDetail) {
                 if (log.action_type === 'rbc_change') displayDetail = `R币变化: ${log.old_value} → ${log.new_value}`;
                 else if (log.action_type === 'loan_change') displayDetail = `贷款: ${log.old_value === 'true' ? '是' : '否'} → ${log.new_value === 'true' ? '是' : '否'}`;
-                else displayDetail = log.detail || log.action_type;
+                else displayDetail = log.action_type;
             }
             return `<div class="log-item">
                         <span class="log-time">${new Date(log.created_at).toLocaleTimeString()}</span>
@@ -338,25 +346,7 @@
         return f;
     }
 
-    async function executeGlobalEvent(content, scope, rbcDelta) {
-        const delta = parseInt(rbcDelta);
-        if (delta === 0) return;
-        let targets = scope === 'all' ? [...uniquePlayers] : getFilteredPlayers();
-        if (targets.length === 0) { showToast('没有符合条件的玩家', true); return; }
-        let success = 0;
-        for(let p of targets) {
-            const newRbc = Math.max(0, p.rbc + delta);
-            await supabase.from('players').update({ rbc: newRbc }).eq('id', p.id);
-            await supabase.from('player_logs').insert([{
-                player_id: p.id, action_type: 'rbc_change', old_value: String(p.rbc), new_value: String(newRbc), detail: `全局事件: ${delta>0?'+':''}${delta} R币`
-            }]);
-            success++;
-        }
-        await loadPlayers();
-        showToast(`全局事件执行完成：${success} 位玩家${delta>0?'增加':'减少'} ${Math.abs(delta)} R币`);
-    }
-
-    // 股票
+    // 股票相关
     async function savePrice(p) { await supabase.from('stock_prices').insert([{ price: p }]); }
     async function initPrice() { const { data } = await supabase.from('stock_prices').select('price').order('id'); if(data?.length) priceHistory = data.map(r=>r.price); else { await savePrice(5); priceHistory=[5]; } renderChart(); }
     function renderChart() {
@@ -373,6 +363,7 @@
         await addPrice(priceHistory[priceHistory.length-1] * (1 + percent));
     }
 
+    // 玩家数据管理
     async function loadPlayers() {
         const { data } = await supabase.from('players').select('*').order('id');
         if(!data) return;
@@ -397,6 +388,7 @@
     window.toggleStation = (p, s) => { const newVal = !p[s]; const stationName = { s1:'站1', s2:'站2', s3:'站3', s4:'站4' }[s]; updatePlayer(p.id, { [s]: newVal }, 'station_complete', p[s], newVal, `${stationName} ${newVal ? '完成' : '取消完成'}`); };
     function getProgress(p) { return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100); }
 
+    // 历史记录与最新播报
     let newsHistory = [], economyHistory = [];
     async function loadNewsHistory() { const { data } = await supabase.from('news').select('*').order('id', { ascending: false }).limit(10); if(data) { newsHistory = data; if(data[0]) { document.getElementById('newsLatestContent').innerText = data[0].content; document.getElementById('newsLatestTime').innerText = data[0].time; } else { document.getElementById('newsLatestContent').innerText = '暂无快报'; document.getElementById('newsLatestTime').innerText = ''; } renderHistory('news'); } }
     async function loadEconomyHistory() { const { data } = await supabase.from('economy_status').select('*').order('id', { ascending: false }).limit(10); if(data) { economyHistory = data; if(data[0]) { document.getElementById('economyLatestContent').innerText = data[0].content; document.getElementById('economyLatestTime').innerText = data[0].time; } else { document.getElementById('economyLatestContent').innerText = '暂无经济动态'; document.getElementById('economyLatestTime').innerText = ''; } renderHistory('economy'); } }
@@ -415,25 +407,21 @@
             });
         });
     }
+    
+    // 发送快报（已移除全局事件）
     async function sendNews() {
         const content = document.getElementById('newsInput').value.trim();
         if (!content) return;
-        const isGlobal = document.getElementById('globalEventCheckbox').checked;
-        let scope = 'all', rbcDelta = 0;
-        if (isGlobal) { scope = document.querySelector('input[name="eventScope"]:checked').value; rbcDelta = parseInt(document.getElementById('eventRbcDelta').value); }
         const timeStr = new Date().toLocaleTimeString();
-        let finalContent = content;
-        if (isGlobal && rbcDelta !== 0) finalContent = `${content} 【全局事件：${scope === 'all' ? '全体' : '当前筛选'} R币${rbcDelta>0?'+':''}${rbcDelta}】`;
-        await supabase.from('news').insert([{ content: finalContent, time: timeStr }]);
-        if (isGlobal && rbcDelta !== 0) await executeGlobalEvent(content, scope, rbcDelta);
+        await supabase.from('news').insert([{ content, time: timeStr }]);
         document.getElementById('newsInput').value = '';
-        document.getElementById('globalEventCheckbox').checked = false;
-        document.getElementById('globalEventOptions').style.display = 'none';
         await loadNewsHistory();
         showToast('快报已发送');
     }
+    
     async function publishEconomy(content) { if(!content) return; await supabase.from('economy_status').insert([{ content, time: new Date().toLocaleTimeString() }]); await adjustByEconomy(content); document.getElementById('economyInput').value=''; loadEconomyHistory(); }
     const presetMap = { normal:"正常经济 · 甜品原价 · R币获取正常", inflation:"通胀来袭！超市甜品价格上涨2R币，R币获取减半", deflation:"通缩来临！超市甜品降价2R币，R币获取翻倍" };
+    
     async function resetAll() {
         if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、取消贷款')) return;
         for(let p of uniquePlayers) {
@@ -443,6 +431,7 @@
         await loadPlayers();
         showToast('重置完成');
     }
+    
     async function deduct3RbcFromFiltered() {
         const filtered = getFilteredPlayers();
         if(filtered.length === 0) { showToast('当前筛选下没有玩家', true); return; }
@@ -456,6 +445,7 @@
         showToast(`税收完成`);
     }
 
+    // UI 渲染
     function renderStats() {
         const stats = { total: uniquePlayers.length, green:0, yellow:0, orange:0, red:0, black:0, warn:0 };
         for(let p of uniquePlayers) { stats[p.color]++; if(p.rbc<5) stats.warn++; }
@@ -467,11 +457,13 @@
         `;
         document.querySelectorAll('.stat-card').forEach(c => c.onclick = () => { currentColorFilter = c.getAttribute('data-filter') === 'all' ? null : c.getAttribute('data-filter'); renderUI(); updateTaxTargetDesc(); });
     }
+    
     function renderUI() {
         renderStats();
         const groups = [...new Set(uniquePlayers.map(p=>p.group_name))];
         document.getElementById('groupFilter').innerHTML = `<span class="group-chip ${currentGroup==='all'?'active':''}" data-group="all">全部</span>` + groups.map(g => `<span class="group-chip ${currentGroup===g?'active':''}" data-group="${g}">${g}</span>`).join('');
         document.querySelectorAll('.group-chip').forEach(chip => chip.onclick = () => { currentGroup = chip.getAttribute('data-group'); renderUI(); updateTaxTargetDesc(); });
+        
         const filtered = getFilteredPlayers();
         const tbody = document.getElementById('tableBody'); tbody.innerHTML='';
         filtered.forEach(p => {
@@ -484,7 +476,8 @@
             colorCell.appendChild(cDiv);
             const rbcCell = row.insertCell(4); const rbDiv = document.createElement('div'); rbDiv.className = 'rbc-control';
             rbDiv.innerHTML = `<button class="rbc-btn">-5</button><button class="rbc-btn">-2</button><button class="rbc-btn">-1</button><span style="min-width:50px;">${p.rbc}</span><button class="rbc-btn">+1</button><button class="rbc-btn">+2</button><button class="rbc-btn">+5</button>`;
-            const btns = rbDiv.children; btns[0].onclick = () => window.changeRbc(p,-5); btns[1].onclick = () => window.changeRbc(p,-2); btns[2].onclick = () => window.changeRbc(p,-1); btns[4].onclick = () => window.changeRbc(p,1); btns[5].onclick = () => window.changeRbc(p,2); btns[6].onclick = () => window.changeRbc(p,5);
+            const btns = rbDiv.children; btns[0].onclick = () => window.changeRbc(p,-5); btns[1].onclick = () => window.changeRbc(p,-2); btns[2].onclick = () => window.changeRbc(p,-1);
+            btns[4].onclick = () => window.changeRbc(p,1); btns[5].onclick = () => window.changeRbc(p,2); btns[6].onclick = () => window.changeRbc(p,5);
             rbcCell.appendChild(rbDiv);
             const loanCell = row.insertCell(5); const chk = document.createElement('input'); chk.type='checkbox'; chk.className='loan-checkbox'; chk.checked = p.loan; chk.onchange = () => window.toggleLoan(p); loanCell.appendChild(chk);
             ['s1','s2','s3','s4'].forEach((s,idx) => { const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = p[s]; cb.onchange = () => window.toggleStation(p,s); row.insertCell(6+idx).appendChild(cb); });
@@ -494,18 +487,23 @@
         updateTaxTargetDesc();
     }
 
-    document.getElementById('globalEventCheckbox').addEventListener('change', (e) => { document.getElementById('globalEventOptions').style.display = e.target.checked ? 'block' : 'none'; });
+    // 可展开历史记录
     document.querySelectorAll('.toggle-history-btn').forEach(btn => {
         const target = btn.getAttribute('data-target');
         const historyDiv = document.getElementById(`${target}History`);
         let isOpen = false;
         btn.addEventListener('click', () => { isOpen = !isOpen; historyDiv.classList.toggle('open', isOpen); btn.innerHTML = isOpen ? '▲ 收起历史' : '▼ 展开历史'; });
     });
+    
+    // 折叠股票区域
     const stockHeader = document.getElementById('stockHeader'), stockContent = document.getElementById('stockContent'); let stockOpen = false;
     stockHeader.addEventListener('click', () => { stockOpen = !stockOpen; stockContent.classList.toggle('show', stockOpen); stockHeader.querySelector('span').innerHTML = stockOpen ? '▲' : '▼'; });
+    
+    // 折叠税收区域
     const taxHeader = document.getElementById('taxHeader'), taxContent = document.getElementById('taxContent'); let taxOpen = false;
     taxHeader.addEventListener('click', () => { taxOpen = !taxOpen; taxContent.classList.toggle('show', taxOpen); taxHeader.querySelector('span').innerHTML = taxOpen ? '▲' : '▼'; });
     
+    // 事件绑定
     document.getElementById('sendNewsBtn').onclick = sendNews;
     document.getElementById('setEconomyBtn').onclick = () => { const c = document.getElementById('economyInput').value.trim(); if(c) publishEconomy(c); else showToast('输入内容',true); };
     document.getElementById('clearFilterBtn').onclick = () => { currentColorFilter = null; renderUI(); updateTaxTargetDesc(); };
