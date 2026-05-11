@@ -20,12 +20,69 @@
             gap: 16px;
             margin-bottom: 24px;
             padding: 16px 20px;
-            background: white;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(16px) saturate(1.5);
             border-radius: 28px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.7);
         }
         h1 { font-size: 1.5rem; color: #111827; }
         h1 span { color: #e8501a; }
+        
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 6px 16px 6px 20px;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .timer-label {
+            color: #6b7280;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        .timer-display {
+            font-family: 'Rajdhani', monospace;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #e8501a;
+            letter-spacing: 2px;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .timer-warning {
+            color: #f97316;
+            font-size: 0.7rem;
+            font-weight: 600;
+            animation: pulse 1s infinite;
+        }
+        .timer-reset-btn {
+            background: #f3f4f6;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 14px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #4b5563;
+            transition: all 0.2s;
+        }
+        .timer-reset-btn:hover {
+            background: #e5e7eb;
+            color: #e8501a;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
         .status-pill {
             display: flex;
             align-items: center;
@@ -69,7 +126,6 @@
         th { background: #f9fafb; color: #4b5563; font-weight: 600; }
         .warning-row { background: #ffebee; }
         
-        /* 贷款复选框样式 */
         .loan-checkbox {
             width: 20px;
             height: 20px;
@@ -115,6 +171,23 @@
             z-index: 1000;
             font-size: 0.8rem;
         }
+        .timer-notify {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e8501a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 1001;
+            opacity: 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -123,6 +196,12 @@
         <div>
             <h1>🎮 RE:Ignite <span>| 娱乐区</span></h1>
             <div style="font-size: 0.7rem; color: #6b7280; margin-top: 4px;">R币增减 · 贷款管理 · 自动记录日志</div>
+        </div>
+        <div class="timer-section">
+            <span class="timer-label">⏰ 工作倒计时</span>
+            <span class="timer-display" id="timerDisplay">15:00</span>
+            <button class="timer-reset-btn" id="resetTimerBtn">⟳ 重置</button>
+            <span id="timerWarning" class="timer-warning" style="display: none;">⚠️ 最后5分钟</span>
         </div>
         <div class="status-pill"><span class="status-dot"></span>实时在线</div>
     </div>
@@ -133,15 +212,13 @@
 
     <div class="table-wrapper">
         <table id="playerTable">
-            <thead>
-                <tr><th>#</th><th>玩家</th><th>组别</th><th>贷款</th><th>当前R币</th><th colspan="6">调整R币</th>
-                </tr>
-            </thead>
+            <thead><tr><th>#</th><th>玩家</th><th>组别</th><th>贷款</th><th>当前R币</th><th colspan="6">调整R币</th></tr></thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
 </div>
 <div class="toast-msg" id="toastMsg"></div>
+<div class="timer-notify" id="timerNotify">⏰ 15分钟工作节结束！</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -151,10 +228,64 @@
         let supabase = window.__supabaseStation || (window.__supabaseStation = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
         let allPlayers = [];
         let currentGroup = "all";
-
+        
+        let timerInterval = null;
+        let remainingSeconds = 15 * 60;
+        
+        function formatTime(seconds) {
+            let mins = Math.floor(seconds / 60);
+            let secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function showTimerNotify(message) {
+            const notify = document.getElementById('timerNotify');
+            notify.innerText = message;
+            notify.style.opacity = '1';
+            setTimeout(() => {
+                notify.style.opacity = '0';
+            }, 4000);
+        }
+        
+        function updateTimerDisplay() {
+            const display = document.getElementById('timerDisplay');
+            const warning = document.getElementById('timerWarning');
+            if (display) display.innerText = formatTime(remainingSeconds);
+            
+            if (remainingSeconds <= 5 * 60 && remainingSeconds > 0) {
+                warning.style.display = 'inline-block';
+            } else {
+                warning.style.display = 'none';
+            }
+            
+            if (remainingSeconds <= 0) {
+                if (timerInterval) clearInterval(timerInterval);
+                display.innerText = '00:00';
+                showTimerNotify('⏰ 15分钟工作节结束！请准备换场或休息。');
+            }
+        }
+        
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (remainingSeconds > 0) {
+                    remainingSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+        
+        function resetTimer() {
+            remainingSeconds = 15 * 60;
+            updateTimerDisplay();
+            startTimer();
+            showTimerNotify('⟳ 倒计时已重置为 15:00');
+        }
+        
         function showToast(msg) { const t=document.getElementById('toastMsg'); t.innerText=msg; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2000); }
 
-        // 记录R币变化日志（保留站点标识）
         async function logRbcAction(playerId, oldVal, newVal, delta) {
             try {
                 await supabase.from('player_logs').insert([{
@@ -167,7 +298,6 @@
             } catch(e) { console.warn('日志记录失败:', e); }
         }
 
-        // 记录贷款变化日志
         async function logLoanAction(playerId, oldVal, newVal) {
             try {
                 await supabase.from('player_logs').insert([{
@@ -218,7 +348,6 @@
                 row.insertCell(1).innerHTML = `<span class="player-name">${p.name}</span>`;
                 row.insertCell(2).innerHTML = `<span class="group-badge">${p.group_name}</span>`;
                 
-                // 贷款复选框
                 const loanCell = row.insertCell(3);
                 const chk = document.createElement('input');
                 chk.type = 'checkbox';
@@ -252,6 +381,9 @@
         supabase.channel('players-channel')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
             .subscribe();
+        
+        startTimer();
+        document.getElementById('resetTimerBtn').addEventListener('click', resetTimer);
     })();
 </script>
 </body>
