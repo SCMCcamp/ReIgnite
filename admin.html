@@ -384,7 +384,11 @@
     }
     window.changeRbc = (p, d) => { const newRbc = Math.max(0, p.rbc + d); updatePlayer(p.id, { rbc: newRbc }, 'rbc_change', p.rbc, newRbc, `手动调整 ${d>0?'+'+d:d} R币`); };
     window.toggleLoan = (p) => { const newLoan = !p.loan; updatePlayer(p.id, { loan: newLoan }, 'loan_change', p.loan, newLoan, `贷款状态变更`); };
-    window.setColor = (p, c) => { updatePlayer(p.id, { color: c }, 'color_change', p.color, c, `生命颜色变更`); };
+    window.setColor = (p, c) => { 
+    const oldColorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' }[p.color] || p.color;
+    const newColorName = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' }[c] || c;
+    updatePlayer(p.id, { color: c }, 'color_change', p.color, c, `生命颜色变更: ${oldColorName} → ${newColorName}`); 
+};
     window.toggleStation = (p, s) => { const newVal = !p[s]; const stationName = { s1:'站1', s2:'站2', s3:'站3', s4:'站4' }[s]; updatePlayer(p.id, { [s]: newVal }, 'station_complete', p[s], newVal, `${stationName} ${newVal ? '完成' : '取消完成'}`); };
     function getProgress(p) { return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100); }
 
