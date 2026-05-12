@@ -127,42 +127,42 @@
             border-left: 4px solid #22c55e;
         }
         
-/* 替换原有的 .sidebar-overlay 和 .sidebar-header 样式 */
-.sidebar-overlay {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    max-width: 520px;
-    background: white;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.15);
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    border-left: 1px solid #e5e7eb;
-}
-.sidebar-overlay.open {
-    transform: translateX(0);
-}
-
-.sidebar-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
-    flex-shrink: 0;          /* 确保头部不压缩 */
-}
-        .sidebar-header h3 { font-size: 1.2rem; font-weight: 600; }
-        .sidebar-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
-        .sidebar-content { flex: 1; padding: 20px 24px; overflow-y: auto; }
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #e5e7eb;
+        }
+        .sidebar-overlay.open {
+            transform: translateX(0);
+        }
+        .sidebar-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+            flex-shrink: 0;
+        }
+        .sidebar-content {
+            flex: 1;
+            padding: 20px 24px;
+            overflow-y: auto;
+        }
         .info-row-side { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
         .info-label { font-weight: 600; color: #4b5563; }
         .info-value { font-weight: 500; }
@@ -243,10 +243,9 @@
                     <button id="deductFlat3RbcBtn" class="btn btn-primary" style="background:#e8501a;">💰 扣除每人 3 R币</button>
                 </div>
                 <div class="tax-config">
-                    <div style="font-weight:600; margin-bottom:8px;">⚙️ 富人税税率阶梯（全部可手动调整）</div>
+                    <div style="font-weight:600; margin-bottom:8px;">⚙️ 富人税税率阶梯（可调节）</div>
                     <div id="taxBracketsContainer"></div>
                     <button id="addBracketBtn" class="btn" style="margin-top:8px; padding:4px 12px;">+ 添加税率区间</button>
-                    <div style="font-size:0.7rem; color:#6b7280; margin-top:8px;">最后一个区间的阈值若设为极大值（如999）即视为无上限，但也可设为任何数值。</div>
                 </div>
             </div>
         </div>
@@ -255,7 +254,7 @@
     <div class="filter-bar"><div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div><span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span></div>
     <div class="stats-grid" id="statsPanel"></div>
     <div class="table-wrapper glass-card" style="padding: 0 0 20px 0;">
-        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>股票</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></td>
+        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>股票</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></table>
     </div>
 </div>
 
@@ -274,11 +273,11 @@
     let uniquePlayers = [], currentGroup = "all", currentColorFilter = null, priceHistory = [5], chart = null, autoTimer = null;
     let currentSidebarPlayer = null;
     
-    // 税收配置（全部可手动调）
+    // 税收配置
     let taxBrackets = [
         { threshold: 0.5, rate: 0.10 },
         { threshold: 1.0, rate: 0.15 },
-        { threshold: 999, rate: 0.20 }   // 默认极大值代表无上限，但用户可改
+        { threshold: 999, rate: 0.20 }
     ];
     
     function loadTaxConfig() {
@@ -301,7 +300,6 @@
             const row = document.createElement('div');
             row.className = 'tax-config-row';
             const isLast = (idx === taxBrackets.length-1);
-            // 统一显示可编辑输入框，不再特殊处理文本
             row.innerHTML = `
                 <span>超出平均值</span>
                 <span>${isLast ? '≥' : '<'}</span>
@@ -312,14 +310,12 @@
             `;
             container.appendChild(row);
         });
-        // 绑定阈值修改事件
         container.querySelectorAll('input[data-threshold-idx]').forEach(inp => {
             inp.addEventListener('change', (e) => {
                 const idx = parseInt(inp.getAttribute('data-threshold-idx'));
                 let val = parseFloat(inp.value);
                 if(isNaN(val)) val = 0;
                 taxBrackets[idx].threshold = val;
-                // 确保最后一个区间的阈值不会干扰排序（不作特殊处理，允许任何数值，但计算税率时会按顺序判断）
                 saveTaxConfig();
             });
         });
@@ -343,10 +339,8 @@
     }
     
     function getTaxRate(excessPercent) {
-        // 根据超额比例和税率区间计算税率，按阈值升序排列（假设已按threshold从小到大）
         for(let i = 0; i < taxBrackets.length; i++) {
             let bracket = taxBrackets[i];
-            // 最后一个区间：只要 excessPercent >= 阈值（即使阈值很大也适用）
             if(i === taxBrackets.length-1) {
                 if(excessPercent >= bracket.threshold) return bracket.rate;
             } else {
@@ -524,15 +518,12 @@
     
     async function resetAll() {
         if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、贷款=0、股票=0，并删除所有玩家日志！')) return;
-        let totalPlayers = uniquePlayers.length;
         let successPlayers = 0;
         let failPlayers = 0;
         for(let p of uniquePlayers) {
             try {
-                // 1. 删除该玩家的所有日志
                 const { error: delError } = await supabase.from('player_logs').delete().eq('player_id', p.id);
                 if (delError) throw delError;
-                // 2. 重置玩家数据
                 const { error: updateError } = await supabase.from('players').update({ 
                     color: 'green', rbc: 5, loan: 0, stock: 0, 
                     s1: false, s2: false, s3: false, s4: false 
@@ -544,7 +535,6 @@
                 failPlayers++;
             }
         }
-        // 重新加载数据并关闭侧边栏
         await loadPlayers();
         if (currentSidebarPlayer) {
             closeSidebar();
@@ -553,7 +543,7 @@
         if (failPlayers === 0) {
             showToast(`✅ 重置完成！已重置 ${successPlayers} 名玩家，所有日志已清空`);
         } else {
-            showToast(`⚠️ 部分成功：成功 ${successPlayers}，失败 ${failPlayers}。请检查控制台及Supabase RLS策略`, true);
+            showToast(`⚠️ 部分成功：成功 ${successPlayers}，失败 ${failPlayers}。请检查Supabase RLS策略`, true);
         }
     }
     
@@ -603,29 +593,24 @@
             row.insertCell(0).innerText = p.id;
             row.insertCell(1).innerText = p.name;
             row.insertCell(2).innerText = p.group_name;
-            // 颜色
             const colorCell = row.insertCell(3); const cDiv = document.createElement('div'); cDiv.className = 'color-selector';
             ['green','yellow','orange','red','black'].forEach(c => { const dot = document.createElement('div'); dot.className = `color-dot dot-${c}`; if(p.color === c) dot.classList.add('active-dot'); dot.onclick = () => window.setColor(p,c); cDiv.appendChild(dot); });
             colorCell.appendChild(cDiv);
-            // R币
             const rbcCell = row.insertCell(4); const rbDiv = document.createElement('div'); rbDiv.className = 'rbc-control';
             rbDiv.innerHTML = `<button class="rbc-btn">-5</button><button class="rbc-btn">-2</button><button class="rbc-btn">-1</button><span>${p.rbc}</span><button class="rbc-btn">+1</button><button class="rbc-btn">+2</button><button class="rbc-btn">+5</button>`;
             const btns = rbDiv.children; btns[0].onclick = () => window.changeRbc(p,-5); btns[1].onclick = () => window.changeRbc(p,-2); btns[2].onclick = () => window.changeRbc(p,-1);
             btns[4].onclick = () => window.changeRbc(p,1); btns[5].onclick = () => window.changeRbc(p,2); btns[6].onclick = () => window.changeRbc(p,5);
             rbcCell.appendChild(rbDiv);
-            // 贷款
             const loanCell = row.insertCell(5); const loanDiv = document.createElement('div'); loanDiv.className = 'loan-control';
             loanDiv.innerHTML = `<button class="loan-btn">-20</button><span>${p.loan || 0}</span><button class="loan-btn">+20</button>`;
             loanDiv.querySelectorAll('button')[0].onclick = () => window.adjustLoan(p, -20);
             loanDiv.querySelectorAll('button')[1].onclick = () => window.adjustLoan(p, 20);
             loanCell.appendChild(loanDiv);
-            // 股票
             const stockCell = row.insertCell(6); const stockDiv = document.createElement('div'); stockDiv.className = 'stock-control';
             stockDiv.innerHTML = `<button class="stock-btn">-1</button><span>${p.stock || 0}</span><button class="stock-btn">+1</button>`;
             stockDiv.querySelectorAll('button')[0].onclick = () => window.adjustStock(p, -1);
             stockDiv.querySelectorAll('button')[1].onclick = () => window.adjustStock(p, 1);
             stockCell.appendChild(stockDiv);
-            // 站完成
             const createCheck = (s,chk) => { const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=chk; cb.onchange = () => window.toggleStation(p,s); return cb; };
             row.insertCell(7).appendChild(createCheck('s1',p.s1));
             row.insertCell(8).appendChild(createCheck('s2',p.s2));
@@ -649,8 +634,15 @@
                 else if (log.action_type === 'stock_change') displayDetail = `股票变化: ${log.old_value} → ${log.new_value}`;
                 else displayDetail = log.action_type;
             }
+            // 转换时间为本地（新加坡时间 +8 小时）
+            let dt = new Date(log.created_at);
+            // 如果数据库是 UTC 无时区，手动加 8 小时
+            if (dt.getHours() < 8 && log.created_at.includes('T')) {
+                dt.setHours(dt.getHours() + 8);
+            }
+            const timeStr = dt.toLocaleTimeString();
             return `<div class="log-item">
-                        <span class="log-time">${new Date(log.created_at).toLocaleTimeString()}</span>
+                        <span class="log-time">${timeStr}</span>
                         <span class="log-detail">${displayDetail}</span>
                         <button class="undo-btn" data-log-id="${log.id}" data-log-action="${log.action_type}" data-log-old="${log.old_value}" data-log-new="${log.new_value}">↩️ 撤销</button>
                     </div>`;
@@ -684,6 +676,9 @@
             });
         });
         document.getElementById('playerSidebar').classList.add('open');
+        // 滚动侧边栏内容到顶部
+        const sidebarContent = document.getElementById('sidebarContent');
+        if (sidebarContent) sidebarContent.scrollTop = 0;
     }
     function closeSidebar() { document.getElementById('playerSidebar').classList.remove('open'); currentSidebarPlayer = null; }
     document.getElementById('closeSidebarBtn').onclick = closeSidebar;
@@ -709,7 +704,6 @@
     document.getElementById('deductProgressiveTaxBtn').onclick = deductProgressiveTax;
     document.getElementById('deductFlat3RbcBtn').onclick = deductFlat3Rbc;
     document.getElementById('addBracketBtn').onclick = () => {
-        // 添加一个新的区间，默认阈值取最后一个区间的阈值+0.5，税率0.18
         const lastThreshold = taxBrackets[taxBrackets.length-1].threshold;
         const newThreshold = (lastThreshold === 999 ? 2.0 : lastThreshold + 0.5);
         taxBrackets.splice(taxBrackets.length-1, 0, { threshold: newThreshold, rate: 0.18 });
