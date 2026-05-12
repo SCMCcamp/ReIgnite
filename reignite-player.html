@@ -264,13 +264,11 @@
             50%       { opacity: 0.3; transform: scale(0.7); box-shadow: 0 0 3px currentColor; }
         }
 
-        /* ── Latest message (always visible) ── */
         .info-card-content {
             font-size: 0.92rem; line-height: 1.6; color: var(--text-1);
             position: relative; z-index: 1; transition: opacity 0.3s;
         }
 
-        /* ── History toggle ── */
         .history-toggle-btn {
             display: flex; align-items: center; gap: 4px;
             margin-top: 8px; padding: 0;
@@ -311,7 +309,7 @@
         .content-updated { animation: content-flash 0.4s ease-out; }
 
         /* ════════════════════════════════════════
-           PLAYER CARD — bigger, bolder
+           PLAYER CARD
         ════════════════════════════════════════ */
         .player-card {
             border-radius: 24px;
@@ -324,7 +322,6 @@
         }
         @media (min-width: 520px) { .player-card { border-radius: 28px; padding: 28px 26px; margin-bottom: 16px; } }
 
-        /* Thicker, more dramatic top stripe */
         .player-card::after {
             content: '';
             position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -336,7 +333,6 @@
         .player-card.color-red::after    { background: linear-gradient(90deg, transparent 5%, #f44336 40%, #f44336 60%, transparent 95%); }
         .player-card.color-black::after  { background: linear-gradient(90deg, transparent 5%, #546e7a 40%, #546e7a 60%, transparent 95%); }
 
-        /* Enhanced border glows */
         .player-card.color-green  { border-color: rgba(76,175,80,0.25) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 28px rgba(76,175,80,0.1), 0 8px 40px rgba(0,0,0,0.3) !important; }
         .player-card.color-yellow { border-color: rgba(255,193,7,0.35) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 32px rgba(255,193,7,0.1), 0 8px 40px rgba(0,0,0,0.3) !important; }
         .player-card.color-orange { border-color: rgba(255,152,0,0.5) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 40px rgba(255,100,0,0.18), 0 8px 40px rgba(0,0,0,0.32) !important; }
@@ -355,14 +351,12 @@
             50%       { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 80px rgba(244,67,54,0.52), 0 8px 40px rgba(0,0,0,0.4); border-color: rgba(244,67,54,0.9) !important; }
         }
 
-        /* ── Player Name Block ── */
         .player-header {
             display: flex; justify-content: space-between;
             align-items: flex-start; margin-bottom: 20px; gap: 12px;
         }
         .player-name-block { position: relative; flex: 1; min-width: 0; }
 
-        /* BIGGER name */
         .player-name {
             font-family: 'Rajdhani', sans-serif;
             font-size: 3.2rem;
@@ -407,7 +401,6 @@
         .player-group { font-size: 0.8rem; color: var(--text-3); margin-top: 5px; letter-spacing: 0.5px; }
         .player-group strong { color: var(--text-2); }
 
-        /* HP badge */
         .player-id-badge {
             border-radius: 12px; padding: 8px 16px;
             font-size: 0.85rem; font-weight: 700; color: var(--text-2);
@@ -428,7 +421,6 @@
 
         @keyframes bar-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* ── Stats Grid ── */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         @media (min-width: 400px) { .stats-grid { gap: 10px; } }
 
@@ -454,7 +446,6 @@
         @media (min-width: 400px) { .stat-label { font-size: 0.63rem; letter-spacing: 1px; } }
         @media (min-width: 520px) { .stat-label { font-size: 0.65rem; letter-spacing: 1.2px; margin-bottom: 10px; } }
 
-        /* Bigger stat values */
         .stat-value {
             font-family: 'Rajdhani', sans-serif;
             font-size: 2.4rem; font-weight: 700; line-height: 1; color: var(--text-1);
@@ -462,10 +453,8 @@
         @media (min-width: 380px) { .stat-value { font-size: 2.6rem; } }
         @media (min-width: 520px) { .stat-value { font-size: 2.8rem; } }
 
-        /* RBC highlighted */
         .stat-value.rbc-value { color: var(--gold); }
 
-        /* RBC WARNING: pulsing red highlight */
         .stat-value.rbc-danger {
             color: #ff4444 !important;
             text-shadow: 0 0 16px rgba(255,50,50,0.7), 0 0 32px rgba(255,0,0,0.4);
@@ -475,7 +464,6 @@
             0%, 100% { text-shadow: 0 0 12px rgba(255,50,50,0.6), 0 0 24px rgba(255,0,0,0.3); color: #ff4444; }
             50%       { text-shadow: 0 0 28px rgba(255,80,80,0.9), 0 0 50px rgba(255,0,0,0.6); color: #ff2222; }
         }
-        /* RBC stat-box highlight when dangerous */
         .stat-box.rbc-box-danger {
             border-color: rgba(255,60,60,0.5) !important;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 24px rgba(255,50,50,0.25), 0 4px 16px rgba(0,0,0,0.2) !important;
@@ -486,7 +474,6 @@
             50%       { border-color: rgba(255,60,60,0.8) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 36px rgba(255,50,50,0.45) !important; }
         }
 
-        /* ── Color Orb (no color name label below) ── */
         .color-orb-wrap { display: flex; justify-content: center; margin-bottom: 4px; }
         .color-orb {
             width: 36px; height: 36px; border-radius: 50%;
@@ -495,7 +482,6 @@
         @media (min-width: 400px) { .color-orb { width: 40px; height: 40px; } }
         @media (min-width: 520px) { .color-orb { width: 44px; height: 44px; } }
 
-        /* ── Skull for dead (black) orb ── */
         .skull-orb {
             width: 36px; height: 36px;
             display: flex; align-items: center; justify-content: center;
@@ -549,7 +535,6 @@
         .orb-red    { background: #f44336; animation: hb-red    2.5s ease-in-out infinite; }
         .orb-black  { background: #546e7a; box-shadow: none; }
 
-        /* ── Progress bar ── */
         .progress-bar-bg {
             background: rgba(255,255,255,0.08); border-radius: 4px;
             height: 4px; margin-top: 6px; overflow: hidden;
@@ -561,7 +546,6 @@
             transition: width 0.6s cubic-bezier(.4,0,.2,1);
         }
 
-        /* ── Insufficient Fund Warning — more dangerous ── */
         .warning-banner {
             border-radius: 14px;
             padding: 14px 18px;
@@ -595,14 +579,15 @@
         }
         .warning-banner .warn-text { position: relative; z-index: 1; }
 
-        /* Orange caution bar */
         .caution-bar {
             margin-top: 12px; padding: 10px 16px;
             background: rgba(255,152,0,0.1); border: 1px solid rgba(255,152,0,0.3);
             border-radius: 10px; font-size: 0.8rem; color: #ff9800; font-weight: 600;
         }
 
-        /* ── Dead / Flatline banner (no text, just atmosphere) ── */
+        /* ════════════════════════════════════════
+           GAME OVER — flatline section (bottom of card)
+        ════════════════════════════════════════ */
         .flatline-msg {
             margin-top: 14px;
             background: rgba(0,0,0,0.45);
@@ -610,10 +595,17 @@
             border-radius: 12px;
             padding: 14px 18px;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            animation: flatline-fade 4s ease-in-out infinite;
+        }
+        .flatline-top-row {
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 14px;
-            animation: flatline-fade 4s ease-in-out infinite;
+            width: 100%;
         }
         .flatline-skull {
             font-size: 1.4rem;
@@ -627,6 +619,40 @@
             background: linear-gradient(90deg, transparent, rgba(84,110,122,0.5), transparent);
             animation: flatline-fade 4s ease-in-out infinite;
         }
+        /* Game Over text banner */
+        .game-over-banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, rgba(40,0,0,0.7) 0%, rgba(20,20,30,0.8) 100%);
+            border: 1px solid rgba(84,110,122,0.45);
+            border-radius: 8px;
+            animation: game-over-banner-pulse 3s ease-in-out infinite;
+        }
+        .game-over-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #8faab8;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(84,110,122,0.5);
+        }
+        .game-over-label .go-dot { color: rgba(180,60,60,0.7); margin: 0 2px; }
+        .game-over-sublabel {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.9rem;
+            color: #5a6e7a;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        @keyframes game-over-banner-pulse {
+            0%, 100% { opacity: 0.75; border-color: rgba(84,110,122,0.3); }
+            50% { opacity: 1; border-color: rgba(84,110,122,0.65); box-shadow: 0 0 18px rgba(84,110,122,0.15) inset; }
+        }
         @keyframes flatline-fade {
             0%, 100% { opacity: 0.5; } 50% { opacity: 0.9; }
         }
@@ -634,6 +660,239 @@
             0%, 100% { transform: translateY(0) scale(1);   opacity: 0.6; }
             50%       { transform: translateY(-3px) scale(1.1); opacity: 1; }
         }
+
+        /* ════════════════════════════════════════
+           GAME OVER FULLSCREEN POPUP
+        ════════════════════════════════════════ */
+        #gameOverOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        #gameOverOverlay.visible {
+            pointer-events: all;
+            opacity: 1;
+        }
+
+        /* Dark blurred background */
+        .go-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(6px) saturate(0.3);
+            -webkit-backdrop-filter: blur(6px) saturate(0.3);
+        }
+
+        /* Scanlines on overlay */
+        .go-backdrop::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 6px);
+            pointer-events: none;
+        }
+
+        /* Noise texture */
+        .go-backdrop::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* Red corner bleeds */
+        .go-bleed-tl, .go-bleed-br {
+            position: absolute;
+            width: 55vw; height: 55vh;
+            pointer-events: none;
+        }
+        .go-bleed-tl {
+            top: -10%; left: -10%;
+            background: radial-gradient(ellipse at 0% 0%, rgba(180,20,10,0.4) 0%, transparent 60%);
+            animation: bleed-pulse 3s ease-in-out infinite;
+        }
+        .go-bleed-br {
+            bottom: -10%; right: -10%;
+            background: radial-gradient(ellipse at 100% 100%, rgba(140,15,5,0.35) 0%, transparent 60%);
+            animation: bleed-pulse 3s ease-in-out infinite 1.5s;
+        }
+        @keyframes bleed-pulse {
+            0%, 100% { opacity: 0.7; } 50% { opacity: 1; }
+        }
+
+        /* Center content */
+        .go-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            padding: 0 24px;
+            max-width: 600px;
+            width: 100%;
+            animation: go-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes go-enter {
+            0% { transform: scale(0.88) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* Decorative line above */
+        .go-line-top {
+            width: 1px; height: 80px;
+            background: linear-gradient(to bottom, transparent, rgba(120,40,30,0.8));
+            margin-bottom: 24px;
+            animation: go-line-in 1.2s ease both 0.3s;
+        }
+        @keyframes go-line-in {
+            0% { height: 0; opacity: 0; }
+            100% { height: 80px; opacity: 1; }
+        }
+
+        /* Skull row */
+        .go-skulls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .go-skull-large {
+            font-size: 3.5rem;
+            filter: drop-shadow(0 0 20px rgba(120,40,30,0.6)) grayscale(0.6);
+            animation: go-skull-breathe 3s ease-in-out infinite;
+        }
+        @keyframes go-skull-breathe {
+            0%, 100% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 14px rgba(100,30,20,0.5)) grayscale(0.6); }
+            50% { transform: scale(1.08) rotate(2deg); filter: drop-shadow(0 0 28px rgba(160,40,30,0.8)) grayscale(0.3); }
+        }
+        .go-skull-side {
+            font-size: 1.8rem;
+            filter: grayscale(0.8) opacity(0.6);
+            animation: go-skull-side-drift 4s ease-in-out infinite;
+        }
+        .go-skull-side:nth-child(1) { animation-delay: 0s; }
+        .go-skull-side:nth-child(3) { animation-delay: 1s; transform: scaleX(-1); }
+        @keyframes go-skull-side-drift {
+            0%, 100% { transform: translateY(0) scale(0.95); opacity: 0.4; }
+            50% { transform: translateY(-6px) scale(1); opacity: 0.7; }
+        }
+
+        /* GAME OVER large text */
+        .go-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: clamp(3.5rem, 12vw, 7rem);
+            font-weight: 700;
+            letter-spacing: 8px;
+            line-height: 0.9;
+            color: #7a8a92;
+            text-transform: uppercase;
+            position: relative;
+            text-shadow:
+                0 0 40px rgba(80,90,100,0.4),
+                0 2px 0 rgba(0,0,0,0.8);
+            animation: go-title-flicker 5s ease-in-out infinite;
+        }
+        .go-title::before {
+            content: 'GAME OVER';
+            position: absolute;
+            inset: 0;
+            color: rgba(180,40,30,0.18);
+            transform: translate(3px, 2px);
+            filter: blur(1px);
+        }
+        @keyframes go-title-flicker {
+            0%, 90%, 100% { opacity: 1; }
+            92% { opacity: 0.6; }
+            94% { opacity: 1; }
+            96% { opacity: 0.4; }
+            98% { opacity: 0.95; }
+        }
+
+        /* Divider line */
+        .go-divider {
+            width: 100%;
+            max-width: 320px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(84,110,122,0.6), transparent);
+            margin: 20px auto;
+        }
+
+        /* Chinese subtitle */
+        .go-subtitle {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: clamp(1.1rem, 4vw, 1.6rem);
+            font-weight: 700;
+            letter-spacing: 6px;
+            color: #5a6e78;
+            text-shadow: 0 0 20px rgba(84,110,122,0.3);
+            animation: go-sub-fade 4s ease-in-out infinite;
+        }
+        @keyframes go-sub-fade {
+            0%, 100% { opacity: 0.7; } 50% { opacity: 1; }
+        }
+
+        /* ID tag */
+        .go-player-tag {
+            margin-top: 28px;
+            padding: 10px 24px;
+            border: 1px solid rgba(84,110,122,0.35);
+            border-radius: 6px;
+            background: rgba(0,0,0,0.4);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            color: #4a5a62;
+            text-transform: uppercase;
+        }
+
+        /* Decorative line below */
+        .go-line-bottom {
+            width: 1px; height: 60px;
+            background: linear-gradient(to bottom, rgba(120,40,30,0.5), transparent);
+            margin-top: 32px;
+            animation: go-line-in 1.2s ease both 0.5s;
+        }
+
+        /* Dismiss button */
+        .go-dismiss {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid rgba(84,110,122,0.35);
+            color: #4a5e68;
+            border-radius: 8px;
+            padding: 10px 28px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .go-dismiss:hover {
+            border-color: rgba(84,110,122,0.6);
+            color: #7a9aaa;
+            background: rgba(84,110,122,0.08);
+        }
+
+        /* Horizontal bleed lines (cinematic bars) */
+        .go-bar-top, .go-bar-bottom {
+            position: absolute;
+            left: 0; right: 0;
+            background: rgba(0,0,0,0.6);
+            pointer-events: none;
+        }
+        .go-bar-top { top: 0; height: 60px; }
+        .go-bar-bottom { bottom: 0; height: 60px; }
 
         /* ── Stock Card ── */
         .stock-card {
@@ -734,6 +993,29 @@
 <div class="hp-vignette"></div>
 <div class="hp-scanlines"></div>
 
+<!-- ════ GAME OVER FULLSCREEN OVERLAY ════ -->
+<div id="gameOverOverlay">
+    <div class="go-backdrop"></div>
+    <div class="go-bleed-tl"></div>
+    <div class="go-bleed-br"></div>
+    <div class="go-bar-top"></div>
+    <div class="go-bar-bottom"></div>
+    <div class="go-content">
+        <div class="go-line-top"></div>
+        <div class="go-skulls">
+            <span class="go-skull-side">💀</span>
+            <span class="go-skull-large">💀</span>
+            <span class="go-skull-side">💀</span>
+        </div>
+        <div class="go-title">GAME OVER</div>
+        <div class="go-divider"></div>
+        <div class="go-subtitle">你已出局</div>
+        <div class="go-player-tag" id="goPlayerTag">— — —</div>
+        <div class="go-line-bottom"></div>
+        <button class="go-dismiss" id="goDismissBtn">收到 · DISMISS</button>
+    </div>
+</div>
+
 <div class="container">
 
     <!-- Header -->
@@ -776,7 +1058,6 @@
 
     <!-- News + Economy Row -->
     <div class="info-row">
-        <!-- News Card -->
         <div class="info-card news-card glass">
             <div class="info-card-label">
                 <span class="dot" id="newsDot"></span>
@@ -789,7 +1070,6 @@
             </button>
             <div class="history-list" id="newsHistoryList"></div>
         </div>
-        <!-- Economy Card -->
         <div class="info-card economy-card glass">
             <div class="info-card-label">
                 <span class="dot" id="economyDot"></span>
@@ -856,6 +1136,35 @@
     let allPlayers = [], currentPlayer = null, priceHistory = [5], chart = null;
 
     /* ════════════════════════════════════════
+       GAME OVER POPUP
+    ════════════════════════════════════════ */
+    let gameOverShown = false;
+
+    function showGameOverOverlay(playerName, groupName) {
+        const overlay = document.getElementById('gameOverOverlay');
+        const tag = document.getElementById('goPlayerTag');
+        if (tag) tag.textContent = `${groupName} · ${playerName}`;
+        overlay.classList.add('visible');
+        gameOverShown = true;
+        // Scroll to top so overlay is fully visible
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideGameOverOverlay() {
+        const overlay = document.getElementById('gameOverOverlay');
+        overlay.classList.remove('visible');
+    }
+
+    document.getElementById('goDismissBtn').addEventListener('click', hideGameOverOverlay);
+
+    // Also allow tapping the backdrop to dismiss
+    document.getElementById('gameOverOverlay').addEventListener('click', function(e) {
+        if (e.target === this || e.target.classList.contains('go-backdrop')) {
+            hideGameOverOverlay();
+        }
+    });
+
+    /* ════════════════════════════════════════
        NOTIFICATION DOT
     ════════════════════════════════════════ */
     let newsDotTimer = null, econDotTimer = null;
@@ -892,7 +1201,6 @@
     }
 
     function renderHistoryList(listId, items) {
-        // items: [{content, time}] latest first
         const list = document.getElementById(listId);
         const btnId = listId === 'newsHistoryList' ? 'newsHistoryBtn' : 'econHistoryBtn';
         const btn = document.getElementById(btnId);
@@ -904,9 +1212,8 @@
             return;
         }
 
-        // Show button (items[0] is already the main display, show items 1-4 as history)
         btn.style.display = 'flex';
-        const histItems = items.slice(1, 5); // up to 4 older items
+        const histItems = items.slice(1, 5);
         list.innerHTML = histItems.map(item => `
             <div class="history-item">
                 <div>${item.content}</div>
@@ -985,18 +1292,27 @@
     }
 
     /* ── Players ── */
+    let prevPlayerColor = null;
+
     async function loadPlayers() {
         const { data, error } = await sb.from('players').select('*').order('group_name');
         if (error) { updateStatus(false); return; }
         allPlayers = data;
         updateStatus(true);
-        if (currentPlayer) renderPlayerView();
+        if (currentPlayer) {
+            const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
+            // Trigger popup if color just changed TO black
+            if (p && p.color === 'black' && prevPlayerColor !== 'black') {
+                showGameOverOverlay(p.name, p.group_name);
+            }
+            if (p) prevPlayerColor = p.color;
+            renderPlayerView();
+        }
     }
 
     /* ── News with history ── */
     let newsHistory = [];
     async function loadLatestNews() {
-        // Fetch top 5, latest first
         const { data, error } = await sb.from('news').select('*').order('id', { ascending: false }).limit(5);
         if (!error && data?.length) {
             newsHistory = data;
@@ -1076,11 +1392,17 @@
         if (isDead) {
             warningHtml = `
                 <div class="flatline-msg">
-                    <div class="flatline-line"></div>
-                    <span class="flatline-skull">💀</span>
-                    <span class="flatline-skull">💀</span>
-                    <span class="flatline-skull">💀</span>
-                    <div class="flatline-line"></div>
+                    <div class="flatline-top-row">
+                        <div class="flatline-line"></div>
+                        <span class="flatline-skull">💀</span>
+                        <span class="flatline-skull">💀</span>
+                        <span class="flatline-skull">💀</span>
+                        <div class="flatline-line"></div>
+                    </div>
+                    <div class="game-over-banner">
+                        <span class="game-over-label">GAME OVER<span class="go-dot"> · </span></span>
+                        <span class="game-over-sublabel">你已出局</span>
+                    </div>
                 </div>`;
         }
         if (isWarning && !isDead) {
@@ -1136,6 +1458,9 @@
         currentPlayer = null;
         localStorage.removeItem('current_player');
         applyHpEffect('green');
+        prevPlayerColor = null;
+        gameOverShown = false;
+        hideGameOverOverlay();
         showSelector();
     };
 
@@ -1162,7 +1487,16 @@
             const [name, group_name] = val.split('|');
             currentPlayer = { name, group_name };
             localStorage.setItem('current_player', JSON.stringify(currentPlayer));
-            renderPlayerView();
+            // Set initial color to avoid spurious popup on load
+            const p = allPlayers.find(x => x.name === name && x.group_name === group_name);
+            prevPlayerColor = p ? p.color : null;
+            // Show popup immediately if already dead when selecting
+            if (p && p.color === 'black') {
+                renderPlayerView();
+                showGameOverOverlay(p.name, p.group_name);
+            } else {
+                renderPlayerView();
+            }
         };
     }
 
@@ -1195,12 +1529,22 @@
     loadPlayers(); loadLatestNews(); loadLatestEconomy();
     setupRealtime(); renderStockChart(); loadLatestPrice();
 
-    // Setup history toggles (they're always in DOM)
     setupHistoryToggle('newsHistoryBtn', 'newsHistoryList');
     setupHistoryToggle('econHistoryBtn', 'econHistoryList');
 
     if (currentPlayer) {
-        let iv = setInterval(() => { if (allPlayers.length) { clearInterval(iv); renderPlayerView(); } }, 200);
+        let iv = setInterval(() => {
+            if (allPlayers.length) {
+                clearInterval(iv);
+                const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
+                prevPlayerColor = p ? p.color : null;
+                renderPlayerView();
+                // Show popup on page load if already dead
+                if (p && p.color === 'black') {
+                    setTimeout(() => showGameOverOverlay(p.name, p.group_name), 600);
+                }
+            }
+        }, 200);
     } else {
         setTimeout(showSelector, 800);
     }
