@@ -3,1214 +3,702 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RE:Ignite · 中控端</title>
+    <title>RE:Ignite | 中控端</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        :root {
-            --brand: #e8501a;
-            --brand-dim: rgba(232,80,26,0.15);
-            --brand-glow: rgba(232,80,26,0.3);
-            --surface: #0f1117;
-            --surface-2: #161b26;
-            --surface-3: #1e2435;
-            --surface-4: #252d3f;
-            --text-1: #f0f2f8;
-            --text-2: #8a94a8;
-            --text-3: #5a6377;
-            --border: rgba(255,255,255,0.07);
-            --border-2: rgba(255,255,255,0.12);
-            --gold: #f5a623;
-            --gold-dim: rgba(245,166,35,0.12);
-            --green: #34d399;
-            --green-dim: rgba(52,211,153,0.12);
-            --red: #f87171;
-            --red-dim: rgba(248,113,113,0.12);
-            --blue: #60a5fa;
-            --blue-dim: rgba(96,165,250,0.1);
-        }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Noto Sans SC', system-ui, sans-serif;
-            background: var(--surface);
-            color: var(--text-1);
-            min-height: 100vh;
-            padding: 20px 16px 60px;
+            background: #f4f5f7;
+            color: #111827;
+            padding: 24px 20px 40px;
         }
-
         body::before {
             content: '';
             position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 60% 40% at 15% 8%, rgba(232,80,26,0.06) 0%, transparent 60%),
-                radial-gradient(ellipse 40% 30% at 85% 85%, rgba(96,165,250,0.04) 0%, transparent 60%),
-                radial-gradient(ellipse 30% 20% at 50% 50%, rgba(245,166,35,0.02) 0%, transparent 70%);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,80,26,0.05) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
         }
-
-        .container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
-
-        /* ── Header ── */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 4px 24px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 14px;
+        .container { max-width: 1600px; margin: 0 auto; position: relative; z-index: 1; }
+        
+        .glass-card {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(16px) saturate(1.5);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 28px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
         }
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo-text {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--text-1);
-        }
-        .logo-text span { color: var(--brand); }
-        .admin-badge {
-            background: var(--brand-dim);
-            border: 1px solid rgba(232,80,26,0.3);
-            color: var(--brand);
-            font-size: 0.62rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            padding: 3px 10px;
-            border-radius: 40px;
-        }
-
-        .fire-logo { width: 34px; height: 34px; flex-shrink: 0; }
-        .fire-logo svg { width: 100%; height: 100%; }
-        .flame-main { animation: flicker 1.8s ease-in-out infinite alternate; transform-origin: 50% 90%; }
-        .flame-inner { animation: flicker 1.2s ease-in-out infinite alternate-reverse; transform-origin: 50% 90%; }
-        .flame-tip { animation: flicker 0.9s ease-in-out infinite alternate; transform-origin: 50% 95%; }
-        @keyframes flicker {
-            0%   { transform: scaleX(1) scaleY(1) rotate(-1deg); }
-            33%  { transform: scaleX(0.95) scaleY(1.04) rotate(1.5deg); }
-            66%  { transform: scaleX(1.04) scaleY(0.97) rotate(-2deg); }
-            100% { transform: scaleX(0.97) scaleY(1.06) rotate(1deg); }
-        }
-
-        .status-pill {
-            display: flex; align-items: center; gap: 6px;
-            padding: 4px 12px 4px 8px;
-            border-radius: 40px;
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            border: 1px solid;
-            transition: all 0.3s;
-        }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
-        .connected { background: var(--green-dim); border-color: rgba(52,211,153,0.3); color: var(--green); }
-        .connected .status-dot { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse-dot 2s infinite; }
-        .disconnected { background: var(--red-dim); border-color: rgba(248,113,113,0.3); color: var(--red); }
-        .disconnected .status-dot { background: var(--red); }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.85); }
-        }
-
-        .header-actions { display: flex; align-items: center; gap: 10px; }
-        .btn-reset {
-            background: rgba(248,113,113,0.1);
-            border: 1px solid rgba(248,113,113,0.25);
-            color: var(--red);
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Noto Sans SC', sans-serif;
-        }
-        .btn-reset:hover { background: rgba(248,113,113,0.2); border-color: rgba(248,113,113,0.4); }
-
-        /* ── Glass Panel (base) ── */
-        .glass-panel {
-            position: relative;
-            border-radius: 24px;
-            padding: 22px 24px;
-            overflow: hidden;
-            background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 60%, rgba(96,165,250,0.03) 100%);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.3);
-        }
-        .glass-panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -60%; width: 45%; height: 100%;
-            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.05) 50%, transparent 60%);
-            pointer-events: none;
-        }
-
-        /* ── Section Label ── */
-        .section-label {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--text-3);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-
-        /* ── Control Panels Row ── */
-        .control-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        @media (max-width: 700px) { .control-row { grid-template-columns: 1fr; } }
-
-        .ctrl-panel { background: var(--surface-2); border: 1px solid var(--border); border-radius: 24px; padding: 22px 24px; }
-
-        .panel-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: var(--text-1);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .panel-title .icon { font-size: 1rem; }
-
-        .ctrl-input {
-            width: 100%;
-            background: var(--surface-3);
-            border: 1px solid var(--border-2);
-            color: var(--text-1);
-            border-radius: 12px;
-            padding: 11px 16px;
-            font-size: 0.88rem;
-            font-family: 'Noto Sans SC', system-ui, sans-serif;
-            outline: none;
-            transition: border-color 0.2s;
-            margin-bottom: 12px;
-        }
-        .ctrl-input:focus { border-color: var(--brand); }
-        .ctrl-input::placeholder { color: var(--text-3); }
-
-        .btn-primary {
-            width: 100%;
-            background: var(--brand);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 11px 20px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            font-family: 'Rajdhani', sans-serif;
-            letter-spacing: 1.5px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary:hover { background: #d44516; transform: translateY(-1px); }
-        .btn-primary:active { transform: translateY(0); }
-
-        .preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-        .preset-chip {
-            background: var(--surface-4);
-            border: 1px solid var(--border-2);
-            color: var(--text-2);
-            padding: 5px 14px;
-            border-radius: 40px;
-            font-size: 0.78rem;
-            cursor: pointer;
-            transition: all 0.15s;
-            font-family: 'Noto Sans SC', sans-serif;
-        }
-        .preset-chip:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-dim); }
-
-        /* Latest item */
-        .latest-box {
-            background: var(--surface-3);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 12px 14px 10px;
-            margin-top: 14px;
-            position: relative;
-        }
-        .latest-box-label {
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 1.8px;
-            text-transform: uppercase;
-            color: var(--text-3);
-            margin-bottom: 6px;
-        }
-        .latest-box-content {
-            font-size: 0.85rem;
-            color: var(--text-1);
-            line-height: 1.5;
-            word-break: break-word;
-            padding-right: 28px;
-        }
-        .latest-box-time { font-size: 0.62rem; color: var(--text-3); text-align: right; margin-top: 6px; }
-        .delete-btn {
-            position: absolute;
-            top: 10px; right: 12px;
-            background: none;
-            border: none;
-            font-size: 0.9rem;
-            cursor: pointer;
-            color: var(--red);
-            opacity: 0.5;
-            transition: opacity 0.15s;
-            padding: 2px;
-        }
-        .delete-btn:hover { opacity: 1; }
-
-        /* ── Stock Section ── */
-        .stock-section {
-            position: relative;
-            border-radius: 24px;
-            padding: 0;
-            margin-bottom: 20px;
-            overflow: hidden;
-            background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 50%, rgba(245,166,35,0.06) 100%);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.25);
-        }
-        .stock-section::after {
-            content: '';
-            position: absolute;
-            bottom: -30px; right: -20px;
-            width: 160px; height: 160px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(245,166,35,0.1) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .stock-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 24px;
-            cursor: pointer;
-            transition: background 0.15s;
-            position: relative;
-            z-index: 1;
-        }
-        .stock-header:hover { background: rgba(255,255,255,0.02); }
-        .stock-header-left { display: flex; align-items: center; gap: 14px; }
-        .stock-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-        }
-        .stock-title em { color: var(--gold); font-style: normal; }
-        .stock-cur-price {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--gold);
-            text-shadow: 0 0 16px rgba(245,166,35,0.4);
-        }
-        .stock-chevron { color: var(--text-3); font-size: 0.8rem; transition: transform 0.2s; }
-        .stock-chevron.open { transform: rotate(180deg); }
-
-        .stock-body {
-            display: none;
-            padding: 0 24px 22px;
-            border-top: 1px solid var(--border);
-            position: relative;
-            z-index: 1;
-        }
-        .stock-body.expanded { display: block; }
-
-        .stock-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 18px; margin-bottom: 4px; }
-        .stock-btn {
-            background: var(--surface-4);
-            border: 1px solid var(--border-2);
-            color: var(--text-2);
-            padding: 7px 16px;
-            border-radius: 40px;
-            font-size: 0.78rem;
-            cursor: pointer;
-            transition: all 0.15s;
-            font-family: 'Noto Sans SC', sans-serif;
-        }
-        .stock-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
-
-        .stock-manual { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-        .stock-manual-label { font-size: 0.78rem; color: var(--text-3); white-space: nowrap; }
-        .stock-manual-input {
-            background: var(--surface-3);
-            border: 1px solid var(--border-2);
-            color: var(--text-1);
-            border-radius: 10px;
-            padding: 7px 14px;
-            font-size: 0.88rem;
-            width: 120px;
-            outline: none;
-            font-family: 'Rajdhani', sans-serif;
-            transition: border-color 0.2s;
-        }
-        .stock-manual-input:focus { border-color: var(--gold); }
-        .stock-set-btn {
-            background: var(--gold-dim);
-            border: 1px solid rgba(245,166,35,0.3);
-            color: var(--gold);
-            padding: 7px 16px;
-            border-radius: 10px;
-            font-size: 0.78rem;
-            cursor: pointer;
-            transition: all 0.15s;
-            font-weight: 600;
-        }
-        .stock-set-btn:hover { background: rgba(245,166,35,0.2); }
-        .stock-note { font-size: 0.62rem; color: var(--text-3); text-align: center; margin-top: 10px; letter-spacing: 0.4px; }
-        canvas { width: 100% !important; max-height: 200px; margin-top: 10px; }
-
-        /* ── Filter Bar ── */
-        .filter-bar {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 60px;
-            padding: 10px 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-        .group-chip {
-            padding: 5px 16px;
-            border-radius: 40px;
-            font-size: 0.78rem;
-            cursor: pointer;
-            color: var(--text-2);
-            background: transparent;
-            border: 1px solid transparent;
-            transition: all 0.15s;
-            font-family: 'Noto Sans SC', sans-serif;
-        }
-        .group-chip:hover { border-color: var(--border-2); color: var(--text-1); }
-        .group-chip.active { background: var(--brand); color: white; border-color: var(--brand); }
-        .clear-filter-btn {
-            margin-left: auto;
-            font-size: 0.72rem;
-            color: var(--text-3);
-            cursor: pointer;
-            padding: 4px 12px;
-            border-radius: 40px;
-            background: var(--surface-4);
-            border: 1px solid var(--border-2);
-            transition: all 0.15s;
-            white-space: nowrap;
-        }
-        .clear-filter-btn:hover { color: var(--text-1); border-color: var(--border-2); }
-
-        /* ── Stats Grid ── */
-        .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-        .stat-chip {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 10px 18px;
-            text-align: center;
-            flex: 1;
-            min-width: 70px;
-            cursor: pointer;
-            transition: all 0.15s;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-        .stat-chip:hover { background: var(--surface-3); border-color: var(--border-2); }
-        .stat-chip.active { background: var(--blue-dim); border-color: rgba(96,165,250,0.4); color: var(--blue); }
-        .stat-chip-label { font-size: 0.62rem; color: var(--text-3); font-family: 'Noto Sans SC', sans-serif; display: block; margin-bottom: 2px; font-weight: 400; }
-
-        /* ── Table ── */
-        .table-wrap {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            overflow: hidden;
-            overflow-x: auto;
-        }
-        table { width: 100%; border-collapse: collapse; min-width: 860px; }
-        thead tr { background: var(--surface-3); }
-        th {
-            padding: 13px 10px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-3);
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-        }
-        td {
-            padding: 11px 8px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.87rem;
-            vertical-align: middle;
-        }
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover td { background: rgba(255,255,255,0.02); }
-        .row-warn td { background: rgba(248,113,113,0.05) !important; }
-        .row-warn:hover td { background: rgba(248,113,113,0.08) !important; }
-
-        .player-name-cell { font-weight: 600; color: var(--text-1); }
-        .group-tag {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            background: var(--surface-4);
-            color: var(--text-2);
-            border: 1px solid var(--border-2);
-        }
-
-        /* Color selector dots */
-        .color-picker { display: flex; gap: 5px; justify-content: center; }
-        .color-dot {
-            width: 26px; height: 26px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.15s;
-            flex-shrink: 0;
-        }
-        .color-dot:hover { transform: scale(1.15); }
-        .color-dot.selected { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 8px rgba(255,255,255,0.3); }
-        .dot-green  { background: #4caf50; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
+        .logo { display: flex; align-items: baseline; gap: 6px; }
+        .logo-text { font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; color: #111827; }
+        .logo-pipe { color: #e8501a; font-size: 1.6rem; font-weight: 700; }
+        .badge { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 600; color: #111827; letter-spacing: 1px; }
+        .status-pill { display: flex; align-items: center; gap: 8px; padding: 4px 14px; border-radius: 40px; font-size: 0.7rem; background: white; border: 1px solid rgba(0,0,0,0.08); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
+        .btn { background: white; border: 1px solid rgba(0,0,0,0.1); padding: 6px 16px; border-radius: 40px; cursor: pointer; color: #111827; font-weight: 500; font-size: 0.85rem; }
+        .btn-primary { background: #e8501a; border: none; color: white; }
+        .refresh-btn { background: #e0f2fe; border-color: #0284c7; color: #0284c7; }
+        
+        .panels { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 28px; }
+        .panel { flex: 1; padding: 20px 24px; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .panel-title { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; border-left: 3px solid #e8501a; padding-left: 12px; }
+        .toggle-history-btn { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 0.7rem; padding: 4px 12px; border-radius: 40px; }
+        .toggle-history-btn:hover { background: #e5e7eb; color: #111827; }
+        
+        .input-area { margin-bottom: 16px; }
+        .quick-group { display: flex; gap: 8px; margin-bottom: 10px; }
+        .quick-btn { background: #f3f4f6; border: none; padding: 5px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
+        input, select { background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 48px; padding: 10px 14px; font-size: 0.85rem; width: 100%; margin-bottom: 10px; }
+        
+        .latest-item { background: rgba(0,0,0,0.03); border-radius: 20px; padding: 10px 14px; margin-top: 16px; border-left: 3px solid #e8501a; }
+        .latest-content { font-size: 0.85rem; word-break: break-word; }
+        .latest-time { font-size: 0.6rem; color: #6b7280; text-align: right; margin-top: 6px; }
+        
+        .history-list { max-height: 0; overflow-y: auto; transition: max-height 0.3s ease; }
+        .history-list.open { max-height: 300px; margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 12px; }
+        .history-item { font-size: 0.75rem; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+        .history-content { flex: 1; word-break: break-word; }
+        .history-time { font-size: 0.6rem; color: #6b7280; margin-left: 12px; white-space: nowrap; }
+        .del-small { color: #dc2626; font-size: 0.65rem; cursor: pointer; margin-left: 8px; opacity: 0.7; }
+        .del-small:hover { opacity: 1; text-decoration: underline; }
+        
+        .collapsible-header { padding: 14px 24px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .collapsible-content { padding: 0 24px 20px 24px; display: none; }
+        .collapsible-content.show { display: block; }
+        
+        .filter-bar { background: white; border-radius: 60px; padding: 10px 20px; margin: 20px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; border: 1px solid rgba(0,0,0,0.08); }
+        .group-chip { padding: 5px 16px; border-radius: 40px; background: #f3f4f6; cursor: pointer; font-size: 0.8rem; }
+        .group-chip.active { background: #e8501a; color: white; }
+        
+        .stats-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 20px; padding: 10px 16px; text-align: center; flex: 1; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); font-size: 0.8rem; }
+        .stat-card.active-filter { background: rgba(232,80,26,0.1); border-color: #e8501a; }
+        
+        .table-wrapper { overflow-x: auto; margin-top: 20px; padding: 0 0 20px 0; }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+        th, td { padding: 10px 6px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 0.78rem; }
+        th { background: #f9fafb; color: #4b5563; font-weight: 600; }
+        .warning-row { background: rgba(220,38,38,0.08); }
+        .detail-btn { background: none; border: 1px solid #d1d5db; border-radius: 20px; padding: 4px 10px; cursor: pointer; font-size: 0.7rem; color: #4b5563; }
+        .detail-btn:hover { background: #e5e7eb; }
+        
+        .color-selector { display: flex; gap: 6px; justify-content: center; }
+        .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
+        .dot-green { background: #4caf50; }
         .dot-yellow { background: #ffc107; }
         .dot-orange { background: #ff9800; }
-        .dot-red    { background: #f44336; }
-        .dot-black  { background: #546e7a; }
-
-        /* RBC control */
-        .rbc-ctrl { display: flex; align-items: center; gap: 4px; justify-content: center; }
-        .rbc-btn {
-            width: 32px; height: 28px;
-            border-radius: 8px;
-            border: 1px solid var(--border-2);
-            background: var(--surface-4);
-            color: var(--text-2);
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.12s;
-            font-family: 'Rajdhani', sans-serif;
-        }
-        .rbc-btn:hover { background: var(--surface-3); color: var(--text-1); border-color: var(--brand); }
-        .rbc-val {
-            min-width: 32px;
-            text-align: center;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--gold);
-        }
-
-        .checkbox-custom {
-            width: 20px; height: 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            accent-color: var(--brand);
-        }
-
-        .progress-pill {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 40px;
-            background: var(--surface-3);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-2);
+        .dot-red { background: #f44336; }
+        .dot-black { background: #2c3e2f; }
+        .active-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 3px currentColor; }
+        
+        .rbc-control, .loan-control, .stock-control { display: flex; gap: 6px; justify-content: center; align-items: center; }
+        .rbc-btn, .loan-btn, .stock-btn { background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 40px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
+        .loan-btn { background: #e0e7ff; color: #1e3a8a; }
+        .stock-btn { background: #d1fae5; color: #065f46; }
+        
+        .tax-config {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 20px;
             border: 1px solid var(--border);
         }
-        .progress-pill.full { color: var(--green); border-color: rgba(52,211,153,0.3); background: var(--green-dim); }
-
-        /* ── Toast ── */
-        .toast {
+        .tax-config-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .tax-config-row input {
+            width: 80px;
+            margin-bottom: 0;
+            padding: 6px 8px;
+        }
+        .tax-stats {
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            border-left: 4px solid #22c55e;
+        }
+        
+        .sidebar-overlay {
             position: fixed;
-            bottom: 24px; right: 24px;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            pointer-events: none;
+            top: 0; right: 0; bottom: 0;
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
             z-index: 1000;
-            transform: translateY(10px);
-            opacity: 0;
-            transition: opacity 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #e5e7eb;
         }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast-success { background: var(--green-dim); border: 1px solid rgba(52,211,153,0.35); color: var(--green); }
-        .toast-error   { background: var(--red-dim);   border: 1px solid rgba(248,113,113,0.35); color: var(--red); }
-        .toast-info    { background: var(--blue-dim);  border: 1px solid rgba(96,165,250,0.35);  color: var(--blue); }
-
-        .footer {
-            text-align: center;
-            font-size: 0.62rem;
-            color: var(--text-3);
-            margin-top: 32px;
-            letter-spacing: 0.5px;
-        }
-        .footer-dot { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--brand); margin: 0 6px; vertical-align: middle; animation: pulse-dot 2s infinite; }
+        .sidebar-overlay.open { transform: translateX(0); }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; }
+        .sidebar-header h3 { font-size: 1.2rem; font-weight: 600; }
+        .sidebar-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
+        .sidebar-content { flex: 1; padding: 20px 24px; overflow-y: auto; }
+        .info-row-side { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
+        .info-label { font-weight: 600; color: #4b5563; }
+        .info-value { font-weight: 500; }
+        .log-list { margin-top: 20px; }
+        .log-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: #374151; }
+        .log-item { font-size: 0.75rem; padding: 10px 0; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .log-time { color: #9ca3af; min-width: 70px; font-size: 0.7rem; }
+        .log-detail { flex: 1; color: #4b5563; word-break: break-word; }
+        .undo-btn { background: none; border: 1px solid #d1d5db; border-radius: 20px; padding: 2px 10px; cursor: pointer; font-size: 0.65rem; color: #dc2626; }
+        .undo-btn:hover { background: #fee2e2; }
+        
+        .toast-msg { position: fixed; bottom: 30px; right: 30px; background: white; padding: 8px 16px; border-radius: 40px; border-left: 4px solid #e8501a; opacity: 0; transition: 0.2s; z-index: 1001; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 0.8rem; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="container">
-
-    <!-- Header -->
     <div class="header">
         <div class="logo">
-            <div class="fire-logo">
-                <svg viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g class="flame-main">
-                        <path d="M18 42C10 42 4 36 4 28C4 20 9 16 12 12C12 16 14 18 16 18C14 12 17 6 18 2C19 8 22 10 24 14C26 10 25 6 24 4C28 8 32 14 32 22C32 32 26 42 18 42Z" fill="url(#fg1)"/>
-                    </g>
-                    <g class="flame-inner">
-                        <path d="M18 38C13 38 9 34 9 28C9 23 12 20 14 17C14 20 16 22 17.5 22C16 18 17 14 18 10C19 14 21 16 22 19C23 16 22.5 13 22 11C25 15 27 19 27 25C27 32 23 38 18 38Z" fill="url(#fg2)"/>
-                    </g>
-                    <g class="flame-tip">
-                        <path d="M18 34C15 34 12 31 12 27C12 24 14 22 15.5 20C15.5 22.5 17 24 18 24C17 21 17.5 19 18 17C18.5 19 20 21 20.5 23C21 21 20.5 19 20 18C22 21 24 23 24 27C24 31 21 34 18 34Z" fill="url(#fg3)"/>
-                    </g>
-                    <defs>
-                        <linearGradient id="fg1" x1="18" y1="2" x2="18" y2="42" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#ff6b1a"/><stop offset="100%" stop-color="#e8501a"/>
-                        </linearGradient>
-                        <linearGradient id="fg2" x1="18" y1="10" x2="18" y2="38" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#ffcc00"/><stop offset="100%" stop-color="#ff8800"/>
-                        </linearGradient>
-                        <linearGradient id="fg3" x1="18" y1="17" x2="18" y2="34" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#fff5aa"/><stop offset="100%" stop-color="#ffdd00"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </div>
-            <div class="logo-text">RE<span>:</span>Ignite</div>
-            <span class="admin-badge">中控端</span>
-            <div id="statusBadge" class="status-pill disconnected">
-                <span class="status-dot"></span>连接中…
-            </div>
+            <div class="logo-text">RE:Ignite</div>
+            <span class="logo-pipe">|</span>
+            <div class="badge">中控端</div>
+            <div class="status-pill"><span class="status-dot"></span>实时在线</div>
         </div>
-        <div class="header-actions">
-            <button class="btn-reset" id="resetAllBtn">🔄 重置所有玩家</button>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn refresh-btn" id="manualRefreshBtn">🔄 刷新数据</button>
+            <button class="btn" id="resetAllBtn">🔄 重置所有</button>
         </div>
     </div>
 
-    <!-- Control Panels Row -->
-    <div class="section-label">广播 &amp; 经济</div>
-    <div class="control-row">
-        <!-- News -->
-        <div class="ctrl-panel">
-            <div class="panel-title"><span class="icon">📢</span> 快报广播</div>
-            <input class="ctrl-input" type="text" id="newsInput" placeholder="输入快报内容…">
-            <button class="btn-primary" id="sendNewsBtn">发 送 快 报</button>
-            <div class="latest-box">
-                <div class="latest-box-label">📌 最新快报</div>
-                <div class="latest-box-content" id="latestNewsContent">暂无</div>
-                <div class="latest-box-time" id="latestNewsTime"></div>
-                <button class="delete-btn" id="deleteNewsBtn" style="display:none;" title="删除">✕</button>
+    <div class="panels">
+        <div class="panel glass-card">
+            <div class="panel-header">
+                <div class="panel-title">📢 快报广播</div>
+                <button class="toggle-history-btn" data-target="news">▼ 展开历史</button>
             </div>
+            <div class="input-area">
+                <input type="text" id="newsInput" placeholder="输入快报内容...">
+                <button class="btn btn-primary" id="sendNewsBtn" style="width:100%;">发送快报</button>
+            </div>
+            <div id="newsLatest" class="latest-item"><div class="latest-content" id="newsLatestContent">暂无快报</div><div class="latest-time" id="newsLatestTime"></div></div>
+            <div id="newsHistory" class="history-list"></div>
         </div>
-        <!-- Economy -->
-        <div class="ctrl-panel">
-            <div class="panel-title"><span class="icon">💰</span> 经济动态</div>
-            <div class="preset-row">
-                <button class="preset-chip" data-preset="normal">📊 正常</button>
-                <button class="preset-chip" data-preset="inflation">📈 通胀</button>
-                <button class="preset-chip" data-preset="deflation">📉 通缩</button>
+
+        <div class="panel glass-card">
+            <div class="panel-header">
+                <div class="panel-title">💰 经济状况</div>
+                <button class="toggle-history-btn" data-target="economy">▼ 展开历史</button>
             </div>
-            <input class="ctrl-input" type="text" id="economyInput" placeholder="或自定义经济动态…">
-            <button class="btn-primary" id="setEconomyBtn">发 布 经 济 动 态</button>
-            <div class="latest-box">
-                <div class="latest-box-label">📌 最新经济动态</div>
-                <div class="latest-box-content" id="latestEconomyContent">暂无</div>
-                <div class="latest-box-time" id="latestEconomyTime"></div>
-                <button class="delete-btn" id="deleteEconomyBtn" style="display:none;" title="删除">✕</button>
+            <div class="input-area">
+                <div class="quick-group"><button class="quick-btn" data-preset="normal">📊 正常</button><button class="quick-btn" data-preset="inflation">📈 通胀</button><button class="quick-btn" data-preset="deflation">📉 通缩</button></div>
+                <input type="text" id="economyInput" placeholder="或自定义经济动态...">
+                <button class="btn btn-primary" id="setEconomyBtn" style="width:100%;">发布经济动态</button>
+            </div>
+            <div id="economyLatest" class="latest-item"><div class="latest-content" id="economyLatestContent">暂无经济动态</div><div class="latest-time" id="economyLatestTime"></div></div>
+            <div id="economyHistory" class="history-list"></div>
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="collapsible-header" id="stockHeader">📈 RE:Set股 · 实时价格走势 <span>▼</span></div>
+        <div class="collapsible-content" id="stockContent">
+            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;"><button id="addRandomPriceBtn" class="btn">🎲 随机波动</button><button id="syncEconomyBtn" class="btn">📉 经济联动调整</button></div>
+            <canvas id="priceChart" height="160" style="max-height: 160px;"></canvas>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; flex-wrap: wrap; gap: 12px;">
+                <div><span>手动设置股价：</span><input type="number" id="manualPriceInput" style="width: 100px; padding: 6px;"><button id="manualSetPriceBtn" class="btn">设置</button></div>
+                <div>当前: <strong id="currentPrice">--</strong> R币</div>
+            </div>
+            <div style="font-size:0.65rem; text-align:center; margin-top: 12px; color: #6b7280;">每30分钟自动随机波动 | 价格变动自动保存</div>
+        </div>
+    </div>
+
+    <!-- 税收管理 -->
+    <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="collapsible-header" id="taxHeader">🏛️ 税收管理 <span>▼</span></div>
+        <div class="collapsible-content" id="taxContent">
+            <div style="padding: 8px 0 12px 0;">
+                <div id="taxPreview" class="tax-stats">计算中...</div>
+                <div style="margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button id="deductProgressiveTaxBtn" class="btn btn-primary" style="background:#dc2626;">💰 富人税（阶梯）</button>
+                    <button id="deductFlat3RbcBtn" class="btn btn-primary" style="background:#e8501a;">💰 扣除每人 3 R币</button>
+                </div>
+                <div class="tax-config">
+                    <div style="font-weight:600; margin-bottom:8px;">⚙️ 富人税税率阶梯（可调节）</div>
+                    <div id="taxBracketsContainer"></div>
+                    <button id="addBracketBtn" class="btn" style="margin-top:8px; padding:4px 12px;">+ 添加税率区间</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Stock Section -->
-    <div class="section-label">股票行情</div>
-    <div class="stock-section" id="stockSection">
-        <div class="stock-header" id="stockHeader">
-            <div class="stock-header-left">
-                <div class="stock-title">RE<em>:</em>Set 股 · 实时走势</div>
-                <div class="stock-cur-price" id="currentPrice">-- R</div>
-            </div>
-            <span class="stock-chevron" id="stockChevron">▼</span>
-        </div>
-        <div class="stock-body" id="stockBody">
-            <div class="stock-actions">
-                <button class="stock-btn" id="addRandomPriceBtn">🎲 随机波动 + 记录</button>
-                <button class="stock-btn" id="syncEconomyBtn">📉 根据当前经济调整</button>
-            </div>
-            <canvas id="priceChart" height="160"></canvas>
-            <div class="stock-manual">
-                <span class="stock-manual-label">手动设置股价：</span>
-                <input class="stock-manual-input" type="number" id="manualPriceInput" step="1" placeholder="输入数字">
-                <button class="stock-set-btn" id="manualSetPriceBtn">✏️ 确认</button>
-            </div>
-            <div class="stock-note">每30分钟自动随机波动一次 · 中控发布经济动态时同步调整</div>
-        </div>
-    </div>
-
-    <!-- Filter Bar -->
-    <div class="section-label">玩家数据</div>
-    <div class="filter-bar">
-        <span class="group-chip active" data-group="all">全部</span>
-        <span class="group-chip" data-group="尼西米">尼西米</span>
-        <span class="group-chip" data-group="以利亚">以利亚</span>
-        <span class="group-chip" data-group="约拿">约拿</span>
-        <span class="group-chip" data-group="基甸">基甸</span>
-        <span class="group-chip" data-group="拿单">拿单</span>
-        <span class="group-chip" data-group="撒母耳">撒母耳</span>
-        <span class="clear-filter-btn" id="clearFilterBtn">✖ 清除颜色筛选</span>
-    </div>
-
-    <!-- Stats Row -->
-    <div class="stats-row" id="statsPanel"></div>
-
-    <!-- Table -->
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>玩家</th>
-                    <th>组别</th>
-                    <th>颜色</th>
-                    <th>R 币</th>
-                    <th>站 1</th>
-                    <th>站 2</th>
-                    <th>站 3</th>
-                    <th>站 4</th>
-                    <th>进度</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-
-    <div class="footer">
-        数据实时同步<span class="footer-dot"></span>RE:Ignite 中控端
+    <div class="filter-bar"><div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div><span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span></div>
+    <div class="stats-grid" id="statsPanel"></div>
+    <div class="table-wrapper glass-card" style="padding: 0 0 20px 0;">
+        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>股票</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></table>
     </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<div id="playerSidebar" class="sidebar-overlay">
+    <div class="sidebar-header"><h3>📋 玩家日志</h3><button class="sidebar-close" id="closeSidebarBtn">&times;</button></div>
+    <div class="sidebar-content" id="sidebarContent"><div style="text-align:center; padding:20px;">加载中...</div></div>
+</div>
 
+<div class="toast-msg" id="toastMsg"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(function () {
-    /* ── Supabase ── */
+(function(){
     const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-    const sb = window.__supabaseAdminClient
-        || (window.__supabaseAdminClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
-
-    /* ── State ── */
-    let players = [];
-    let currentGroup = 'all';
-    let currentColorFilter = null;
-    let priceHistory = [5];
-    let chart = null;
-    let autoTimer = null;
-    let currentNewsId = null;
-    let currentEconomyId = null;
-
-    /* ── Toast ── */
-    let toastTimer = null;
-    function showToast(msg, type = 'info') {
-        const el = document.getElementById('toast');
-        el.textContent = msg;
-        el.className = `toast toast-${type} show`;
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
-    }
-
-    /* ── Status ── */
-    function setStatus(connected) {
-        const el = document.getElementById('statusBadge');
-        el.className = `status-pill ${connected ? 'connected' : 'disconnected'}`;
-        el.innerHTML = `<span class="status-dot"></span>${connected ? '● 已连接云端' : '● 离线'}`;
-    }
-
-    /* ══════════════════════════════════════════
-       STOCK
-    ══════════════════════════════════════════ */
-    async function savePriceToDB(price) {
-        const { error } = await sb.from('stock_prices').insert([{ price }]);
-        if (error) console.error('保存股价失败:', error);
-    }
-
-    async function initPriceHistoryFromDB() {
-        const { data, error } = await sb.from('stock_prices').select('price').order('id', { ascending: true });
-        if (!error && data && data.length) {
-            priceHistory = data.map(r => r.price);
-        } else {
-            await savePriceToDB(5);
-            priceHistory = [5];
+    let supabase = window.__supabaseAdmin || (window.__supabaseAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+    let uniquePlayers = [], currentGroup = "all", currentColorFilter = null, priceHistory = [5], chart = null, autoTimer = null;
+    let currentSidebarPlayer = null;
+    
+    // 税收配置
+    let taxBrackets = [
+        { threshold: 0.5, rate: 0.10 },
+        { threshold: 1.0, rate: 0.15 },
+        { threshold: Infinity, rate: 0.20 }
+    ];
+    
+    function loadTaxConfig() {
+        const saved = localStorage.getItem('reignite_tax_brackets');
+        if(saved) {
+            try { taxBrackets = JSON.parse(saved); } catch(e) {}
         }
-        renderChart();
     }
-
+    function saveTaxConfig() {
+        localStorage.setItem('reignite_tax_brackets', JSON.stringify(taxBrackets));
+        renderTaxConfigUI();
+        updateTaxPreview();
+    }
+    
+    function renderTaxConfigUI() {
+        const container = document.getElementById('taxBracketsContainer');
+        if(!container) return;
+        container.innerHTML = '';
+        taxBrackets.forEach((bracket, idx) => {
+            const row = document.createElement('div');
+            row.className = 'tax-config-row';
+            const thresholdLabel = idx === taxBrackets.length-1 ? '超出 ≥' : '超出 <';
+            row.innerHTML = `
+                <span>超出平均值</span>
+                <span>${thresholdLabel}</span>
+                <input type="number" step="0.1" value="${bracket.threshold === Infinity ? '999' : bracket.threshold}" style="width:70px;" data-threshold-idx="${idx}">
+                <span>倍，税率</span>
+                <input type="number" step="0.01" value="${bracket.rate}" style="width:70px;" data-rate-idx="${idx}">
+                <button class="btn del-bracket" data-idx="${idx}" style="background:#fee2e2; color:#dc2626;">删除</button>
+            `;
+            container.appendChild(row);
+        });
+        // 绑定事件
+        container.querySelectorAll('input[data-threshold-idx]').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(inp.getAttribute('data-threshold-idx'));
+                let val = parseFloat(inp.value);
+                if(isNaN(val)) val = 0;
+                taxBrackets[idx].threshold = val;
+                if(idx === taxBrackets.length-1) taxBrackets[idx].threshold = Infinity;
+                saveTaxConfig();
+            });
+        });
+        container.querySelectorAll('input[data-rate-idx]').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(inp.getAttribute('data-rate-idx'));
+                let val = parseFloat(inp.value);
+                if(isNaN(val)) val = 0;
+                taxBrackets[idx].rate = val;
+                saveTaxConfig();
+            });
+        });
+        container.querySelectorAll('.del-bracket').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if(taxBrackets.length <= 1) { showToast('至少保留一个税率区间', true); return; }
+                taxBrackets.splice(idx, 1);
+                taxBrackets[taxBrackets.length-1].threshold = Infinity;
+                saveTaxConfig();
+            });
+        });
+    }
+    
+    function getTaxRate(excessPercent) {
+        for(let i = 0; i < taxBrackets.length; i++) {
+            let bracket = taxBrackets[i];
+            if(i === taxBrackets.length-1) {
+                if(excessPercent >= bracket.threshold) return bracket.rate;
+            } else {
+                if(excessPercent < bracket.threshold) return bracket.rate;
+            }
+        }
+        return 0;
+    }
+    
+    async function updateTaxPreview() {
+        const filtered = getFilteredPlayers();
+        if(filtered.length === 0) {
+            document.getElementById('taxPreview').innerHTML = '当前筛选无玩家';
+            return;
+        }
+        const total = filtered.reduce((s, p) => s + p.rbc, 0);
+        const avg = total / filtered.length;
+        let totalTax = 0;
+        let payerCount = 0;
+        filtered.forEach(p => {
+            if(p.rbc <= avg) return;
+            const diff = p.rbc - avg;
+            const excessPercent = diff / avg;
+            const rate = getTaxRate(excessPercent);
+            const tax = Math.floor(diff * rate);
+            if(tax > 0) { totalTax += tax; payerCount++; }
+        });
+        document.getElementById('taxPreview').innerHTML = `
+            📊 当前筛选 <strong>${filtered.length}</strong> 人，平均R币：<strong>${avg.toFixed(1)}</strong><br>
+            💰 阶梯富人税：预计 <strong>${payerCount}</strong> 人需缴税，总税额 <strong>${totalTax}</strong> R币
+        `;
+    }
+    
+    async function deductProgressiveTax() {
+        const filtered = getFilteredPlayers();
+        if(filtered.length === 0) { showToast('当前筛选下没有玩家', true); return; }
+        const total = filtered.reduce((s, p) => s + p.rbc, 0);
+        const avg = total / filtered.length;
+        if(avg <= 0) { showToast('平均R币为0，无需征税', true); return; }
+        const taxDetails = [];
+        let totalTax = 0;
+        for(let p of filtered) {
+            if(p.rbc <= avg) continue;
+            const diff = p.rbc - avg;
+            const excessPercent = diff / avg;
+            const rate = getTaxRate(excessPercent);
+            const tax = Math.floor(diff * rate);
+            if(tax > 0) {
+                totalTax += tax;
+                taxDetails.push({ player: p, tax });
+            }
+        }
+        if(taxDetails.length === 0) {
+            showToast(`平均R币 ${avg.toFixed(1)}，没有玩家高于平均值`, true);
+            return;
+        }
+        if(!confirm(`📊 当前平均R币：${avg.toFixed(1)}\n需缴税玩家：${taxDetails.length} 人，总税额：${totalTax} R币\n确定执行吗？`)) return;
+        let success = 0, fail = 0;
+        for(let { player, tax } of taxDetails) {
+            const newRbc = Math.max(0, player.rbc - tax);
+            const { error } = await supabase.from('players').update({ rbc: newRbc }).eq('id', player.id);
+            if(!error) {
+                await supabase.from('player_logs').insert([{
+                    player_id: player.id, action_type: 'rbc_change',
+                    old_value: String(player.rbc), new_value: String(newRbc),
+                    detail: `富人税（基于平均${avg.toFixed(1)}）扣除 ${tax} R币`
+                }]);
+                success++;
+            } else fail++;
+        }
+        await loadPlayers();
+        showToast(`税收完成：${success} 人缴税，${fail} 人失败`);
+        updateTaxPreview();
+    }
+    
+    async function deductFlat3Rbc() {
+        const filtered = getFilteredPlayers();
+        if(filtered.length === 0) { showToast('当前筛选下没有玩家', true); return; }
+        if(!confirm(`确定对当前筛选的 ${filtered.length} 位玩家每人扣除 3 R币吗？`)) return;
+        let success = 0, fail = 0;
+        for(let p of filtered) {
+            const newRbc = Math.max(0, p.rbc - 3);
+            const { error } = await supabase.from('players').update({ rbc: newRbc }).eq('id', p.id);
+            if(!error) {
+                await supabase.from('player_logs').insert([{
+                    player_id: p.id, action_type: 'rbc_change',
+                    old_value: String(p.rbc), new_value: String(newRbc),
+                    detail: `固定税收扣除 3 R币`
+                }]);
+                success++;
+            } else fail++;
+        }
+        await loadPlayers();
+        showToast(`固定税收完成：${success} 人缴纳，${fail} 人失败`);
+        updateTaxPreview();
+    }
+    
+    // 股票相关
+    async function savePrice(p) { await supabase.from('stock_prices').insert([{ price: p }]); }
+    async function initPrice() { const { data } = await supabase.from('stock_prices').select('price').order('id'); if(data?.length) priceHistory = data.map(r=>r.price); else { await savePrice(5); priceHistory=[5]; } renderChart(); }
     function renderChart() {
         const ctx = document.getElementById('priceChart').getContext('2d');
-        if (chart) chart.destroy();
-        const last = priceHistory[priceHistory.length - 1];
-        const prev = priceHistory[priceHistory.length - 2] ?? last;
-        const rising = last >= prev;
-        const lineColor = rising ? '#34d399' : '#f87171';
-        const fillColor = rising ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)';
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: priceHistory.map((_, i) => i + 1),
-                datasets: [{
-                    label: 'RE:Set股 价格 (R币)',
-                    data: priceHistory,
-                    borderColor: lineColor,
-                    backgroundColor: fillColor,
-                    tension: 0.3,
-                    fill: true,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
-                    pointHoverBackgroundColor: lineColor,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { display: false, grid: { display: false } },
-                    y: {
-                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-                        ticks: { color: '#5a6377', font: { size: 11 }, callback: v => v + ' R' },
-                        border: { display: false }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1e2435',
-                        borderColor: 'rgba(255,255,255,0.1)',
-                        borderWidth: 1,
-                        titleColor: '#8a94a8',
-                        bodyColor: '#f0f2f8',
-                        callbacks: { label: ctx => `  ${ctx.raw} R币` }
-                    }
-                }
-            }
-        });
-        document.getElementById('currentPrice').innerText = Math.round(last * 100) / 100 + ' R';
+        if(chart) chart.destroy();
+        const last = priceHistory[priceHistory.length-1], prev = priceHistory[priceHistory.length-2]??last, rising=last>=prev;
+        chart = new Chart(ctx, { type: 'line', data: { labels: priceHistory.map((_,i)=>i+1), datasets: [{ data: priceHistory, borderColor: rising?'#059669':'#dc2626', backgroundColor: 'transparent', borderWidth: 2, fill: false, pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false }, y: { ticks: { callback: v=>v+' R' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx=>`  ${ctx.raw} R币` } } } } });
+        document.getElementById('currentPrice').innerText = last;
     }
-
-    // BUG FIX: only push+save if we initiated the change (not from realtime echo)
-    async function addPricePoint(newPrice) {
-        newPrice = Math.max(1, Math.round(newPrice * 100) / 100);
-        await savePriceToDB(newPrice);
-        // Realtime will push it into priceHistory via subscribeStockPrice; but
-        // we optimistically update locally too so the chart feels instant.
-        if (priceHistory[priceHistory.length - 1] !== newPrice) {
-            priceHistory.push(newPrice);
-            renderChart();
-        }
+    async function addPrice(p) { p = Math.max(1, Math.round(p)); priceHistory.push(p); await savePrice(p); renderChart(); }
+    async function randomFluctuation() { let last=priceHistory[priceHistory.length-1]; await addPrice(last * (1 + (Math.random()-0.5)*0.2)); }
+    async function adjustByEconomy(content) {
+        let percent = content.includes('通胀') ? (Math.random()*0.1+0.05) : (content.includes('通缩') ? -(Math.random()*0.1+0.05) : (Math.random()*0.04-0.02));
+        await addPrice(priceHistory[priceHistory.length-1] * (1 + percent));
     }
-
-    async function randomFluctuation() {
-        const last = priceHistory[priceHistory.length - 1];
-        const change = (Math.random() - 0.5) * 0.2;
-        await addPricePoint(last * (1 + change));
-        showToast('📈 股价已随机波动', 'info');
-    }
-
-    async function adjustPriceByEconomy(content) {
-        const last = priceHistory[priceHistory.length - 1];
-        let pct = 0;
-        if (content.includes('通胀') || content.includes('涨价')) pct = (Math.random() * 10 + 5) / 100;
-        else if (content.includes('通缩') || content.includes('降价')) pct = -(Math.random() * 10 + 5) / 100;
-        else pct = (Math.random() * 4 - 2) / 100;
-        await addPricePoint(last * (1 + pct));
-    }
-
-    function startAutoAdjust() {
-        if (autoTimer) clearInterval(autoTimer);
-        autoTimer = setInterval(randomFluctuation, 30 * 60 * 1000);
-    }
-
-    function subscribeStockPrice() {
-        // BUG FIX: avoid duplicate appends — only push if value differs from last known
-        sb.channel('admin-stock-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, payload => {
-                const p = payload.new?.price;
-                if (p != null && priceHistory[priceHistory.length - 1] !== p) {
-                    priceHistory.push(p);
-                    renderChart();
-                }
-            })
-            .subscribe();
-    }
-
-    /* ══════════════════════════════════════════
-       PLAYERS
-    ══════════════════════════════════════════ */
+    
+    // 玩家数据管理
     async function loadPlayers() {
-        const { data, error } = await sb.from('players').select('*').order('group_name');
-        if (error) { setStatus(false); return; }
-        // Deduplicate by name + group
-        const map = new Map();
-        for (const p of data) {
-            const key = `${p.name}|${p.group_name}`;
-            if (!map.has(key)) map.set(key, p);
+        const { data, error } = await supabase.from('players').select('*').order('id');
+        if(error) { console.error(error); showToast('加载失败', true); return; }
+        uniquePlayers = data;
+        for(let p of uniquePlayers) {
+            if(p.loan === undefined) p.loan = 0;
+            if(p.stock === undefined) p.stock = 0;
         }
-        players = Array.from(map.values());
-        setStatus(true);
         renderUI();
-    }
-
-    async function updatePlayer(id, updates) {
-        const { error } = await sb.from('players').update(updates).eq('id', id);
-        if (error) { showToast('更新失败: ' + error.message, 'error'); return; }
-        showToast('✓ 已同步', 'success');
-        await loadPlayers();
-    }
-
-    window.changeRbc = (p, delta) => updatePlayer(p.id, { rbc: Math.max(0, p.rbc + delta) });
-    window.setColor = (p, color) => updatePlayer(p.id, { color });
-    window.toggleStation = (p, station) => updatePlayer(p.id, { [station]: !p[station] });
-
-    function getProgress(p) {
-        return Math.round(((p.s1 ? 1 : 0) + (p.s2 ? 1 : 0) + (p.s3 ? 1 : 0) + (p.s4 ? 1 : 0)) / 4 * 100);
-    }
-
-    /* ══════════════════════════════════════════
-       NEWS
-    ══════════════════════════════════════════ */
-    async function loadLatestNews() {
-        const { data, error } = await sb.from('news').select('*').order('id', { ascending: false }).limit(1);
-        if (!error && data?.length) {
-            document.getElementById('latestNewsContent').innerText = data[0].content;
-            document.getElementById('latestNewsTime').innerText = data[0].time;
-            currentNewsId = data[0].id;
-            document.getElementById('deleteNewsBtn').style.display = 'block';
-        } else {
-            document.getElementById('latestNewsContent').innerText = '暂无';
-            document.getElementById('latestNewsTime').innerText = '';
-            currentNewsId = null;
-            document.getElementById('deleteNewsBtn').style.display = 'none';
+        updateTaxTargetDesc();
+        updateTaxPreview();
+        if (currentSidebarPlayer) {
+            const updated = uniquePlayers.find(p => p.id === currentSidebarPlayer.id);
+            if (updated) openSidebar(updated);
         }
     }
-
+    async function updatePlayer(id, updates, actionType, oldVal, newVal, detail) {
+        await supabase.from('players').update(updates).eq('id', id);
+        await supabase.from('player_logs').insert([{ player_id: id, action_type: actionType, old_value: String(oldVal), new_value: String(newVal), detail: detail || '' }]);
+        await loadPlayers();
+        showToast('已同步');
+    }
+    window.changeRbc = (p, d) => { const newRbc = Math.max(0, p.rbc + d); updatePlayer(p.id, { rbc: newRbc }, 'rbc_change', p.rbc, newRbc, `手动调整 ${d>0?'+'+d:d} R币`); };
+    window.adjustLoan = (p, delta) => { const newLoan = Math.max(0, (p.loan || 0) + delta); updatePlayer(p.id, { loan: newLoan }, 'loan_change', p.loan || 0, newLoan, `贷款${delta>0 ? '发放' : '还款'} ${Math.abs(delta)} R币，总额 ${newLoan}`); };
+    window.adjustStock = (p, delta) => { const newStock = Math.max(0, (p.stock || 0) + delta); updatePlayer(p.id, { stock: newStock }, 'stock_change', p.stock || 0, newStock, `股票${delta>0 ? '买入' : '卖出'} ${Math.abs(delta)} 股，持仓 ${newStock}`); };
+    window.setColor = (p, c) => { const colorNameMap = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' }; const oldColorName = colorNameMap[p.color] || p.color; const newColorName = colorNameMap[c] || c; updatePlayer(p.id, { color: c }, 'color_change', p.color, c, `生命颜色变更: ${oldColorName} → ${newColorName}`); };
+    window.toggleStation = (p, s) => { const newVal = !p[s]; const stationName = { s1:'站1', s2:'站2', s3:'站3', s4:'站4' }[s]; updatePlayer(p.id, { [s]: newVal }, 'station_complete', p[s], newVal, `${stationName} ${newVal ? '完成' : '取消完成'}`); };
+    function getProgress(p) { return Math.round(((p.s1?1:0)+(p.s2?1:0)+(p.s3?1:0)+(p.s4?1:0))/4*100); }
+    
+    let newsHistory = [], economyHistory = [];
+    async function loadNewsHistory() { const { data } = await supabase.from('news').select('*').order('id', { ascending: false }).limit(10); if(data) { newsHistory = data; if(data[0]) { document.getElementById('newsLatestContent').innerText = data[0].content; document.getElementById('newsLatestTime').innerText = data[0].time; } else { document.getElementById('newsLatestContent').innerText = '暂无快报'; document.getElementById('newsLatestTime').innerText = ''; } renderHistory('news'); } }
+    async function loadEconomyHistory() { const { data } = await supabase.from('economy_status').select('*').order('id', { ascending: false }).limit(10); if(data) { economyHistory = data; if(data[0]) { document.getElementById('economyLatestContent').innerText = data[0].content; document.getElementById('economyLatestTime').innerText = data[0].time; } else { document.getElementById('economyLatestContent').innerText = '暂无经济动态'; document.getElementById('economyLatestTime').innerText = ''; } renderHistory('economy'); } }
+    function renderHistory(type) {
+        const container = document.getElementById(`${type}History`);
+        const list = type === 'news' ? newsHistory : economyHistory;
+        if(!container) return;
+        container.innerHTML = list.map(item => `<div class="history-item"><span class="history-content">${item.content}</span><span class="history-time">${item.time}</span><span class="del-small" data-id="${item.id}" data-type="${type}">删除</span></div>`).join('');
+        container.querySelectorAll('.del-small').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = btn.getAttribute('data-id'), t = btn.getAttribute('data-type');
+                await supabase.from(t === 'news' ? 'news' : 'economy_status').delete().eq('id', id);
+                if(t === 'news') loadNewsHistory(); else loadEconomyHistory();
+                showToast('已删除');
+            });
+        });
+    }
+    
     async function sendNews() {
         const content = document.getElementById('newsInput').value.trim();
-        if (!content) { showToast('请输入快报内容', 'error'); return; }
+        if (!content) return;
         const timeStr = new Date().toLocaleTimeString();
-        const { error } = await sb.from('news').insert([{ content, time: timeStr }]);
-        if (error) { showToast('发送失败: ' + error.message, 'error'); return; }
-        showToast('📢 快报已发送', 'success');
+        await supabase.from('news').insert([{ content, time: timeStr }]);
         document.getElementById('newsInput').value = '';
+        await loadNewsHistory();
+        showToast('快报已发送');
     }
-
-    async function deleteLatestNews() {
-        if (!currentNewsId) return;
-        const { error } = await sb.from('news').delete().eq('id', currentNewsId);
-        if (error) { showToast('删除失败: ' + error.message, 'error'); return; }
-        showToast('已删除快报', 'info');
-        await loadLatestNews();
-    }
-
-    /* ══════════════════════════════════════════
-       ECONOMY
-    ══════════════════════════════════════════ */
-    async function loadLatestEconomy() {
-        const { data, error } = await sb.from('economy_status').select('*').order('id', { ascending: false }).limit(1);
-        if (!error && data?.length) {
-            document.getElementById('latestEconomyContent').innerText = data[0].content;
-            document.getElementById('latestEconomyTime').innerText = data[0].time;
-            currentEconomyId = data[0].id;
-            document.getElementById('deleteEconomyBtn').style.display = 'block';
-        } else {
-            document.getElementById('latestEconomyContent').innerText = '暂无';
-            document.getElementById('latestEconomyTime').innerText = '';
-            currentEconomyId = null;
-            document.getElementById('deleteEconomyBtn').style.display = 'none';
-        }
-    }
-
-    const presetMap = {
-        normal:    '正常经济 · 甜品原价 · R币获取正常',
-        inflation: '📈 通胀来袭！超市甜品价格上涨2R币，R币获取减半',
-        deflation: '📉 通缩来临！超市甜品降价2R币，R币获取翻倍'
-    };
-
-    async function publishEconomy(content) {
-        if (!content) { showToast('请输入经济动态内容', 'error'); return; }
-        const timeStr = new Date().toLocaleTimeString();
-        const { error } = await sb.from('economy_status').insert([{ content, time: timeStr }]);
-        if (error) { showToast('发布失败: ' + error.message, 'error'); return; }
-        showToast('💰 经济动态已发布', 'success');
-        document.getElementById('economyInput').value = '';
-        await adjustPriceByEconomy(content);
-    }
-
-    async function deleteLatestEconomy() {
-        if (!currentEconomyId) return;
-        const { error } = await sb.from('economy_status').delete().eq('id', currentEconomyId);
-        if (error) { showToast('删除失败: ' + error.message, 'error'); return; }
-        showToast('已删除经济动态', 'info');
-        await loadLatestEconomy();
-    }
-
-    /* ══════════════════════════════════════════
-       RESET ALL
-    ══════════════════════════════════════════ */
+    async function publishEconomy(content) { if(!content) return; await supabase.from('economy_status').insert([{ content, time: new Date().toLocaleTimeString() }]); await adjustByEconomy(content); document.getElementById('economyInput').value=''; loadEconomyHistory(); }
+    const presetMap = { normal:"正常经济 · 甜品原价 · R币获取正常", inflation:"通胀来袭！超市甜品价格上涨2R币，R币获取减半", deflation:"通缩来临！超市甜品降价2R币，R币获取翻倍" };
+    
     async function resetAll() {
-        if (!confirm('确认重置所有玩家数据？此操作不可撤销。')) return;
-        for (const p of players) {
-            await sb.from('players').update({ color: 'green', rbc: 10, s1: false, s2: false, s3: false, s4: false }).eq('id', p.id);
+        if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、贷款=0、股票=0，并删除所有玩家日志！')) return;
+        for(let p of uniquePlayers) {
+            await supabase.from('player_logs').delete().eq('player_id', p.id);
+            await supabase.from('players').update({ color: 'green', rbc: 5, loan: 0, stock: 0, s1: false, s2: false, s3: false, s4: false }).eq('id', p.id);
         }
-        showToast('🔄 已重置所有玩家', 'info');
         await loadPlayers();
+        showToast('重置完成');
     }
-
-    /* ══════════════════════════════════════════
-       RENDER UI
-    ══════════════════════════════════════════ */
-    function getFiltered() {
-        let list = [...players];
-        if (currentGroup !== 'all') list = list.filter(p => p.group_name === currentGroup);
-        if (currentColorFilter) {
-            if (currentColorFilter === 'warn') list = list.filter(p => p.rbc < 5);
-            else list = list.filter(p => p.color === currentColorFilter);
-        }
-        return list;
-    }
-
+    
     function renderStats() {
-        const s = { total: players.length, green: 0, yellow: 0, orange: 0, red: 0, black: 0, warn: 0 };
-        players.forEach(p => {
-            if (p.color in s) s[p.color]++;
-            if (p.rbc < 5) s.warn++;
-        });
-        const chips = [
-            { key: null,     label: '👥 全部', val: s.total },
-            { key: 'green',  label: '🟢 绿',   val: s.green },
-            { key: 'yellow', label: '🟡 黄',   val: s.yellow },
-            { key: 'orange', label: '🟠 橙',   val: s.orange },
-            { key: 'red',    label: '🔴 红',   val: s.red },
-            { key: 'black',  label: '⚫ 黑',   val: s.black },
-            { key: 'warn',   label: '⚠️ 危险', val: s.warn }
-        ];
-        document.getElementById('statsPanel').innerHTML = chips.map(c => `
-            <div class="stat-chip ${currentColorFilter === c.key ? 'active' : ''}" data-key="${c.key}">
-                <span class="stat-chip-label">${c.label}</span>${c.val}
-            </div>
-        `).join('');
-        document.querySelectorAll('.stat-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                const k = chip.getAttribute('data-key');
-                currentColorFilter = (k === 'null' || k === null) ? null : k;
-                renderUI();
-            });
-        });
+        const stats = { total: uniquePlayers.length, green:0, yellow:0, orange:0, red:0, black:0, warn:0 };
+        for(let p of uniquePlayers) { stats[p.color]++; if(p.rbc<5) stats.warn++; }
+        document.getElementById('statsPanel').innerHTML = `
+            <div class="stat-card ${!currentColorFilter?'active-filter':''}" data-filter="all">👥 ${stats.total}</div>
+            <div class="stat-card" data-filter="green">🟢 ${stats.green}</div><div class="stat-card" data-filter="yellow">🟡 ${stats.yellow}</div>
+            <div class="stat-card" data-filter="orange">🟠 ${stats.orange}</div><div class="stat-card" data-filter="red">🔴 ${stats.red}</div>
+            <div class="stat-card" data-filter="black">⚫ ${stats.black}</div><div class="stat-card" data-filter="warn">⚠️ ${stats.warn}</div>
+        `;
+        document.querySelectorAll('.stat-card').forEach(c => c.onclick = () => { currentColorFilter = c.getAttribute('data-filter') === 'all' ? null : c.getAttribute('data-filter'); renderUI(); updateTaxTargetDesc(); updateTaxPreview(); });
     }
-
-    function renderTable() {
-        const filtered = getFiltered();
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        const colors = ['green', 'yellow', 'orange', 'red', 'black'];
-        filtered.forEach(p => {
-            const row = tbody.insertRow();
-            if (p.rbc < 5) row.classList.add('row-warn');
-
-            // Name
-            const nameCell = row.insertCell(); nameCell.className = 'player-name-cell'; nameCell.innerText = p.name;
-
-            // Group
-            const grpCell = row.insertCell();
-            grpCell.innerHTML = `<span class="group-tag">${p.group_name}</span>`;
-
-            // Color
-            const colorCell = row.insertCell();
-            const picker = document.createElement('div'); picker.className = 'color-picker';
-            colors.forEach(c => {
-                const dot = document.createElement('div');
-                dot.className = `color-dot dot-${c}${p.color === c ? ' selected' : ''}`;
-                dot.addEventListener('click', (function (player, color) {
-                    return () => window.setColor(player, color);
-                })(p, c));
-                picker.appendChild(dot);
-            });
-            colorCell.appendChild(picker);
-
-            // RBC
-            const rbcCell = row.insertCell();
-            const ctrl = document.createElement('div'); ctrl.className = 'rbc-ctrl';
-            ctrl.innerHTML = `
-                <button class="rbc-btn" title="-5">-5</button>
-                <button class="rbc-btn" title="-2">-2</button>
-                <button class="rbc-btn" title="-1">-1</button>
-                <span class="rbc-val">${p.rbc}</span>
-                <button class="rbc-btn" title="+1">+1</button>
-                <button class="rbc-btn" title="+2">+2</button>
-                <button class="rbc-btn" title="+5">+5</button>
-            `;
-            const btns = ctrl.querySelectorAll('.rbc-btn');
-            btns[0].onclick = () => window.changeRbc(p, -5);
-            btns[1].onclick = () => window.changeRbc(p, -2);
-            btns[2].onclick = () => window.changeRbc(p, -1);
-            btns[3].onclick = () => window.changeRbc(p, 1);
-            btns[4].onclick = () => window.changeRbc(p, 2);
-            btns[5].onclick = () => window.changeRbc(p, 5);
-            rbcCell.appendChild(ctrl);
-
-            // Stations
-            ['s1', 's2', 's3', 's4'].forEach(station => {
-                const cell = row.insertCell();
-                const cb = document.createElement('input');
-                cb.type = 'checkbox'; cb.checked = !!p[station]; cb.className = 'checkbox-custom';
-                cb.onchange = () => window.toggleStation(p, station);
-                cell.appendChild(cb);
-            });
-
-            // Progress
-            const prog = getProgress(p);
-            const progCell = row.insertCell();
-            progCell.innerHTML = `<span class="progress-pill${prog === 100 ? ' full' : ''}">${prog}%</span>`;
-        });
+    function getFilteredPlayers() {
+        let f = [...uniquePlayers];
+        if(currentGroup !== 'all') f = f.filter(p=>p.group_name === currentGroup);
+        if(currentColorFilter) {
+            if(currentColorFilter === 'warn') f = f.filter(p=>p.rbc<5);
+            else f = f.filter(p=>p.color === currentColorFilter);
+        }
+        return f;
     }
-
-    function renderGroupChips() {
-        document.querySelectorAll('.group-chip').forEach(chip => {
-            chip.classList.toggle('active', chip.getAttribute('data-group') === currentGroup);
-        });
+    function updateTaxTargetDesc() {
+        const descSpan = document.getElementById('taxTargetDesc');
+        if(descSpan) {
+            let desc = '';
+            if(currentGroup !== 'all') desc = `组别「${currentGroup}」`;
+            if(currentColorFilter) {
+                if(currentColorFilter === 'warn') desc += (desc ? ' + ' : '') + 'R币不足5的玩家';
+                else desc += (desc ? ' + ' : '') + `${currentColorFilter}色状态`;
+            }
+            if(desc === '') desc = '所有玩家';
+            descSpan.innerText = desc;
+        }
     }
-
+    
     function renderUI() {
         renderStats();
-        renderGroupChips();
-        renderTable();
+        const groups = [...new Set(uniquePlayers.map(p=>p.group_name))];
+        document.getElementById('groupFilter').innerHTML = `<span class="group-chip ${currentGroup==='all'?'active':''}" data-group="all">全部</span>` + groups.map(g => `<span class="group-chip ${currentGroup===g?'active':''}" data-group="${g}">${g}</span>`).join('');
+        document.querySelectorAll('.group-chip').forEach(chip => chip.onclick = () => { currentGroup = chip.getAttribute('data-group'); renderUI(); updateTaxTargetDesc(); updateTaxPreview(); });
+        const filtered = getFilteredPlayers();
+        const tbody = document.getElementById('tableBody'); tbody.innerHTML='';
+        filtered.forEach(p => {
+            const row = tbody.insertRow(); if(p.rbc<5) row.classList.add('warning-row');
+            row.insertCell(0).innerText = p.id;
+            row.insertCell(1).innerText = p.name;
+            row.insertCell(2).innerText = p.group_name;
+            // 颜色
+            const colorCell = row.insertCell(3); const cDiv = document.createElement('div'); cDiv.className = 'color-selector';
+            ['green','yellow','orange','red','black'].forEach(c => { const dot = document.createElement('div'); dot.className = `color-dot dot-${c}`; if(p.color === c) dot.classList.add('active-dot'); dot.onclick = () => window.setColor(p,c); cDiv.appendChild(dot); });
+            colorCell.appendChild(cDiv);
+            // R币
+            const rbcCell = row.insertCell(4); const rbDiv = document.createElement('div'); rbDiv.className = 'rbc-control';
+            rbDiv.innerHTML = `<button class="rbc-btn">-5</button><button class="rbc-btn">-2</button><button class="rbc-btn">-1</button><span>${p.rbc}</span><button class="rbc-btn">+1</button><button class="rbc-btn">+2</button><button class="rbc-btn">+5</button>`;
+            const btns = rbDiv.children; btns[0].onclick = () => window.changeRbc(p,-5); btns[1].onclick = () => window.changeRbc(p,-2); btns[2].onclick = () => window.changeRbc(p,-1);
+            btns[4].onclick = () => window.changeRbc(p,1); btns[5].onclick = () => window.changeRbc(p,2); btns[6].onclick = () => window.changeRbc(p,5);
+            rbcCell.appendChild(rbDiv);
+            // 贷款
+            const loanCell = row.insertCell(5); const loanDiv = document.createElement('div'); loanDiv.className = 'loan-control';
+            loanDiv.innerHTML = `<button class="loan-btn">-20</button><span>${p.loan || 0}</span><button class="loan-btn">+20</button>`;
+            loanDiv.querySelectorAll('button')[0].onclick = () => window.adjustLoan(p, -20);
+            loanDiv.querySelectorAll('button')[1].onclick = () => window.adjustLoan(p, 20);
+            loanCell.appendChild(loanDiv);
+            // 股票
+            const stockCell = row.insertCell(6); const stockDiv = document.createElement('div'); stockDiv.className = 'stock-control';
+            stockDiv.innerHTML = `<button class="stock-btn">-1</button><span>${p.stock || 0}</span><button class="stock-btn">+1</button>`;
+            stockDiv.querySelectorAll('button')[0].onclick = () => window.adjustStock(p, -1);
+            stockDiv.querySelectorAll('button')[1].onclick = () => window.adjustStock(p, 1);
+            stockCell.appendChild(stockDiv);
+            // 站完成
+            const createCheck = (s,chk) => { const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=chk; cb.onchange = () => window.toggleStation(p,s); return cb; };
+            row.insertCell(7).appendChild(createCheck('s1',p.s1));
+            row.insertCell(8).appendChild(createCheck('s2',p.s2));
+            row.insertCell(9).appendChild(createCheck('s3',p.s3));
+            row.insertCell(10).appendChild(createCheck('s4',p.s4));
+            row.insertCell(11).innerHTML = `<span style="background:#f3f4f6; padding:4px 8px; border-radius:40px;">${getProgress(p)}%</span>`;
+            const detailCell = row.insertCell(12); const detailBtn = document.createElement('button'); detailBtn.innerText = '详情'; detailBtn.className = 'detail-btn'; detailBtn.onclick = () => openSidebar(p); detailCell.appendChild(detailBtn);
+        });
+        updateTaxTargetDesc();
+        updateTaxPreview();
     }
-
-    /* ══════════════════════════════════════════
-       REALTIME
-    ══════════════════════════════════════════ */
+    
+    async function openSidebar(player) {
+        currentSidebarPlayer = player;
+        const { data: logs } = await supabase.from('player_logs').select('*').eq('player_id', player.id).order('created_at', { ascending: false }).limit(50);
+        const logsHtml = (logs || []).map(log => {
+            let displayDetail = log.detail || '';
+            if (!displayDetail) {
+                if (log.action_type === 'rbc_change') displayDetail = `R币变化: ${log.old_value} → ${log.new_value}`;
+                else if (log.action_type === 'loan_change') displayDetail = `贷款变化: ${log.old_value} → ${log.new_value}`;
+                else if (log.action_type === 'stock_change') displayDetail = `股票变化: ${log.old_value} → ${log.new_value}`;
+                else displayDetail = log.action_type;
+            }
+            return `<div class="log-item">
+                        <span class="log-time">${new Date(log.created_at).toLocaleTimeString()}</span>
+                        <span class="log-detail">${displayDetail}</span>
+                        <button class="undo-btn" data-log-id="${log.id}" data-log-action="${log.action_type}" data-log-old="${log.old_value}" data-log-new="${log.new_value}">↩️ 撤销</button>
+                    </div>`;
+        }).join('');
+        document.getElementById('sidebarContent').innerHTML = `
+            <div class="info-row-side"><span class="info-label">玩家ID</span><span class="info-value">${player.id}</span></div>
+            <div class="info-row-side"><span class="info-label">姓名</span><span class="info-value">${player.name}</span></div>
+            <div class="info-row-side"><span class="info-label">组别</span><span class="info-value">${player.group_name}</span></div>
+            <div class="log-list"><div class="log-title">📜 操作记录（可撤销）</div>${logsHtml || '<div style="color:#9ca3af; text-align:center;">暂无记录</div>'}</div>
+        `;
+        document.querySelectorAll('.undo-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const logId = parseInt(btn.getAttribute('data-log-id'));
+                const logAction = btn.getAttribute('data-log-action');
+                const logOld = btn.getAttribute('data-log-old');
+                const logNew = btn.getAttribute('data-log-new');
+                if(logAction === 'rbc_change') {
+                    const oldRbc = parseInt(logOld);
+                    if(!isNaN(oldRbc)) await supabase.from('players').update({ rbc: oldRbc }).eq('id', player.id);
+                } else if(logAction === 'loan_change') {
+                    const oldLoan = parseInt(logOld);
+                    await supabase.from('players').update({ loan: oldLoan }).eq('id', player.id);
+                } else if(logAction === 'stock_change') {
+                    const oldStock = parseInt(logOld);
+                    await supabase.from('players').update({ stock: oldStock }).eq('id', player.id);
+                }
+                await supabase.from('player_logs').delete().eq('id', logId);
+                await loadPlayers();
+                if(currentSidebarPlayer?.id === player.id) openSidebar(player);
+            });
+        });
+        document.getElementById('playerSidebar').classList.add('open');
+    }
+    function closeSidebar() { document.getElementById('playerSidebar').classList.remove('open'); currentSidebarPlayer = null; }
+    document.getElementById('closeSidebarBtn').onclick = closeSidebar;
+    
+    function startAutoAdjust() { if(autoTimer) clearInterval(autoTimer); autoTimer = setInterval(randomFluctuation, 30*60*1000); }
     function setupRealtime() {
-        sb.channel('admin-players-channel')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers())
-            .subscribe();
-
-        // BUG FIX: subscribe to both INSERT and DELETE for news/economy
-        sb.channel('admin-news-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews())
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'news' }, () => loadLatestNews())
-            .subscribe();
-
-        sb.channel('admin-economy-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
-            .subscribe();
-
-        subscribeStockPrice();
+        supabase.channel('players-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers()).subscribe();
+        supabase.channel('news-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'news' }, () => loadNewsHistory()).subscribe();
+        supabase.channel('economy-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'economy_status' }, () => loadEconomyHistory()).subscribe();
+        supabase.channel('stock-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_prices' }, (payload) => {
+            if(payload.new.price && priceHistory[priceHistory.length-1] !== payload.new.price) { priceHistory.push(payload.new.price); renderChart(); }
+        }).subscribe();
     }
-
-    /* ══════════════════════════════════════════
-       EVENT BINDINGS (bound once, not on every render)
-    ══════════════════════════════════════════ */
-    function bindEvents() {
-        document.getElementById('sendNewsBtn').addEventListener('click', sendNews);
-        document.getElementById('newsInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendNews(); });
-        document.getElementById('deleteNewsBtn').addEventListener('click', deleteLatestNews);
-
-        document.getElementById('setEconomyBtn').addEventListener('click', () => {
-            publishEconomy(document.getElementById('economyInput').value.trim());
-        });
-        document.getElementById('economyInput').addEventListener('keydown', e => {
-            if (e.key === 'Enter') publishEconomy(document.getElementById('economyInput').value.trim());
-        });
-        document.getElementById('deleteEconomyBtn').addEventListener('click', deleteLatestEconomy);
-
-        document.querySelectorAll('.preset-chip').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const preset = btn.getAttribute('data-preset');
-                if (preset && presetMap[preset]) document.getElementById('economyInput').value = presetMap[preset];
-            });
-        });
-
-        document.getElementById('resetAllBtn').addEventListener('click', resetAll);
-
-        document.getElementById('addRandomPriceBtn').addEventListener('click', randomFluctuation);
-        document.getElementById('syncEconomyBtn').addEventListener('click', async () => {
-            const econ = document.getElementById('latestEconomyContent').innerText;
-            if (!econ || econ === '暂无') { showToast('暂无经济动态', 'error'); return; }
-            await adjustPriceByEconomy(econ);
-            showToast('📉 已根据经济动态调整股价', 'info');
-        });
-        document.getElementById('manualSetPriceBtn').addEventListener('click', async () => {
-            const val = parseFloat(document.getElementById('manualPriceInput').value);
-            if (isNaN(val) || val <= 0) { showToast('请输入有效正数', 'error'); return; }
-            await addPricePoint(val);
-            document.getElementById('manualPriceInput').value = '';
-            showToast(`✏️ 股价已设为 ${Math.round(val * 100) / 100} R币`, 'success');
-        });
-
-        // BUG FIX: group chips bound once here, not in renderUI
-        document.querySelectorAll('.group-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                currentGroup = chip.getAttribute('data-group');
-                renderUI();
-            });
-        });
-
-        document.getElementById('clearFilterBtn').addEventListener('click', () => {
-            currentColorFilter = null;
-            renderUI();
-        });
-
-        // Collapsible stock
-        const header = document.getElementById('stockHeader');
-        const body = document.getElementById('stockBody');
-        const chevron = document.getElementById('stockChevron');
-        let expanded = false;
-        header.addEventListener('click', () => {
-            expanded = !expanded;
-            body.classList.toggle('expanded', expanded);
-            chevron.classList.toggle('open', expanded);
-        });
+    
+    // 手动刷新
+    async function manualRefresh() {
+        showToast('正在刷新数据...');
+        await loadPlayers();
+        await loadNewsHistory();
+        await loadEconomyHistory();
+        showToast('数据已刷新');
     }
-
-    /* ── Init ── */
-    bindEvents();
-    loadPlayers();
-    loadLatestNews();
-    loadLatestEconomy();
-    initPriceHistoryFromDB();
-    setupRealtime();
-    startAutoAdjust();
+    
+    // 事件绑定
+    document.getElementById('sendNewsBtn').onclick = sendNews;
+    document.getElementById('setEconomyBtn').onclick = () => { const c = document.getElementById('economyInput').value.trim(); if(c) publishEconomy(c); else showToast('输入内容',true); };
+    document.getElementById('clearFilterBtn').onclick = () => { currentColorFilter = null; renderUI(); updateTaxTargetDesc(); updateTaxPreview(); };
+    document.getElementById('resetAllBtn').onclick = resetAll;
+    document.getElementById('addRandomPriceBtn').onclick = randomFluctuation;
+    document.getElementById('syncEconomyBtn').onclick = async () => { const econ = economyHistory[0]?.content; if(econ) await adjustByEconomy(econ); else showToast('暂无经济动态',true); };
+    document.getElementById('manualSetPriceBtn').onclick = async () => { const v = parseInt(document.getElementById('manualPriceInput').value); if(isNaN(v)) showToast('输入数字',true); else await addPrice(v); };
+    document.getElementById('deductProgressiveTaxBtn').onclick = deductProgressiveTax;
+    document.getElementById('deductFlat3RbcBtn').onclick = deductFlat3Rbc;
+    document.getElementById('addBracketBtn').onclick = () => {
+        taxBrackets.splice(taxBrackets.length-1, 0, { threshold: 2.0, rate: 0.18 });
+        saveTaxConfig();
+        updateTaxPreview();
+    };
+    document.getElementById('manualRefreshBtn').onclick = manualRefresh;
+    document.querySelectorAll('.quick-btn').forEach(btn => btn.onclick = () => { document.getElementById('economyInput').value = presetMap[btn.getAttribute('data-preset')]; });
+    
+    // 折叠区域
+    document.querySelectorAll('.toggle-history-btn').forEach(btn => {
+        const target = btn.getAttribute('data-target');
+        const historyDiv = document.getElementById(`${target}History`);
+        let isOpen = false;
+        btn.addEventListener('click', () => { isOpen = !isOpen; historyDiv.classList.toggle('open', isOpen); btn.innerHTML = isOpen ? '▲ 收起历史' : '▼ 展开历史'; });
+    });
+    const stockHeader = document.getElementById('stockHeader'), stockContent = document.getElementById('stockContent'); let stockOpen = false;
+    stockHeader.addEventListener('click', () => { stockOpen = !stockOpen; stockContent.classList.toggle('show', stockOpen); stockHeader.querySelector('span').innerHTML = stockOpen ? '▲' : '▼'; });
+    const taxHeader = document.getElementById('taxHeader'), taxContent = document.getElementById('taxContent'); let taxOpen = false;
+    taxHeader.addEventListener('click', () => { taxOpen = !taxOpen; taxContent.classList.toggle('show', taxOpen); taxHeader.querySelector('span').innerHTML = taxOpen ? '▲' : '▼'; });
+    
+    loadTaxConfig();
+    renderTaxConfigUI();
+    initPrice(); loadPlayers(); loadNewsHistory(); loadEconomyHistory(); startAutoAdjust(); setupRealtime();
 })();
 </script>
 </body>
