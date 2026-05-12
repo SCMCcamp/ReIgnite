@@ -421,7 +421,8 @@
 
         @keyframes bar-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        /* ── Stats grid: 4 columns when shares is visible ── */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         @media (min-width: 400px) { .stats-grid { gap: 10px; } }
 
         .stat-box {
@@ -439,6 +440,12 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 4px 16px rgba(0,0,0,0.06);
         }
 
+        /* Shares stat box — gold accent */
+        .stat-box.shares-box {
+            background: linear-gradient(135deg, rgba(245,166,35,0.12) 0%, rgba(245,166,35,0.04) 100%);
+            border-color: rgba(245,166,35,0.2);
+        }
+
         .stat-label {
             font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px;
             color: var(--text-3); margin-bottom: 9px; font-weight: 600;
@@ -448,12 +455,13 @@
 
         .stat-value {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 2.4rem; font-weight: 700; line-height: 1; color: var(--text-1);
+            font-size: 2rem; font-weight: 700; line-height: 1; color: var(--text-1);
         }
-        @media (min-width: 380px) { .stat-value { font-size: 2.6rem; } }
-        @media (min-width: 520px) { .stat-value { font-size: 2.8rem; } }
+        @media (min-width: 380px) { .stat-value { font-size: 2.2rem; } }
+        @media (min-width: 520px) { .stat-value { font-size: 2.4rem; } }
 
         .stat-value.rbc-value { color: var(--gold); }
+        .stat-value.shares-value { color: var(--gold); }
 
         .stat-value.rbc-danger {
             color: #ff4444 !important;
@@ -476,21 +484,21 @@
 
         .color-orb-wrap { display: flex; justify-content: center; margin-bottom: 4px; }
         .color-orb {
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 32px; height: 32px; border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.15);
         }
-        @media (min-width: 400px) { .color-orb { width: 40px; height: 40px; } }
-        @media (min-width: 520px) { .color-orb { width: 44px; height: 44px; } }
+        @media (min-width: 400px) { .color-orb { width: 36px; height: 36px; } }
+        @media (min-width: 520px) { .color-orb { width: 40px; height: 40px; } }
 
         .skull-orb {
-            width: 36px; height: 36px;
+            width: 32px; height: 32px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.55rem; line-height: 1;
+            font-size: 1.4rem; line-height: 1;
             animation: skull-pulse 3s ease-in-out infinite;
             filter: drop-shadow(0 0 8px rgba(80,90,100,0.6));
         }
-        @media (min-width: 400px) { .skull-orb { width: 40px; height: 40px; font-size: 1.7rem; } }
-        @media (min-width: 520px) { .skull-orb { width: 44px; height: 44px; font-size: 1.85rem; } }
+        @media (min-width: 400px) { .skull-orb { width: 36px; height: 36px; font-size: 1.55rem; } }
+        @media (min-width: 520px) { .skull-orb { width: 40px; height: 40px; font-size: 1.7rem; } }
         @keyframes skull-pulse {
             0%, 100% { opacity: 0.7; transform: scale(1);    filter: drop-shadow(0 0 6px rgba(80,90,100,0.5)); }
             50%       { opacity: 1;   transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(80,90,100,0.8)); }
@@ -619,7 +627,6 @@
             background: linear-gradient(90deg, transparent, rgba(84,110,122,0.5), transparent);
             animation: flatline-fade 4s ease-in-out infinite;
         }
-        /* Game Over text banner */
         .game-over-banner {
             display: flex;
             align-items: center;
@@ -665,234 +672,165 @@
            GAME OVER FULLSCREEN POPUP
         ════════════════════════════════════════ */
         #gameOverOverlay {
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.6s ease;
+            position: fixed; inset: 0; z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; opacity: 0; transition: opacity 0.6s ease;
         }
-        #gameOverOverlay.visible {
-            pointer-events: all;
-            opacity: 1;
-        }
-
-        /* Dark blurred background */
+        #gameOverOverlay.visible { pointer-events: all; opacity: 1; }
         .go-backdrop {
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background: rgba(0, 0, 0, 0.88);
             backdrop-filter: blur(6px) saturate(0.3);
             -webkit-backdrop-filter: blur(6px) saturate(0.3);
         }
-
-        /* Scanlines on overlay */
         .go-backdrop::after {
-            content: '';
-            position: absolute;
-            inset: 0;
+            content: ''; position: absolute; inset: 0;
             background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 6px);
             pointer-events: none;
         }
-
-        /* Noise texture */
         .go-backdrop::before {
-            content: '';
-            position: absolute;
-            inset: 0;
+            content: ''; position: absolute; inset: 0;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            opacity: 0.5;
+            pointer-events: none; opacity: 0.5;
         }
-
-        /* Red corner bleeds */
-        .go-bleed-tl, .go-bleed-br {
-            position: absolute;
-            width: 55vw; height: 55vh;
-            pointer-events: none;
-        }
-        .go-bleed-tl {
-            top: -10%; left: -10%;
-            background: radial-gradient(ellipse at 0% 0%, rgba(180,20,10,0.4) 0%, transparent 60%);
-            animation: bleed-pulse 3s ease-in-out infinite;
-        }
-        .go-bleed-br {
-            bottom: -10%; right: -10%;
-            background: radial-gradient(ellipse at 100% 100%, rgba(140,15,5,0.35) 0%, transparent 60%);
-            animation: bleed-pulse 3s ease-in-out infinite 1.5s;
-        }
-        @keyframes bleed-pulse {
-            0%, 100% { opacity: 0.7; } 50% { opacity: 1; }
-        }
-
-        /* Center content */
+        .go-bleed-tl, .go-bleed-br { position: absolute; width: 55vw; height: 55vh; pointer-events: none; }
+        .go-bleed-tl { top: -10%; left: -10%; background: radial-gradient(ellipse at 0% 0%, rgba(180,20,10,0.4) 0%, transparent 60%); animation: bleed-pulse 3s ease-in-out infinite; }
+        .go-bleed-br { bottom: -10%; right: -10%; background: radial-gradient(ellipse at 100% 100%, rgba(140,15,5,0.35) 0%, transparent 60%); animation: bleed-pulse 3s ease-in-out infinite 1.5s; }
+        @keyframes bleed-pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
         .go-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0;
-            padding: 0 24px;
-            max-width: 600px;
-            width: 100%;
+            position: relative; z-index: 1; text-align: center;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 0; padding: 0 24px; max-width: 600px; width: 100%;
             animation: go-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        @keyframes go-enter {
-            0% { transform: scale(0.88) translateY(20px); opacity: 0; }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
-        }
-
-        /* Decorative line above */
-        .go-line-top {
-            width: 1px; height: 80px;
-            background: linear-gradient(to bottom, transparent, rgba(120,40,30,0.8));
-            margin-bottom: 24px;
-            animation: go-line-in 1.2s ease both 0.3s;
-        }
-        @keyframes go-line-in {
-            0% { height: 0; opacity: 0; }
-            100% { height: 80px; opacity: 1; }
-        }
-
-        /* Skull row */
-        .go-skulls {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .go-skull-large {
-            font-size: 3.5rem;
-            filter: drop-shadow(0 0 20px rgba(120,40,30,0.6)) grayscale(0.6);
-            animation: go-skull-breathe 3s ease-in-out infinite;
-        }
+        @keyframes go-enter { 0% { transform: scale(0.88) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        .go-line-top { width: 1px; height: 80px; background: linear-gradient(to bottom, transparent, rgba(120,40,30,0.8)); margin-bottom: 24px; animation: go-line-in 1.2s ease both 0.3s; }
+        @keyframes go-line-in { 0% { height: 0; opacity: 0; } 100% { height: 80px; opacity: 1; } }
+        .go-skulls { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .go-skull-large { font-size: 3.5rem; filter: drop-shadow(0 0 20px rgba(120,40,30,0.6)) grayscale(0.6); animation: go-skull-breathe 3s ease-in-out infinite; }
         @keyframes go-skull-breathe {
             0%, 100% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 14px rgba(100,30,20,0.5)) grayscale(0.6); }
             50% { transform: scale(1.08) rotate(2deg); filter: drop-shadow(0 0 28px rgba(160,40,30,0.8)) grayscale(0.3); }
         }
-        .go-skull-side {
-            font-size: 1.8rem;
-            filter: grayscale(0.8) opacity(0.6);
-            animation: go-skull-side-drift 4s ease-in-out infinite;
-        }
+        .go-skull-side { font-size: 1.8rem; filter: grayscale(0.8) opacity(0.6); animation: go-skull-side-drift 4s ease-in-out infinite; }
         .go-skull-side:nth-child(1) { animation-delay: 0s; }
         .go-skull-side:nth-child(3) { animation-delay: 1s; transform: scaleX(-1); }
         @keyframes go-skull-side-drift {
             0%, 100% { transform: translateY(0) scale(0.95); opacity: 0.4; }
             50% { transform: translateY(-6px) scale(1); opacity: 0.7; }
         }
-
-        /* GAME OVER large text */
         .go-title {
             font-family: 'Rajdhani', sans-serif;
-            font-size: clamp(3.5rem, 12vw, 7rem);
-            font-weight: 700;
-            letter-spacing: 8px;
-            line-height: 0.9;
-            color: #7a8a92;
-            text-transform: uppercase;
-            position: relative;
-            text-shadow:
-                0 0 40px rgba(80,90,100,0.4),
-                0 2px 0 rgba(0,0,0,0.8);
+            font-size: clamp(3.5rem, 12vw, 7rem); font-weight: 700;
+            letter-spacing: 8px; line-height: 0.9; color: #7a8a92;
+            text-transform: uppercase; position: relative;
+            text-shadow: 0 0 40px rgba(80,90,100,0.4), 0 2px 0 rgba(0,0,0,0.8);
             animation: go-title-flicker 5s ease-in-out infinite;
         }
-        .go-title::before {
-            content: 'GAME OVER';
-            position: absolute;
-            inset: 0;
-            color: rgba(180,40,30,0.18);
-            transform: translate(3px, 2px);
-            filter: blur(1px);
-        }
+        .go-title::before { content: 'GAME OVER'; position: absolute; inset: 0; color: rgba(180,40,30,0.18); transform: translate(3px, 2px); filter: blur(1px); }
         @keyframes go-title-flicker {
-            0%, 90%, 100% { opacity: 1; }
-            92% { opacity: 0.6; }
-            94% { opacity: 1; }
-            96% { opacity: 0.4; }
-            98% { opacity: 0.95; }
+            0%, 90%, 100% { opacity: 1; } 92% { opacity: 0.6; } 94% { opacity: 1; } 96% { opacity: 0.4; } 98% { opacity: 0.95; }
         }
-
-        /* Divider line */
-        .go-divider {
-            width: 100%;
-            max-width: 320px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(84,110,122,0.6), transparent);
-            margin: 20px auto;
-        }
-
-        /* Chinese subtitle */
-        .go-subtitle {
-            font-family: 'Noto Sans SC', sans-serif;
-            font-size: clamp(1.1rem, 4vw, 1.6rem);
-            font-weight: 700;
-            letter-spacing: 6px;
-            color: #5a6e78;
-            text-shadow: 0 0 20px rgba(84,110,122,0.3);
-            animation: go-sub-fade 4s ease-in-out infinite;
-        }
-        @keyframes go-sub-fade {
-            0%, 100% { opacity: 0.7; } 50% { opacity: 1; }
-        }
-
-        /* ID tag */
-        .go-player-tag {
-            margin-top: 28px;
-            padding: 10px 24px;
-            border: 1px solid rgba(84,110,122,0.35);
-            border-radius: 6px;
-            background: rgba(0,0,0,0.4);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1rem;
-            letter-spacing: 3px;
-            color: #4a5a62;
-            text-transform: uppercase;
-        }
-
-        /* Decorative line below */
-        .go-line-bottom {
-            width: 1px; height: 60px;
-            background: linear-gradient(to bottom, rgba(120,40,30,0.5), transparent);
-            margin-top: 32px;
-            animation: go-line-in 1.2s ease both 0.5s;
-        }
-
-        /* Dismiss button */
-        .go-dismiss {
-            margin-top: 20px;
-            background: transparent;
-            border: 1px solid rgba(84,110,122,0.35);
-            color: #4a5e68;
-            border-radius: 8px;
-            padding: 10px 28px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .go-dismiss:hover {
-            border-color: rgba(84,110,122,0.6);
-            color: #7a9aaa;
-            background: rgba(84,110,122,0.08);
-        }
-
-        /* Horizontal bleed lines (cinematic bars) */
-        .go-bar-top, .go-bar-bottom {
-            position: absolute;
-            left: 0; right: 0;
-            background: rgba(0,0,0,0.6);
-            pointer-events: none;
-        }
+        .go-divider { width: 100%; max-width: 320px; height: 1px; background: linear-gradient(90deg, transparent, rgba(84,110,122,0.6), transparent); margin: 20px auto; }
+        .go-subtitle { font-family: 'Noto Sans SC', sans-serif; font-size: clamp(1.1rem, 4vw, 1.6rem); font-weight: 700; letter-spacing: 6px; color: #5a6e78; text-shadow: 0 0 20px rgba(84,110,122,0.3); animation: go-sub-fade 4s ease-in-out infinite; }
+        @keyframes go-sub-fade { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+        .go-player-tag { margin-top: 28px; padding: 10px 24px; border: 1px solid rgba(84,110,122,0.35); border-radius: 6px; background: rgba(0,0,0,0.4); font-family: 'Rajdhani', sans-serif; font-size: 1rem; letter-spacing: 3px; color: #4a5a62; text-transform: uppercase; }
+        .go-line-bottom { width: 1px; height: 60px; background: linear-gradient(to bottom, rgba(120,40,30,0.5), transparent); margin-top: 32px; animation: go-line-in 1.2s ease both 0.5s; }
+        .go-dismiss { margin-top: 20px; background: transparent; border: 1px solid rgba(84,110,122,0.35); color: #4a5e68; border-radius: 8px; padding: 10px 28px; font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        .go-dismiss:hover { border-color: rgba(84,110,122,0.6); color: #7a9aaa; background: rgba(84,110,122,0.08); }
+        .go-bar-top, .go-bar-bottom { position: absolute; left: 0; right: 0; background: rgba(0,0,0,0.6); pointer-events: none; }
         .go-bar-top { top: 0; height: 60px; }
         .go-bar-bottom { bottom: 0; height: 60px; }
+
+        /* ════════════════════════════════════════
+           TAX NOTIFICATION TOAST
+        ════════════════════════════════════════ */
+        #taxToast {
+            position: fixed;
+            top: max(20px, env(safe-area-inset-top));
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            z-index: 99998;
+            min-width: 280px;
+            max-width: min(420px, calc(100vw - 32px));
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+            opacity: 0;
+        }
+        #taxToast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+        .tax-toast-inner {
+            background: linear-gradient(135deg, rgba(20,15,5,0.97) 0%, rgba(30,20,8,0.97) 100%);
+            border: 1.5px solid rgba(220,130,0,0.6);
+            border-radius: 18px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            box-shadow:
+                0 0 0 1px rgba(220,130,0,0.1),
+                0 0 40px rgba(200,100,0,0.25),
+                0 16px 40px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255,200,100,0.12);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            position: relative;
+            overflow: hidden;
+        }
+        .tax-toast-inner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(105deg, transparent 30%, rgba(220,130,0,0.06) 50%, transparent 70%);
+            animation: tax-sweep 3s linear infinite;
+        }
+        @keyframes tax-sweep { 0% { left: -100%; } 100% { left: 200%; } }
+        .tax-toast-icon {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+            animation: tax-icon-shake 0.4s ease-in-out 3;
+            filter: drop-shadow(0 0 8px rgba(220,130,0,0.5));
+        }
+        @keyframes tax-icon-shake {
+            0%, 100% { transform: rotate(-10deg) scale(1.1); }
+            50% { transform: rotate(10deg) scale(1.2); }
+        }
+        .tax-toast-body { flex: 1; min-width: 0; position: relative; z-index: 1; }
+        .tax-toast-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: rgba(220,140,40,0.9);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .tax-toast-msg {
+            font-size: 0.82rem;
+            color: #c8a870;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        .tax-toast-deduct {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff6a00;
+            text-shadow: 0 0 12px rgba(255,100,0,0.5);
+            margin-top: 4px;
+        }
+        .tax-toast-bar {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(220,130,0,0.8), rgba(255,180,50,0.6));
+            border-radius: 0 0 18px 18px;
+            animation: tax-bar-drain 4s linear forwards;
+        }
+        @keyframes tax-bar-drain { from { width: 100%; } to { width: 0%; } }
 
         /* ── Stock Card ── */
         .stock-card {
@@ -948,7 +886,6 @@
         }
         canvas { width: 100% !important; max-height: 110px; position: relative; z-index: 1; }
         @media (min-width: 520px) { canvas { max-height: 150px; } }
-        .stock-note { font-size: 0.6rem; color: var(--text-3); text-align: center; margin-top: 10px; letter-spacing: 0.3px; position: relative; z-index: 1; }
 
         /* ── Selector Card ── */
         .selector-card { border-radius: 20px; padding: 22px 18px; margin-bottom: 24px; }
@@ -1013,6 +950,19 @@
         <div class="go-player-tag" id="goPlayerTag">— — —</div>
         <div class="go-line-bottom"></div>
         <button class="go-dismiss" id="goDismissBtn">收到 · DISMISS</button>
+    </div>
+</div>
+
+<!-- ════ TAX NOTIFICATION TOAST ════ -->
+<div id="taxToast">
+    <div class="tax-toast-inner">
+        <div class="tax-toast-icon">🏛️</div>
+        <div class="tax-toast-body">
+            <div class="tax-toast-title">税收通知</div>
+            <div class="tax-toast-msg" id="taxToastMsg">中控已对所有玩家征税</div>
+            <div class="tax-toast-deduct" id="taxToastDeduct">−3 R币</div>
+        </div>
+        <div class="tax-toast-bar" id="taxToastBar"></div>
     </div>
 </div>
 
@@ -1101,7 +1051,6 @@
         </div>
         <div class="stock-divider"></div>
         <canvas id="priceChart" height="130"></canvas>
-        <div class="stock-note">中控发布经济动态或随机波动时自动更新</div>
     </div>
 
     <div class="footer">
@@ -1146,7 +1095,6 @@
         if (tag) tag.textContent = `${groupName} · ${playerName}`;
         overlay.classList.add('visible');
         gameOverShown = true;
-        // Scroll to top so overlay is fully visible
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1156,12 +1104,46 @@
     }
 
     document.getElementById('goDismissBtn').addEventListener('click', hideGameOverOverlay);
-
-    // Also allow tapping the backdrop to dismiss
     document.getElementById('gameOverOverlay').addEventListener('click', function(e) {
         if (e.target === this || e.target.classList.contains('go-backdrop')) {
             hideGameOverOverlay();
         }
+    });
+
+    /* ════════════════════════════════════════
+       TAX NOTIFICATION TOAST
+    ════════════════════════════════════════ */
+    let taxToastTimer = null;
+
+    function showTaxToast(amount, targetDesc) {
+        const toast = document.getElementById('taxToast');
+        const msg = document.getElementById('taxToastMsg');
+        const deduct = document.getElementById('taxToastDeduct');
+        const bar = document.getElementById('taxToastBar');
+
+        // Update content
+        msg.textContent = targetDesc || '中控已对玩家征税';
+        deduct.textContent = `−${amount} R币`;
+
+        // Reset bar animation by re-inserting it
+        bar.style.animation = 'none';
+        void bar.offsetWidth; // reflow
+        bar.style.animation = 'tax-bar-drain 4s linear forwards';
+
+        // Show
+        toast.classList.add('show');
+
+        // Auto-hide after 4s
+        clearTimeout(taxToastTimer);
+        taxToastTimer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4200);
+    }
+
+    // Dismiss on tap
+    document.getElementById('taxToast').addEventListener('click', () => {
+        clearTimeout(taxToastTimer);
+        document.getElementById('taxToast').classList.remove('show');
     });
 
     /* ════════════════════════════════════════
@@ -1301,7 +1283,6 @@
         updateStatus(true);
         if (currentPlayer) {
             const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
-            // Trigger popup if color just changed TO black
             if (p && p.color === 'black' && prevPlayerColor !== 'black') {
                 showGameOverOverlay(p.name, p.group_name);
             }
@@ -1356,6 +1337,27 @@
         }
     }
 
+    /* ── Subscribe to tax events ── */
+    let lastSeenTaxId = null;
+    function subscribeTaxEvents() {
+        sb.channel('tax-events-channel')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tax_events' }, payload => {
+                const ev = payload.new;
+                if (!ev || ev.id === lastSeenTaxId) return;
+                lastSeenTaxId = ev.id;
+
+                // Only show if this player is affected
+                if (currentPlayer) {
+                    const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
+                    const isTargeted = !ev.target_group || (p && ev.target_group === p.group_name);
+                    if (!isTargeted) return;
+                }
+                const amount = ev.amount ?? 3;
+                const desc = ev.description || '中控已对玩家征税';
+                showTaxToast(amount, desc);
+            }).subscribe();
+    }
+
     function getProgress(p) {
         return Math.round(((p.s1 ? 1 : 0) + (p.s2 ? 1 : 0) + (p.s3 ? 1 : 0) + (p.s4 ? 1 : 0)) / 4 * 100);
     }
@@ -1372,6 +1374,7 @@
         const isWarning = p.rbc < 5;
         const col = colorMap[p.color] || 'green';
         const isDead = col === 'black';
+        const shares = p.shares ?? 0;
 
         applyHpEffect(col);
 
@@ -1435,9 +1438,14 @@
                         <div class="stat-label">R 币</div>
                         <div class="${rbcClass}">${p.rbc}</div>
                     </div>
+                    <div class="stat-box shares-box">
+                        <div class="stat-label">持股数</div>
+                        <div class="stat-value shares-value">${shares}</div>
+                        <div style="font-size:0.6rem;color:var(--text-3);margin-top:3px;letter-spacing:0.4px;">RE:Set 股</div>
+                    </div>
                     <div class="stat-box">
                         <div class="stat-label">章节进度</div>
-                        <div class="stat-value">${prog}<span style="font-size:1.1rem;color:var(--text-3)">%</span></div>
+                        <div class="stat-value">${prog}<span style="font-size:1rem;color:var(--text-3)">%</span></div>
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill" style="width:${prog}%"></div>
                         </div>
@@ -1487,10 +1495,8 @@
             const [name, group_name] = val.split('|');
             currentPlayer = { name, group_name };
             localStorage.setItem('current_player', JSON.stringify(currentPlayer));
-            // Set initial color to avoid spurious popup on load
             const p = allPlayers.find(x => x.name === name && x.group_name === group_name);
             prevPlayerColor = p ? p.color : null;
-            // Show popup immediately if already dead when selecting
             if (p && p.color === 'black') {
                 renderPlayerView();
                 showGameOverOverlay(p.name, p.group_name);
@@ -1514,6 +1520,7 @@
             .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy())
             .subscribe();
         subscribeStockPrice();
+        subscribeTaxEvents();
     }
 
     /* ── Init ── */
@@ -1539,7 +1546,6 @@
                 const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
                 prevPlayerColor = p ? p.color : null;
                 renderPlayerView();
-                // Show popup on page load if already dead
                 if (p && p.color === 'black') {
                     setTimeout(() => showGameOverOverlay(p.name, p.group_name), 600);
                 }
