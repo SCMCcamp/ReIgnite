@@ -9,169 +9,98 @@
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: #f4f5f7;
-            padding: 16px;
+            padding: 20px;
         }
         .container { max-width: 1400px; margin: 0 auto; }
-        
-        /* 头部 - 手机优化 */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 20px;
-            padding: 12px 16px;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px 20px;
             background: rgba(255,255,255,0.85);
             backdrop-filter: blur(16px) saturate(1.5);
             border-radius: 28px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border: 1px solid rgba(255,255,255,0.7);
         }
-        .title-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        h1 { font-size: 1.3rem; color: #111827; }
+        h1 { font-size: 1.5rem; color: #111827; }
         h1 span { color: #e8501a; }
         
-        /* 状态指示灯 */
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0,0,0,0.05);
-            padding: 4px 10px;
-            border-radius: 40px;
-        }
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            transition: all 0.2s;
-        }
-        .status-connecting { background: #f97316; box-shadow: 0 0 4px #f97316; animation: pulse 1.2s infinite; }
-        .status-connected { background: #22c55e; box-shadow: 0 0 4px #22c55e; }
-        .status-disconnected { background: #ef4444; box-shadow: 0 0 4px #ef4444; }
-        .status-text { font-size: 0.65rem; color: #6b7280; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-        
-        /* 倒计时模块 */
         .timer-section {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             background: rgba(255,255,255,0.7);
             backdrop-filter: blur(8px);
             border-radius: 60px;
-            padding: 5px 12px 5px 16px;
+            padding: 6px 16px 6px 20px;
             border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
-        .timer-label { color: #6b7280; font-size: 0.65rem; font-weight: 500; }
-        .timer-display {
-            font-family: monospace;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #e8501a;
-            background: white;
-            padding: 2px 10px;
-            border-radius: 40px;
-        }
-        .timer-reset-btn {
-            background: #f3f4f6;
-            border: none;
-            border-radius: 40px;
-            padding: 4px 10px;
-            font-size: 0.65rem;
-            cursor: pointer;
-        }
-        .timer-warning {
-            color: #f97316;
-            font-size: 0.65rem;
-            font-weight: 600;
-            animation: pulse 1s infinite;
-        }
+        .timer-label { color: #6b7280; font-size: 0.7rem; letter-spacing: 1px; font-weight: 500; }
+        .timer-display { font-family: monospace; font-size: 1.6rem; font-weight: 700; color: #e8501a; background: white; padding: 4px 12px; border-radius: 40px; }
+        .timer-reset-btn { background: #f3f4f6; border: none; border-radius: 40px; padding: 6px 14px; font-size: 0.7rem; cursor: pointer; }
+        .timer-warning { color: #f97316; font-size: 0.7rem; font-weight: 600; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
         
-        /* 筛选栏 - 手机优化（横向滚动） */
+        .status-pill { display: flex; align-items: center; gap: 8px; padding: 4px 14px; border-radius: 40px; font-size: 0.7rem; background: #e8f5e9; color: #2e7d32; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
+        
         .filter-bar {
             background: white;
             border-radius: 60px;
-            padding: 8px 16px;
-            margin-bottom: 16px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
             display: flex;
-            gap: 8px;
+            gap: 12px;
             flex-wrap: wrap;
             align-items: center;
             border: 1px solid #e5e7eb;
         }
-        .group-chip-container {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .group-chip {
-            padding: 4px 12px;
-            border-radius: 40px;
-            background: #f3f4f6;
-            cursor: pointer;
-            font-size: 0.75rem;
-            white-space: nowrap;
-        }
+        .group-chip { padding: 5px 16px; border-radius: 40px; background: #f3f4f6; cursor: pointer; font-size: 0.8rem; }
         .group-chip.active { background: #e8501a; color: white; }
         
-        /* 表格 - 手机优化（横向滚动） */
         .table-wrapper {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow-x: auto;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #edf2f7; font-size: 0.75rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #edf2f7; font-size: 0.85rem; }
         th { background: #f9fafb; color: #4b5563; font-weight: 600; }
         .warning-row { background: #ffebee; }
         
-        .rbc-control { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
-        .rbc-btn {
-            background: #f3f4f6;
-            border: none;
-            width: 38px;
-            height: 34px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
+        .rbc-control, .stock-control { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .rbc-btn, .stock-btn { background: #f3f4f6; border: none; width: 44px; height: 40px; border-radius: 40px; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
         .rbc-btn.plus { background: #e0f2fe; color: #0284c7; }
         .rbc-btn.minus { background: #fee2e2; color: #dc2626; }
+        .stock-btn { background: #d1fae5; color: #065f46; }
         
         .player-name { font-weight: 600; }
         .group-badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 2px 10px;
             border-radius: 20px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             background: #e5e7eb;
         }
         
         .toast-msg {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 30px;
+            right: 30px;
             background: #1f2937;
             color: white;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 40px;
             opacity: 0;
             transition: 0.2s;
             z-index: 1000;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
         }
         .timer-notify {
             position: fixed;
@@ -189,43 +118,34 @@
             transition: 0.3s;
             white-space: nowrap;
         }
-        
-        @media (max-width: 640px) {
-            body { padding: 12px; }
-            .header { padding: 10px 12px; }
-            h1 { font-size: 1.1rem; }
-            .timer-display { font-size: 1rem; padding: 2px 8px; }
-            .timer-label { font-size: 0.55rem; }
-            .rbc-btn { width: 34px; height: 30px; font-size: 0.7rem; }
-            th, td { padding: 8px 4px; font-size: 0.7rem; }
-        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <div class="title-section">
+        <div>
             <h1>🛒 RE:Ignite <span>| 超市区</span></h1>
-            <div class="status-indicator">
-                <span class="status-dot" id="statusDot"></span>
-                <span class="status-text" id="statusText">连接中</span>
-            </div>
+            <div style="font-size: 0.7rem; color: #6b7280; margin-top: 4px;">R币增减 · 股票买卖 · 自动记录日志</div>
         </div>
         <div class="timer-section">
             <span class="timer-label">⏰ 工作倒计时</span>
             <span class="timer-display" id="timerDisplay">15:00</span>
             <button class="timer-reset-btn" id="resetTimerBtn">⟳</button>
-            <span id="timerWarning" class="timer-warning" style="display: none;">⚠️</span>
+            <span id="timerWarning" class="timer-warning" style="display: none;">⚠️ 最后5分钟</span>
         </div>
+        <div class="status-pill"><span class="status-dot"></span>实时在线</div>
     </div>
 
     <div class="filter-bar">
-        <div class="group-chip-container" id="groupFilter"></div>
+        <div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
     </div>
 
     <div class="table-wrapper">
         <table id="playerTable">
-            <thead><tr><th>#</th><th>玩家</th><th>组别</th><th>R币</th><th colspan="6">调整R币</th></tr></thead>
+            <thead>
+                <tr><th>#</th><th>玩家</th><th>组别</th><th>R币</th><th>股票</th><th colspan="6">调整R币</th>
+                </tr>
+            </thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
@@ -242,121 +162,69 @@
     let allPlayers = [];
     let currentGroup = "all";
     
-    // 状态管理
-    const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
-    
-    function setConnectionState(state) {
-        statusDot.className = 'status-dot';
-        if (state === 'connected') {
-            statusDot.classList.add('status-connected');
-            statusText.innerText = '已连接';
-        } else if (state === 'connecting') {
-            statusDot.classList.add('status-connecting');
-            statusText.innerText = '连接中';
-        } else {
-            statusDot.classList.add('status-disconnected');
-            statusText.innerText = '失联';
-        }
-    }
-    
-    // 倒计时逻辑
+    // 倒计时
     let timerInterval = null;
     let remainingSeconds = 15 * 60;
-    
-    function formatTime(seconds) {
-        let mins = Math.floor(seconds / 60);
-        let secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    
-    function showTimerNotify(message) {
-        const notify = document.getElementById('timerNotify');
-        notify.innerText = message;
-        notify.style.opacity = '1';
-        setTimeout(() => { notify.style.opacity = '0'; }, 3000);
-    }
-    
+    function formatTime(seconds) { let mins = Math.floor(seconds/60); let secs = seconds%60; return `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; }
+    function showTimerNotify(msg) { const n=document.getElementById('timerNotify'); n.innerText=msg; n.style.opacity='1'; setTimeout(()=>n.style.opacity='0',3000); }
     function updateTimerDisplay() {
-        const display = document.getElementById('timerDisplay');
-        const warning = document.getElementById('timerWarning');
-        if (display) display.innerText = formatTime(remainingSeconds);
-        if (remainingSeconds <= 5 * 60 && remainingSeconds > 0) {
-            warning.style.display = 'inline-block';
-        } else {
-            warning.style.display = 'none';
-        }
-        if (remainingSeconds <= 0) {
-            if (timerInterval) clearInterval(timerInterval);
-            display.innerText = '00:00';
-            showTimerNotify('⏰ 15分钟工作节结束！');
-        }
+        const disp=document.getElementById('timerDisplay'); const warn=document.getElementById('timerWarning');
+        if(disp) disp.innerText=formatTime(remainingSeconds);
+        if(remainingSeconds<=5*60 && remainingSeconds>0) warn.style.display='inline-block';
+        else warn.style.display='none';
+        if(remainingSeconds<=0) { if(timerInterval) clearInterval(timerInterval); disp.innerText='00:00'; showTimerNotify('⏰ 15分钟工作节结束！'); }
     }
+    function startTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=setInterval(()=>{ if(remainingSeconds>0){ remainingSeconds--; updateTimerDisplay(); } else clearInterval(timerInterval); },1000); }
+    function resetTimer() { remainingSeconds=15*60; updateTimerDisplay(); startTimer(); showTimerNotify('⟳ 倒计时已重置为 15:00'); }
     
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            if (remainingSeconds > 0) {
-                remainingSeconds--;
-                updateTimerDisplay();
-            } else {
-                clearInterval(timerInterval);
-            }
-        }, 1000);
-    }
-    
-    function resetTimer() {
-        remainingSeconds = 15 * 60;
-        updateTimerDisplay();
-        startTimer();
-        showTimerNotify('⟳ 倒计时已重置为 15:00');
-    }
-    
-    function showToast(msg) { 
-        const t=document.getElementById('toastMsg'); 
-        t.innerText=msg; 
-        t.style.opacity='1'; 
-        setTimeout(()=>t.style.opacity='0',2000); 
-    }
+    function showToast(msg) { const t=document.getElementById('toastMsg'); t.innerText=msg; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2000); }
 
-    async function logPlayerAction(playerId, oldVal, newVal, delta) {
+    // 日志记录
+    async function logRbcAction(playerId, oldVal, newVal, delta) {
         try {
             await supabase.from('player_logs').insert([{
-                player_id: playerId,
-                action_type: 'rbc_change',
-                old_value: String(oldVal),
-                new_value: String(newVal),
+                player_id: playerId, action_type: 'rbc_change', old_value: String(oldVal), new_value: String(newVal),
                 detail: `[站2-超市区] ${delta>0 ? '+' : ''}${delta} R币`
+            }]);
+        } catch(e) { console.warn('日志记录失败:', e); }
+    }
+    async function logStockAction(playerId, oldVal, newVal, delta) {
+        try {
+            await supabase.from('player_logs').insert([{
+                player_id: playerId, action_type: 'stock_change', old_value: String(oldVal), new_value: String(newVal),
+                detail: `[站2-超市区] 股票${delta>0 ? '买入' : '卖出'} ${Math.abs(delta)} 股，持仓 ${newVal}`
             }]);
         } catch(e) { console.warn('日志记录失败:', e); }
     }
 
     async function loadPlayers() {
-        setConnectionState('connecting');
-        try {
-            const { data, error } = await supabase.from('players').select('*').order('id');
-            if (error) throw error;
-            allPlayers = data;
-            setConnectionState('connected');
-            renderUI();
-        } catch(e) {
-            console.error(e);
-            setConnectionState('disconnected');
-        }
+        const { data, error } = await supabase.from('players').select('*').order('id');
+        if(error) { console.error(error); return; }
+        allPlayers = data;
+        for(let p of allPlayers) if(p.stock === undefined) p.stock = 0;
+        renderUI();
     }
 
     async function updatePlayerRbc(player, delta) {
         const newRbc = Math.max(0, player.rbc + delta);
         await supabase.from('players').update({ rbc: newRbc }).eq('id', player.id);
-        await logPlayerAction(player.id, player.rbc, newRbc, delta);
+        await logRbcAction(player.id, player.rbc, newRbc, delta);
         await loadPlayers();
         showToast(`${player.name} R币: ${player.rbc} → ${newRbc}`);
+    }
+
+    async function adjustStock(player, delta) {
+        const newStock = Math.max(0, (player.stock || 0) + delta);
+        await supabase.from('players').update({ stock: newStock }).eq('id', player.id);
+        await logStockAction(player.id, player.stock || 0, newStock, delta);
+        await loadPlayers();
+        showToast(`${player.name} 股票${delta>0 ? '买入' : '卖出'} ${Math.abs(delta)} 股，持仓 ${newStock}`);
     }
 
     function renderUI() {
         let filtered = currentGroup === "all" ? allPlayers : allPlayers.filter(p => p.group_name === currentGroup);
         const groups = [...new Set(allPlayers.map(p=>p.group_name))];
-        document.getElementById('groupFilter').innerHTML = `<div class="group-chip ${currentGroup==='all'?'active':''}" data-group="all">全部</div>` + groups.map(g => `<div class="group-chip ${currentGroup===g?'active':''}" data-group="${g}">${g}</div>`).join('');
+        document.getElementById('groupFilter').innerHTML = `<span class="group-chip ${currentGroup==='all'?'active':''}" data-group="all">全部</span>` + groups.map(g => `<span class="group-chip ${currentGroup===g?'active':''}" data-group="${g}">${g}</span>`).join('');
         document.querySelectorAll('.group-chip').forEach(chip => chip.onclick = () => { currentGroup = chip.getAttribute('data-group'); renderUI(); });
         
         const tbody = document.getElementById('tableBody'); tbody.innerHTML='';
@@ -365,9 +233,23 @@
             row.insertCell(0).innerText = p.id;
             row.insertCell(1).innerHTML = `<span class="player-name">${p.name}</span>`;
             row.insertCell(2).innerHTML = `<span class="group-badge">${p.group_name}</span>`;
-            row.insertCell(3).innerHTML = `<strong>${p.rbc}</strong>`;
+            row.insertCell(3).innerHTML = `<strong style="font-size:1.1rem;">${p.rbc}</strong>`;
             
-            const actionCell = row.insertCell(4);
+            // 股票控件
+            const stockCell = row.insertCell(4);
+            const stockDiv = document.createElement('div');
+            stockDiv.className = 'stock-control';
+            stockDiv.innerHTML = `
+                <button class="stock-btn">-1</button>
+                <span style="min-width:50px; display:inline-block; text-align:center;">${p.stock || 0}</span>
+                <button class="stock-btn">+1</button>
+            `;
+            stockDiv.querySelectorAll('button')[0].onclick = (e) => { e.stopPropagation(); adjustStock(p, -1); };
+            stockDiv.querySelectorAll('button')[1].onclick = (e) => { e.stopPropagation(); adjustStock(p, 1); };
+            stockCell.appendChild(stockDiv);
+            
+            // R币调整按钮
+            const actionCell = row.insertCell(5);
             actionCell.colSpan = 6;
             const btnContainer = document.createElement('div');
             btnContainer.className = 'rbc-control';
