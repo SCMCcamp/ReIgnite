@@ -40,7 +40,6 @@
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
         .btn { background: white; border: 1px solid rgba(0,0,0,0.1); padding: 6px 16px; border-radius: 40px; cursor: pointer; color: #111827; font-weight: 500; font-size: 0.85rem; }
         .btn-primary { background: #e8501a; border: none; color: white; }
-        .refresh-btn { background: #e0f2fe; border-color: #0284c7; color: #0284c7; }
         
         .panels { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 28px; }
         .panel { flex: 1; padding: 20px 24px; }
@@ -119,6 +118,10 @@
             margin-bottom: 0;
             padding: 6px 8px;
         }
+        .tax-config-row span.static {
+            font-size: 0.8rem;
+            color: #4b5563;
+        }
         .tax-stats {
             background: #f0fdf4;
             padding: 10px;
@@ -171,10 +174,7 @@
             <div class="badge">中控端</div>
             <div class="status-pill"><span class="status-dot"></span>实时在线</div>
         </div>
-        <div style="display: flex; gap: 12px;">
-            <button class="btn refresh-btn" id="manualRefreshBtn">🔄 刷新数据</button>
-            <button class="btn" id="resetAllBtn">🔄 重置所有</button>
-        </div>
+        <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
     </div>
 
     <div class="panels">
@@ -286,25 +286,36 @@
         taxBrackets.forEach((bracket, idx) => {
             const row = document.createElement('div');
             row.className = 'tax-config-row';
-            const thresholdLabel = idx === taxBrackets.length-1 ? '超出 ≥' : '超出 <';
-            row.innerHTML = `
-                <span>超出平均值</span>
-                <span>${thresholdLabel}</span>
-                <input type="number" step="0.1" value="${bracket.threshold === Infinity ? '999' : bracket.threshold}" style="width:70px;" data-threshold-idx="${idx}">
-                <span>倍，税率</span>
-                <input type="number" step="0.01" value="${bracket.rate}" style="width:70px;" data-rate-idx="${idx}">
-                <button class="btn del-bracket" data-idx="${idx}" style="background:#fee2e2; color:#dc2626;">删除</button>
-            `;
+            const isLast = (idx === taxBrackets.length-1);
+            if (isLast) {
+                // 最后一个区间：显示“无上限”，不可编辑阈值
+                row.innerHTML = `
+                    <span>超出平均值</span>
+                    <span>≥</span>
+                    <span class="static">∞（无上限）</span>
+                    <span>倍，税率</span>
+                    <input type="number" step="0.01" value="${bracket.rate}" style="width:70px;" data-rate-idx="${idx}">
+                    <button class="btn del-bracket" data-idx="${idx}" style="background:#fee2e2; color:#dc2626;">删除</button>
+                `;
+            } else {
+                row.innerHTML = `
+                    <span>超出平均值</span>
+                    <span><</span>
+                    <input type="number" step="0.1" value="${bracket.threshold}" style="width:70px;" data-threshold-idx="${idx}">
+                    <span>倍，税率</span>
+                    <input type="number" step="0.01" value="${bracket.rate}" style="width:70px;" data-rate-idx="${idx}">
+                    <button class="btn del-bracket" data-idx="${idx}" style="background:#fee2e2; color:#dc2626;">删除</button>
+                `;
+            }
             container.appendChild(row);
         });
-        // 绑定事件
+        // 绑定非最后一个区间的阈值修改事件
         container.querySelectorAll('input[data-threshold-idx]').forEach(inp => {
             inp.addEventListener('change', (e) => {
                 const idx = parseInt(inp.getAttribute('data-threshold-idx'));
                 let val = parseFloat(inp.value);
                 if(isNaN(val)) val = 0;
                 taxBrackets[idx].threshold = val;
-                if(idx === taxBrackets.length-1) taxBrackets[idx].threshold = Infinity;
                 saveTaxConfig();
             });
         });
@@ -322,6 +333,7 @@
                 const idx = parseInt(btn.getAttribute('data-idx'));
                 if(taxBrackets.length <= 1) { showToast('至少保留一个税率区间', true); return; }
                 taxBrackets.splice(idx, 1);
+                // 确保最后一个区间阈值为 Infinity
                 taxBrackets[taxBrackets.length-1].threshold = Infinity;
                 saveTaxConfig();
             });
@@ -509,11 +521,21 @@
     async function resetAll() {
         if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、贷款=0、股票=0，并删除所有玩家日志！')) return;
         for(let p of uniquePlayers) {
+            // 删除该玩家的所有日志
             await supabase.from('player_logs').delete().eq('player_id', p.id);
-            await supabase.from('players').update({ color: 'green', rbc: 5, loan: 0, stock: 0, s1: false, s2: false, s3: false, s4: false }).eq('id', p.id);
+            // 重置玩家数据
+            await supabase.from('players').update({ 
+                color: 'green', rbc: 5, loan: 0, stock: 0, 
+                s1: false, s2: false, s3: false, s4: false 
+            }).eq('id', p.id);
         }
+        // 重新加载数据并关闭当前侧边栏（如果有）
         await loadPlayers();
-        showToast('重置完成');
+        if (currentSidebarPlayer) {
+            closeSidebar();
+            currentSidebarPlayer = null;
+        }
+        showToast('所有玩家已重置，日志已清空');
     }
     
     function renderStats() {
@@ -632,7 +654,7 @@
                     if(!isNaN(oldRbc)) await supabase.from('players').update({ rbc: oldRbc }).eq('id', player.id);
                 } else if(logAction === 'loan_change') {
                     const oldLoan = parseInt(logOld);
-                    await supabase.from('players').update({ loan: oldLoan }).eq('id', player.id);
+                    if(!isNaN(oldLoan)) await supabase.from('players').update({ loan: oldLoan }).eq('id', player.id);
                 } else if(logAction === 'stock_change') {
                     const oldStock = parseInt(logOld);
                     await supabase.from('players').update({ stock: oldStock }).eq('id', player.id);
@@ -657,15 +679,6 @@
         }).subscribe();
     }
     
-    // 手动刷新
-    async function manualRefresh() {
-        showToast('正在刷新数据...');
-        await loadPlayers();
-        await loadNewsHistory();
-        await loadEconomyHistory();
-        showToast('数据已刷新');
-    }
-    
     // 事件绑定
     document.getElementById('sendNewsBtn').onclick = sendNews;
     document.getElementById('setEconomyBtn').onclick = () => { const c = document.getElementById('economyInput').value.trim(); if(c) publishEconomy(c); else showToast('输入内容',true); };
@@ -681,7 +694,6 @@
         saveTaxConfig();
         updateTaxPreview();
     };
-    document.getElementById('manualRefreshBtn').onclick = manualRefresh;
     document.querySelectorAll('.quick-btn').forEach(btn => btn.onclick = () => { document.getElementById('economyInput').value = presetMap[btn.getAttribute('data-preset')]; });
     
     // 折叠区域
