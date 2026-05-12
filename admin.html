@@ -118,10 +118,6 @@
             margin-bottom: 0;
             padding: 6px 8px;
         }
-        .tax-config-row span.static {
-            font-size: 0.8rem;
-            color: #4b5563;
-        }
         .tax-stats {
             background: #f0fdf4;
             padding: 10px;
@@ -230,9 +226,10 @@
                     <button id="deductFlat3RbcBtn" class="btn btn-primary" style="background:#e8501a;">💰 扣除每人 3 R币</button>
                 </div>
                 <div class="tax-config">
-                    <div style="font-weight:600; margin-bottom:8px;">⚙️ 富人税税率阶梯（可调节）</div>
+                    <div style="font-weight:600; margin-bottom:8px;">⚙️ 富人税税率阶梯（全部可手动调整）</div>
                     <div id="taxBracketsContainer"></div>
                     <button id="addBracketBtn" class="btn" style="margin-top:8px; padding:4px 12px;">+ 添加税率区间</button>
+                    <div style="font-size:0.7rem; color:#6b7280; margin-top:8px;">最后一个区间的阈值若设为极大值（如999）即视为无上限，但也可设为任何数值。</div>
                 </div>
             </div>
         </div>
@@ -241,7 +238,7 @@
     <div class="filter-bar"><div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div><span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span></div>
     <div class="stats-grid" id="statsPanel"></div>
     <div class="table-wrapper glass-card" style="padding: 0 0 20px 0;">
-        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>股票</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></table>
+        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>股票</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></td>
     </div>
 </div>
 
@@ -260,11 +257,11 @@
     let uniquePlayers = [], currentGroup = "all", currentColorFilter = null, priceHistory = [5], chart = null, autoTimer = null;
     let currentSidebarPlayer = null;
     
-    // 税收配置
+    // 税收配置（全部可手动调）
     let taxBrackets = [
         { threshold: 0.5, rate: 0.10 },
         { threshold: 1.0, rate: 0.15 },
-        { threshold: Infinity, rate: 0.20 }
+        { threshold: 999, rate: 0.20 }   // 默认极大值代表无上限，但用户可改
     ];
     
     function loadTaxConfig() {
@@ -287,35 +284,25 @@
             const row = document.createElement('div');
             row.className = 'tax-config-row';
             const isLast = (idx === taxBrackets.length-1);
-            if (isLast) {
-                // 最后一个区间：显示“无上限”，不可编辑阈值
-                row.innerHTML = `
-                    <span>超出平均值</span>
-                    <span>≥</span>
-                    <span class="static">∞（无上限）</span>
-                    <span>倍，税率</span>
-                    <input type="number" step="0.01" value="${bracket.rate}" style="width:70px;" data-rate-idx="${idx}">
-                    <button class="btn del-bracket" data-idx="${idx}" style="background:#fee2e2; color:#dc2626;">删除</button>
-                `;
-            } else {
-                row.innerHTML = `
-                    <span>超出平均值</span>
-                    <span><</span>
-                    <input type="number" step="0.1" value="${bracket.threshold}" style="width:70px;" data-threshold-idx="${idx}">
-                    <span>倍，税率</span>
-                    <input type="number" step="0.01" value="${bracket.rate}" style="width:70px;" data-rate-idx="${idx}">
-                    <button class="btn del-bracket" data-idx="${idx}" style="background:#fee2e2; color:#dc2626;">删除</button>
-                `;
-            }
+            // 统一显示可编辑输入框，不再特殊处理文本
+            row.innerHTML = `
+                <span>超出平均值</span>
+                <span>${isLast ? '≥' : '<'}</span>
+                <input type="number" step="0.1" value="${bracket.threshold}" style="width:80px;" data-threshold-idx="${idx}">
+                <span>倍，税率</span>
+                <input type="number" step="0.01" value="${bracket.rate}" style="width:70px;" data-rate-idx="${idx}">
+                <button class="btn del-bracket" data-idx="${idx}" style="background:#fee2e2; color:#dc2626;">删除</button>
+            `;
             container.appendChild(row);
         });
-        // 绑定非最后一个区间的阈值修改事件
+        // 绑定阈值修改事件
         container.querySelectorAll('input[data-threshold-idx]').forEach(inp => {
             inp.addEventListener('change', (e) => {
                 const idx = parseInt(inp.getAttribute('data-threshold-idx'));
                 let val = parseFloat(inp.value);
                 if(isNaN(val)) val = 0;
                 taxBrackets[idx].threshold = val;
+                // 确保最后一个区间的阈值不会干扰排序（不作特殊处理，允许任何数值，但计算税率时会按顺序判断）
                 saveTaxConfig();
             });
         });
@@ -333,16 +320,16 @@
                 const idx = parseInt(btn.getAttribute('data-idx'));
                 if(taxBrackets.length <= 1) { showToast('至少保留一个税率区间', true); return; }
                 taxBrackets.splice(idx, 1);
-                // 确保最后一个区间阈值为 Infinity
-                taxBrackets[taxBrackets.length-1].threshold = Infinity;
                 saveTaxConfig();
             });
         });
     }
     
     function getTaxRate(excessPercent) {
+        // 根据超额比例和税率区间计算税率，按阈值升序排列（假设已按threshold从小到大）
         for(let i = 0; i < taxBrackets.length; i++) {
             let bracket = taxBrackets[i];
+            // 最后一个区间：只要 excessPercent >= 阈值（即使阈值很大也适用）
             if(i === taxBrackets.length-1) {
                 if(excessPercent >= bracket.threshold) return bracket.rate;
             } else {
@@ -520,22 +507,37 @@
     
     async function resetAll() {
         if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、贷款=0、股票=0，并删除所有玩家日志！')) return;
+        let totalPlayers = uniquePlayers.length;
+        let successPlayers = 0;
+        let failPlayers = 0;
         for(let p of uniquePlayers) {
-            // 删除该玩家的所有日志
-            await supabase.from('player_logs').delete().eq('player_id', p.id);
-            // 重置玩家数据
-            await supabase.from('players').update({ 
-                color: 'green', rbc: 5, loan: 0, stock: 0, 
-                s1: false, s2: false, s3: false, s4: false 
-            }).eq('id', p.id);
+            try {
+                // 1. 删除该玩家的所有日志
+                const { error: delError } = await supabase.from('player_logs').delete().eq('player_id', p.id);
+                if (delError) throw delError;
+                // 2. 重置玩家数据
+                const { error: updateError } = await supabase.from('players').update({ 
+                    color: 'green', rbc: 5, loan: 0, stock: 0, 
+                    s1: false, s2: false, s3: false, s4: false 
+                }).eq('id', p.id);
+                if (updateError) throw updateError;
+                successPlayers++;
+            } catch(e) {
+                console.error(`重置玩家 ${p.name} 失败:`, e);
+                failPlayers++;
+            }
         }
-        // 重新加载数据并关闭当前侧边栏（如果有）
+        // 重新加载数据并关闭侧边栏
         await loadPlayers();
         if (currentSidebarPlayer) {
             closeSidebar();
             currentSidebarPlayer = null;
         }
-        showToast('所有玩家已重置，日志已清空');
+        if (failPlayers === 0) {
+            showToast(`✅ 重置完成！已重置 ${successPlayers} 名玩家，所有日志已清空`);
+        } else {
+            showToast(`⚠️ 部分成功：成功 ${successPlayers}，失败 ${failPlayers}。请检查控制台及Supabase RLS策略`, true);
+        }
     }
     
     function renderStats() {
@@ -654,7 +656,7 @@
                     if(!isNaN(oldRbc)) await supabase.from('players').update({ rbc: oldRbc }).eq('id', player.id);
                 } else if(logAction === 'loan_change') {
                     const oldLoan = parseInt(logOld);
-                    if(!isNaN(oldLoan)) await supabase.from('players').update({ loan: oldLoan }).eq('id', player.id);
+                    await supabase.from('players').update({ loan: oldLoan }).eq('id', player.id);
                 } else if(logAction === 'stock_change') {
                     const oldStock = parseInt(logOld);
                     await supabase.from('players').update({ stock: oldStock }).eq('id', player.id);
@@ -690,7 +692,10 @@
     document.getElementById('deductProgressiveTaxBtn').onclick = deductProgressiveTax;
     document.getElementById('deductFlat3RbcBtn').onclick = deductFlat3Rbc;
     document.getElementById('addBracketBtn').onclick = () => {
-        taxBrackets.splice(taxBrackets.length-1, 0, { threshold: 2.0, rate: 0.18 });
+        // 添加一个新的区间，默认阈值取最后一个区间的阈值+0.5，税率0.18
+        const lastThreshold = taxBrackets[taxBrackets.length-1].threshold;
+        const newThreshold = (lastThreshold === 999 ? 2.0 : lastThreshold + 0.5);
+        taxBrackets.splice(taxBrackets.length-1, 0, { threshold: newThreshold, rate: 0.18 });
         saveTaxConfig();
         updateTaxPreview();
     };
