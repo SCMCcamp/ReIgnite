@@ -388,15 +388,51 @@
     async function publishEconomy(content) { if(!content) return; await supabase.from('economy_status').insert([{ content, time: new Date().toLocaleTimeString() }]); await adjustByEconomy(content); document.getElementById('economyInput').value=''; loadEconomyHistory(); }
     const presetMap = { normal:"正常经济 · 甜品原价 · R币获取正常", inflation:"通胀来袭！超市甜品价格上涨2R币，R币获取减半", deflation:"通缩来临！超市甜品降价2R币，R币获取翻倍" };
     
-    async function resetAll() {
-        if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、取消贷款')) return;
-        for(let p of uniquePlayers) {
-            await supabase.from('players').update({ color: 'green', rbc: 5, loan: false, s1: false, s2: false, s3: false, s4: false }).eq('id', p.id);
-            await supabase.from('player_logs').insert([{ player_id: p.id, action_type: 'reset', old_value: '', new_value: '', detail: '管理员重置玩家' }]);
+async function resetAll() {
+    if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、取消贷款，并删除所有玩家日志！')) return;
+    
+    let successCount = 0;
+    let failCount = 0;
+    
+    for(let p of uniquePlayers) {
+        try {
+            // 1. 删除该玩家的所有日志记录
+            const { error: delError } = await supabase
+                .from('player_logs')
+                .delete()
+                .eq('player_id', p.id);
+            if (delError) throw delError;
+            
+            // 2. 重置玩家数据
+            const { error: updateError } = await supabase
+                .from('players')
+                .update({ 
+                    color: 'green', 
+                    rbc: 5, 
+                    loan: 0, 
+                    s1: false, 
+                    s2: false, 
+                    s3: false, 
+                    s4: false 
+                })
+                .eq('id', p.id);
+            if (updateError) throw updateError;
+            
+            successCount++;
+        } catch(e) {
+            console.error(`重置玩家 ${p.name} 失败:`, e);
+            failCount++;
         }
-        await loadPlayers();
-        showToast('重置完成');
     }
+    
+    if (failCount === 0) {
+        showToast(`✅ 重置完成！已重置 ${successCount} 名玩家，所有日志已清空`);
+    } else {
+        showToast(`⚠️ 部分成功：成功 ${successCount}，失败 ${failCount}。请检查控制台`, true);
+    }
+    
+    await loadPlayers(); // 刷新界面
+}
     
     async function deduct3RbcFromFiltered() {
         const filtered = getFilteredPlayers();
