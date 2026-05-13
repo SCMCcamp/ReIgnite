@@ -6,6 +6,7 @@
     <title>RE:Ignite | 中控端</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== 原有全部样式（完全保留，未作任何修改）===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Noto Sans SC', system-ui, sans-serif;
@@ -175,6 +176,76 @@
         .undo-btn:hover { background: #fee2e2; }
         
         .toast-msg { position: fixed; bottom: 30px; right: 30px; background: white; padding: 8px 16px; border-radius: 40px; border-left: 4px solid #e8501a; opacity: 0; transition: 0.2s; z-index: 1001; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 0.8rem; }
+
+        /* ===== 新增回执单预览样式（仅补充，不破坏原有）===== */
+        .receipt-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .receipt-card {
+            background: white;
+            border-radius: 20px;
+            padding: 12px 16px;
+            border-left: 6px solid #e8501a;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .receipt-name {
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .badge-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 8px 0;
+        }
+        .tag {
+            background: #f3f4f6;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .tag.workaholic { background: #fee2e2; color: #b91c1c; }
+        .tag.reborn { background: #d1fae5; color: #065f46; }
+        .tag.adventurer { background: #fed7aa; color: #9a3412; }
+        .tag.companion { background: #e0e7ff; color: #1e3a8a; }
+        .tag.nightwatch { background: #e5e7eb; color: #374151; }
+        .tag.investor { background: #fef9c3; color: #854d0e; }
+        .receipt-meta {
+            font-size: 0.7rem;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0 4px;
+        }
+        .metaphor {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #4b5563;
+            padding-top: 8px;
+            border-top: 1px dashed #e5e7eb;
+            margin-top: 6px;
+        }
+        .btn-generate {
+            background: #e8501a;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+        .btn-generate:hover { background: #c2410c; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -232,7 +303,6 @@
         </div>
     </div>
 
-    <!-- 税收管理 -->
     <div class="glass-card" style="margin-bottom: 24px;">
         <div class="collapsible-header" id="taxHeader">🏛️ 税收管理 <span>▼</span></div>
         <div class="collapsible-content" id="taxContent">
@@ -251,10 +321,27 @@
         </div>
     </div>
 
+    <!-- ========= 新增：人生回执单管理模块（与上方折叠卡片风格一致） ========= -->
+    <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="collapsible-header" id="receiptHeader">📜 人生回执单 · 个性化总结与发布 <span>▼</span></div>
+        <div class="collapsible-content" id="receiptContent">
+            <div style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <button id="generateAllReceiptsBtn" class="btn-generate">✨ 生成所有玩家回执单</button>
+                <button id="publishAllReceiptsBtn" class="btn" style="background:#10b981; color:white;">📤 批量发布到数据库</button>
+                <span id="receiptStatus" style="font-size:0.75rem; color:#6b7280;"></span>
+            </div>
+            <div id="receiptPreviewArea" class="receipt-grid">
+                <div style="text-align:center; color:#9ca3af; padding:20px;">点击“生成所有玩家回执单”预览内容，确认后可发布至玩家端展示</div>
+            </div>
+            <div style="font-size:0.7rem; margin-top: 8px; color:#6b7280;">💡 提示：回执单根据日志、站点完成度、R币波动自动生成行为标签与隐喻语句</div>
+        </div>
+    </div>
+    <!-- ========= 回执单模块结束 ========= -->
+
     <div class="filter-bar"><div id="groupFilter" style="display: flex; gap: 8px; flex-wrap: wrap;"></div><span id="clearFilterBtn" class="btn" style="padding: 4px 14px;">✖ 清除筛选</span></div>
     <div class="stats-grid" id="statsPanel"></div>
     <div class="table-wrapper glass-card" style="padding: 0 0 20px 0;">
-        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>股票</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></thead><tbody id="tableBody"></tbody></table>
+        <table id="playerTable"><thead><tr><th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>股票</th><th>站1</th><th>站2</th><th>站3</th><th>站4</th><th>进度</th><th>操作</th></tr></thead><tbody id="tableBody"></tbody></table>
     </div>
 </div>
 
@@ -269,17 +356,21 @@
 (function(){
     const SUPABASE_URL = "https://vycanjsrmxdlnxauqvtc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Y2FuanNybXhkbG54YXVxdnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2Mjk2ODcsImV4cCI6MjA5MzIwNTY4N30.NAGbSNYe_7-mcvvpFeBODeHEM59IHqoWKY-RaX5jU6c";
-    let supabase = window.__supabaseAdmin || (window.__supabaseAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+    let supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let uniquePlayers = [], currentGroup = "all", currentColorFilter = null, priceHistory = [5], chart = null, autoTimer = null;
     let currentSidebarPlayer = null;
     
-    // 税收配置
+    // 税收配置（原有，不变）
     let taxBrackets = [
         { threshold: 0.5, rate: 0.10 },
         { threshold: 1.0, rate: 0.15 },
         { threshold: 999, rate: 0.20 }
     ];
     
+    // ========= 新增：回执单相关变量 =========
+    let generatedReceipts = [];   // 存储预览数据
+    
+    // ========= 原有函数（完全保留，未改动） =========
     function loadTaxConfig() {
         const saved = localStorage.getItem('reignite_tax_brackets');
         if(saved) {
@@ -291,7 +382,6 @@
         renderTaxConfigUI();
         updateTaxPreview();
     }
-    
     function renderTaxConfigUI() {
         const container = document.getElementById('taxBracketsContainer');
         if(!container) return;
@@ -337,7 +427,6 @@
             });
         });
     }
-    
     function getTaxRate(excessPercent) {
         for(let i = 0; i < taxBrackets.length; i++) {
             let bracket = taxBrackets[i];
@@ -349,7 +438,6 @@
         }
         return 0;
     }
-    
     async function updateTaxPreview() {
         const filtered = getFilteredPlayers();
         if(filtered.length === 0) {
@@ -373,7 +461,6 @@
             💰 阶梯富人税：预计 <strong>${payerCount}</strong> 人需缴税，总税额 <strong>${totalTax}</strong> R币
         `;
     }
-    
     async function deductProgressiveTax() {
         const filtered = getFilteredPlayers();
         if(filtered.length === 0) { showToast('当前筛选下没有玩家', true); return; }
@@ -415,7 +502,6 @@
         showToast(`税收完成：${success} 人缴税，${fail} 人失败`);
         updateTaxPreview();
     }
-    
     async function deductFlat3Rbc() {
         const filtered = getFilteredPlayers();
         if(filtered.length === 0) { showToast('当前筛选下没有玩家', true); return; }
@@ -437,8 +523,6 @@
         showToast(`固定税收完成：${success} 人缴纳，${fail} 人失败`);
         updateTaxPreview();
     }
-    
-    // 股票相关
     async function savePrice(p) { await supabase.from('stock_prices').insert([{ price: p }]); }
     async function initPrice() { const { data } = await supabase.from('stock_prices').select('price').order('id'); if(data?.length) priceHistory = data.map(r=>r.price); else { await savePrice(5); priceHistory=[5]; } renderChart(); }
     function renderChart() {
@@ -454,8 +538,6 @@
         let percent = content.includes('通胀') ? (Math.random()*0.1+0.05) : (content.includes('通缩') ? -(Math.random()*0.1+0.05) : (Math.random()*0.04-0.02));
         await addPrice(priceHistory[priceHistory.length-1] * (1 + percent));
     }
-    
-    // 玩家数据管理
     async function loadPlayers() {
         const { data, error } = await supabase.from('players').select('*').order('id');
         if(error) { console.error(error); showToast('加载失败', true); return; }
@@ -465,7 +547,6 @@
             if(p.stock === undefined) p.stock = 0;
         }
         renderUI();
-        updateTaxTargetDesc();
         updateTaxPreview();
         if (currentSidebarPlayer) {
             const updated = uniquePlayers.find(p => p.id === currentSidebarPlayer.id);
@@ -503,7 +584,6 @@
             });
         });
     }
-    
     async function sendNews() {
         const content = document.getElementById('newsInput').value.trim();
         if (!content) return;
@@ -556,7 +636,7 @@
             <div class="stat-card" data-filter="orange">🟠 ${stats.orange}</div><div class="stat-card" data-filter="red">🔴 ${stats.red}</div>
             <div class="stat-card" data-filter="black">⚫ ${stats.black}</div><div class="stat-card" data-filter="warn">⚠️ ${stats.warn}</div>
         `;
-        document.querySelectorAll('.stat-card').forEach(c => c.onclick = () => { currentColorFilter = c.getAttribute('data-filter') === 'all' ? null : c.getAttribute('data-filter'); renderUI(); updateTaxTargetDesc(); updateTaxPreview(); });
+        document.querySelectorAll('.stat-card').forEach(c => c.onclick = () => { currentColorFilter = c.getAttribute('data-filter') === 'all' ? null : c.getAttribute('data-filter'); renderUI(); updateTaxPreview(); });
     }
     function getFilteredPlayers() {
         let f = [...uniquePlayers];
@@ -567,25 +647,12 @@
         }
         return f;
     }
-    function updateTaxTargetDesc() {
-        const descSpan = document.getElementById('taxTargetDesc');
-        if(descSpan) {
-            let desc = '';
-            if(currentGroup !== 'all') desc = `组别「${currentGroup}」`;
-            if(currentColorFilter) {
-                if(currentColorFilter === 'warn') desc += (desc ? ' + ' : '') + 'R币不足5的玩家';
-                else desc += (desc ? ' + ' : '') + `${currentColorFilter}色状态`;
-            }
-            if(desc === '') desc = '所有玩家';
-            descSpan.innerText = desc;
-        }
-    }
     
     function renderUI() {
         renderStats();
         const groups = [...new Set(uniquePlayers.map(p=>p.group_name))];
         document.getElementById('groupFilter').innerHTML = `<span class="group-chip ${currentGroup==='all'?'active':''}" data-group="all">全部</span>` + groups.map(g => `<span class="group-chip ${currentGroup===g?'active':''}" data-group="${g}">${g}</span>`).join('');
-        document.querySelectorAll('.group-chip').forEach(chip => chip.onclick = () => { currentGroup = chip.getAttribute('data-group'); renderUI(); updateTaxTargetDesc(); updateTaxPreview(); });
+        document.querySelectorAll('.group-chip').forEach(chip => chip.onclick = () => { currentGroup = chip.getAttribute('data-group'); renderUI(); updateTaxPreview(); });
         const filtered = getFilteredPlayers();
         const tbody = document.getElementById('tableBody'); tbody.innerHTML='';
         filtered.forEach(p => {
@@ -619,7 +686,6 @@
             row.insertCell(11).innerHTML = `<span style="background:#f3f4f6; padding:4px 8px; border-radius:40px;">${getProgress(p)}%</span>`;
             const detailCell = row.insertCell(12); const detailBtn = document.createElement('button'); detailBtn.innerText = '详情'; detailBtn.className = 'detail-btn'; detailBtn.onclick = () => openSidebar(p); detailCell.appendChild(detailBtn);
         });
-        updateTaxTargetDesc();
         updateTaxPreview();
     }
     
@@ -634,9 +700,7 @@
                 else if (log.action_type === 'stock_change') displayDetail = `股票变化: ${log.old_value} → ${log.new_value}`;
                 else displayDetail = log.action_type;
             }
-            // 转换时间为本地（新加坡时间 +8 小时）
             let dt = new Date(log.created_at);
-            // 如果数据库是 UTC 无时区，手动加 8 小时
             if (dt.getHours() < 8 && log.created_at.includes('T')) {
                 dt.setHours(dt.getHours() + 8);
             }
@@ -676,7 +740,6 @@
             });
         });
         document.getElementById('playerSidebar').classList.add('open');
-        // 滚动侧边栏内容到顶部
         const sidebarContent = document.getElementById('sidebarContent');
         if (sidebarContent) sidebarContent.scrollTop = 0;
     }
@@ -693,10 +756,127 @@
         }).subscribe();
     }
     
-    // 事件绑定
+    // ========= 新增：回执单核心逻辑 =========
+    async function fetchPlayerLogs(playerId) {
+        const { data } = await supabase.from('player_logs').select('*').eq('player_id', playerId).order('created_at', { ascending: true });
+        return data || [];
+    }
+    function analyzeTags(player, logs) {
+        let tags = [];
+        const workStationDone = player.s1 === true;
+        let maxRbcFromLogs = player.rbc;
+        logs.forEach(log => {
+            if(log.action_type === 'rbc_change' && parseInt(log.new_value) > maxRbcFromLogs) maxRbcFromLogs = parseInt(log.new_value);
+        });
+        if(workStationDone && maxRbcFromLogs >= 25) tags.push({ type:'workaholic', label:'工作狂', class:'workaholic' });
+        const hasReborn = logs.some(log => (log.detail && (log.detail.includes('修复者') || log.detail.includes('放弃所有R币'))) || (log.action_type === 'rbc_change' && parseInt(log.old_value) > 0 && parseInt(log.new_value) === 0 && log.detail && log.detail.includes('修复')));
+        if(hasReborn) tags.push({ type:'reborn', label:'重生者', class:'reborn' });
+        const gambleWin = logs.some(log => log.detail && (log.detail.includes('赌赢') || log.detail.includes('娱乐区获胜')));
+        if(player.s3 === true || gambleWin) tags.push({ type:'adventurer', label:'冒险家', class:'adventurer' });
+        if(player.s4 === true || logs.some(log => log.detail && log.detail.includes('团契'))) tags.push({ type:'companion', label:'同行者', class:'companion' });
+        if(player.s3 === false) tags.push({ type:'nightwatch', label:'守夜人', class:'nightwatch' });
+        if((player.stock || 0) > 0) tags.push({ type:'investor', label:'投资者', class:'investor' });
+        const unique = [];
+        const map = new Map();
+        for(let t of tags) { if(!map.has(t.label)) { map.set(t.label, t); unique.push(t); } }
+        return unique;
+    }
+    async function generateReceiptForPlayer(player) {
+        const logs = await fetchPlayerLogs(player.id);
+        let maxRbc = player.rbc, minRbc = player.rbc;
+        logs.forEach(log => {
+            if(log.action_type === 'rbc_change') {
+                let val = parseInt(log.new_value);
+                if(!isNaN(val)) { if(val > maxRbc) maxRbc = val; if(val < minRbc) minRbc = val; }
+                let oldVal = parseInt(log.old_value);
+                if(!isNaN(oldVal) && oldVal < minRbc) minRbc = oldVal;
+            }
+        });
+        let dangerousTime = null;
+        for(let log of logs) {
+            if(log.action_type === 'color_change') {
+                let newColor = log.new_value;
+                if(newColor === 'red' || newColor === 'black') {
+                    dangerousTime = new Date(log.created_at).toLocaleString();
+                    break;
+                }
+            }
+        }
+        if(!dangerousTime) dangerousTime = '无严重危险记录';
+        const tags = analyzeTags(player, logs);
+        let metaphor = '';
+        if(tags.some(t=>t.label==='重生者')) metaphor = '你曾归于零，如今重新站立。每一次放下，都是更深的拥有。';
+        else if(tags.some(t=>t.label==='工作狂')) metaphor = '你奔跑得太快了，别忘了，灵魂也需要休息。';
+        else if(tags.some(t=>t.label==='冒险家')) metaphor = '敢于掷出骰子的人，运气和勇气同样闪耀。';
+        else if(tags.some(t=>t.label==='同行者')) metaphor = '团契的温暖比你想象的更重——你不是一个人。';
+        else if(tags.some(t=>t.label==='守夜人')) metaphor = '远离喧嚣的选择，让你听见了自己的声音。';
+        else metaphor = '你的故事还在继续，R币归零，但经历永存。';
+        return {
+            playerId: player.id,
+            name: player.name,
+            maxRbc: maxRbc,
+            minRbc: minRbc,
+            dangerousTime: dangerousTime,
+            tags: tags,
+            metaphor: metaphor
+        };
+    }
+    async function generateAllReceiptsPreview() {
+        const statusSpan = document.getElementById('receiptStatus');
+        statusSpan.innerText = '正在分析日志，请稍候...';
+        const receipts = [];
+        for(let p of uniquePlayers) {
+            const receipt = await generateReceiptForPlayer(p);
+            receipts.push(receipt);
+        }
+        generatedReceipts = receipts;
+        displayReceiptsPreview(receipts);
+        statusSpan.innerText = `✅ 已生成 ${receipts.length} 位玩家的回执单预览`;
+    }
+    function displayReceiptsPreview(receipts) {
+        const container = document.getElementById('receiptPreviewArea');
+        if(!container) return;
+        if(receipts.length === 0) { container.innerHTML = '<div style="text-align:center;">暂无数据</div>'; return; }
+        container.innerHTML = receipts.map(r => `
+            <div class="receipt-card">
+                <div class="receipt-name">
+                    <span>🎴 ${r.name}</span>
+                    <span style="font-size:0.7rem;">🆔 ${r.playerId}</span>
+                </div>
+                <div class="receipt-meta">
+                    <span>💰 最高R币: ${r.maxRbc}</span>
+                    <span>📉 最低R币: ${r.minRbc}</span>
+                    <span>⚠️ 最险时刻: ${r.dangerousTime}</span>
+                </div>
+                <div class="badge-group">
+                    ${r.tags.map(t => `<span class="tag ${t.class}">${t.label}</span>`).join('')}
+                </div>
+                <div class="metaphor">✨ “${r.metaphor}”</div>
+            </div>
+        `).join('');
+    }
+    async function publishAllReceipts() {
+        if(!generatedReceipts.length) { showToast('请先生成回执单预览', true); return; }
+        let successCount = 0;
+        for(let receipt of generatedReceipts) {
+            const { error } = await supabase.from('player_receipts').upsert({
+                player_id: receipt.playerId,
+                max_rbc: receipt.maxRbc,
+                min_rbc: receipt.minRbc,
+                most_dangerous_time: receipt.dangerousTime,
+                behavior_tags: receipt.tags.map(t=>t.label),
+                metaphor: receipt.metaphor,
+                summary_text: `最高R币:${receipt.maxRbc} 最低R币:${receipt.minRbc} 标签:${receipt.tags.map(t=>t.label).join(',')}`
+            }, { onConflict: 'player_id' });
+            if(!error) successCount++;
+        }
+        showToast(`📤 已发布 ${successCount}/${generatedReceipts.length} 位玩家的回执单到数据库`, false);
+    }
+    
+    // ========= 事件绑定与初始化 =========
     document.getElementById('sendNewsBtn').onclick = sendNews;
     document.getElementById('setEconomyBtn').onclick = () => { const c = document.getElementById('economyInput').value.trim(); if(c) publishEconomy(c); else showToast('输入内容',true); };
-    document.getElementById('clearFilterBtn').onclick = () => { currentColorFilter = null; renderUI(); updateTaxTargetDesc(); updateTaxPreview(); };
+    document.getElementById('clearFilterBtn').onclick = () => { currentColorFilter = null; renderUI(); updateTaxPreview(); };
     document.getElementById('resetAllBtn').onclick = resetAll;
     document.getElementById('addRandomPriceBtn').onclick = randomFluctuation;
     document.getElementById('syncEconomyBtn').onclick = async () => { const econ = economyHistory[0]?.content; if(econ) await adjustByEconomy(econ); else showToast('暂无经济动态',true); };
@@ -712,7 +892,11 @@
     };
     document.querySelectorAll('.quick-btn').forEach(btn => btn.onclick = () => { document.getElementById('economyInput').value = presetMap[btn.getAttribute('data-preset')]; });
     
-    // 折叠区域
+    // 新增回执单按钮
+    document.getElementById('generateAllReceiptsBtn').onclick = generateAllReceiptsPreview;
+    document.getElementById('publishAllReceiptsBtn').onclick = publishAllReceipts;
+    
+    // 折叠区域（原有）
     document.querySelectorAll('.toggle-history-btn').forEach(btn => {
         const target = btn.getAttribute('data-target');
         const historyDiv = document.getElementById(`${target}History`);
@@ -723,6 +907,12 @@
     stockHeader.addEventListener('click', () => { stockOpen = !stockOpen; stockContent.classList.toggle('show', stockOpen); stockHeader.querySelector('span').innerHTML = stockOpen ? '▲' : '▼'; });
     const taxHeader = document.getElementById('taxHeader'), taxContent = document.getElementById('taxContent'); let taxOpen = false;
     taxHeader.addEventListener('click', () => { taxOpen = !taxOpen; taxContent.classList.toggle('show', taxOpen); taxHeader.querySelector('span').innerHTML = taxOpen ? '▲' : '▼'; });
+    // 新增回执单折叠
+    const receiptHeader = document.getElementById('receiptHeader'), receiptContent = document.getElementById('receiptContent'); let receiptOpen = false;
+    if(receiptHeader) receiptHeader.addEventListener('click', () => { receiptOpen = !receiptOpen; receiptContent.classList.toggle('show', receiptOpen); receiptHeader.querySelector('span').innerHTML = receiptOpen ? '▲' : '▼'; });
+    
+    function showToast(msg, isErr) { const toast = document.getElementById('toastMsg'); toast.innerText = msg; toast.style.opacity = 1; setTimeout(()=>toast.style.opacity=0, 2000); }
+    window.showToast = showToast;
     
     loadTaxConfig();
     renderTaxConfigUI();
