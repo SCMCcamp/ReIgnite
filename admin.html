@@ -503,23 +503,42 @@
         `).join('');
     }
     
-    async function publishAllReceipts() {
-        if(!window.generatedReceipts || window.generatedReceipts.length === 0) { showToast('请先生成回执单预览', true); return; }
-        let successCount = 0;
-        for(let receipt of window.generatedReceipts) {
-            const { error } = await supabase.from('player_receipts').upsert({
-                player_id: receipt.playerId,
-                max_rbc: receipt.maxRbc,
-                min_rbc: receipt.minRbc,
-                most_dangerous_time: receipt.dangerousTime,
-                behavior_tags: receipt.tags.map(t=>t.label),
-                metaphor: receipt.metaphor,
-                summary_text: `最高R币:${receipt.maxRbc} 最低R币:${receipt.minRbc} 标签:${receipt.tags.map(t=>t.label).join(',')}`
-            }, { onConflict: 'player_id' });
-            if(!error) successCount++;
-        }
-        showToast(`📤 已发布 ${successCount}/${window.generatedReceipts.length} 位玩家的回执单到数据库`, false);
+async function publishAllReceipts() {
+    if(!window.generatedReceipts || window.generatedReceipts.length === 0) { 
+        showToast('请先生成回执单预览', true); 
+        return; 
     }
+    
+    const statusSpan = document.getElementById('receiptStatus');
+    const originalText = statusSpan.innerText;
+    statusSpan.innerHTML = '⏳ 正在发布到数据库...';
+    statusSpan.style.color = '#e8501a';
+    
+    let successCount = 0;
+    for(let receipt of window.generatedReceipts) {
+        const { error } = await supabase.from('player_receipts').upsert({
+            player_id: receipt.playerId,
+            max_rbc: receipt.maxRbc,
+            min_rbc: receipt.minRbc,
+            most_dangerous_time: receipt.dangerousTime,
+            behavior_tags: receipt.tags.map(t=>t.label),
+            metaphor: receipt.metaphor,
+            summary_text: `最高R币:${receipt.maxRbc} 最低R币:${receipt.minRbc} 标签:${receipt.tags.map(t=>t.label).join(',')}`
+        }, { onConflict: 'player_id' });
+        if(!error) successCount++;
+    }
+    
+    // 发布成功后保持显示“已发布”，不再恢复成“已生成预览”
+    if (successCount === window.generatedReceipts.length) {
+        statusSpan.innerHTML = `✅ 已成功发布 ${successCount} 位玩家的回执单到数据库`;
+        statusSpan.style.color = '#10b981';
+    } else {
+        statusSpan.innerHTML = `⚠️ 发布完成：成功 ${successCount} / ${window.generatedReceipts.length}`;
+        statusSpan.style.color = '#e8501a';
+    }
+    
+    showToast(`📤 已发布 ${successCount}/${window.generatedReceipts.length} 位玩家`, false);
+}
     
     // ========= 核心管理函数 =========
     function loadTaxConfig() {
