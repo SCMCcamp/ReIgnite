@@ -275,34 +275,34 @@
         .receipt-glow-1{position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,0.12) 0%,transparent 70%);top:10%;left:-60px;pointer-events:none;animation:receipt-glow-drift 6s ease-in-out infinite alternate}
         .receipt-glow-2{position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%);top:25%;right:-40px;pointer-events:none;animation:receipt-glow-drift 8s ease-in-out infinite alternate-reverse}
         @keyframes receipt-glow-drift{0%{transform:translateY(0)}100%{transform:translateY(30px)}}
-        .receipt-sheet{position:relative;z-index:1;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px 28px 0 0;background:linear-gradient(168deg,#0e1524 0%,#111a2e 35%,#0a0f1c 100%);border:1px solid rgba(245,166,35,0.22);border-bottom:none;box-shadow:0 -12px 80px rgba(0,0,0,0.9),0 0 0 1px rgba(245,166,35,0.06),inset 0 1px 0 rgba(245,166,35,0.18);transform:translateY(100%);transition:transform 0.58s cubic-bezier(0.16,1,0.3,1);padding-bottom:max(32px,env(safe-area-inset-bottom))}
+        .receipt-sheet{position:relative;z-index:1;width:100%;max-width:500px;height:auto;max-height:96vh;overflow:hidden;border-radius:28px 28px 0 0;background:linear-gradient(168deg,#0e1524 0%,#111a2e 35%,#0a0f1c 100%);border:1px solid rgba(245,166,35,0.22);border-bottom:none;box-shadow:0 -12px 80px rgba(0,0,0,0.9),0 0 0 1px rgba(245,166,35,0.06),inset 0 1px 0 rgba(245,166,35,0.18);transform:translateY(100%);transition:transform 0.58s cubic-bezier(0.16,1,0.3,1);padding-bottom:max(20px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
         #receiptOverlay.visible .receipt-sheet{transform:translateY(0)}
         .receipt-sheet::before{content:'';position:absolute;top:0;left:15%;right:15%;height:2px;background:linear-gradient(90deg,transparent,rgba(245,166,35,0.7),rgba(255,200,80,0.9),rgba(245,166,35,0.7),transparent);border-radius:2px;animation:receipt-line-shimmer 3s ease-in-out infinite}
         @keyframes receipt-line-shimmer{0%,100%{opacity:0.7}50%{opacity:1;box-shadow:0 0 12px rgba(245,166,35,0.4)}}
-        .receipt-handle{display:flex;justify-content:center;padding:14px 0 6px}
+        .receipt-handle{display:flex;justify-content:center;padding:8px 0 4px;flex-shrink:0}
         .receipt-handle-bar{width:36px;height:4px;border-radius:4px;background:rgba(245,166,35,0.2)}
-        .receipt-header{padding:6px 24px 18px;text-align:center;border-bottom:1px solid rgba(245,166,35,0.1)}
-        .receipt-header-icon{font-size:2.6rem;display:block;margin-bottom:6px;animation:receipt-icon-float 4s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(245,166,35,0.35))}
+        .receipt-header{padding:4px 20px 12px;text-align:center;border-bottom:1px solid rgba(245,166,35,0.1);flex-shrink:0}
+        .receipt-header-icon{font-size:2rem;display:block;margin-bottom:3px;animation:receipt-icon-float 4s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(245,166,35,0.35))}
         @keyframes receipt-icon-float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-7px) rotate(4deg)}}
-        .receipt-eyebrow{font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,166,35,0.5);font-weight:600;margin-bottom:6px}
-        .receipt-title{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;text-shadow:0 0 24px rgba(245,166,35,0.45);animation:receipt-title-pulse 4s ease-in-out infinite}
+        .receipt-eyebrow{font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,166,35,0.5);font-weight:600;margin-bottom:3px}
+        .receipt-title{font-family:'Rajdhani',sans-serif;font-size:1.35rem;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;text-shadow:0 0 24px rgba(245,166,35,0.45);animation:receipt-title-pulse 4s ease-in-out infinite}
         @keyframes receipt-title-pulse{0%,100%{text-shadow:0 0 20px rgba(245,166,35,0.4)}50%{text-shadow:0 0 36px rgba(245,166,35,0.7),0 0 60px rgba(245,166,35,0.2)}}
-        .receipt-player-name{font-family:'Rajdhani',sans-serif;font-size:2.2rem;font-weight:700;letter-spacing:2px;color:var(--text-1);margin-top:10px;line-height:1}
-        .receipt-group-tag{display:inline-block;margin-top:6px;padding:3px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:40px;font-size:0.65rem;color:var(--text-3);letter-spacing:1.5px}
-        .receipt-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 18px 0}
-        .receipt-stat{background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:12px 6px;text-align:center}
+        .receipt-player-name{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;letter-spacing:2px;color:var(--text-1);margin-top:6px;line-height:1}
+        .receipt-group-tag{display:inline-block;margin-top:4px;padding:2px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:40px;font-size:0.6rem;color:var(--text-3);letter-spacing:1.5px}
+        .receipt-stats-row{display:none}
+        .receipt-stat{display:none}
         .receipt-stat-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:6px;font-weight:600}
         .receipt-stat-val{font-family:'Rajdhani',sans-serif;font-size:1.65rem;font-weight:700}
         .receipt-stat-val.gold{color:var(--gold);text-shadow:0 0 12px rgba(245,166,35,0.3)}
         .receipt-stat-val.blue{color:var(--blue);text-shadow:0 0 12px rgba(96,165,250,0.25)}
         .receipt-stat-val.green{color:var(--green);text-shadow:0 0 12px rgba(52,211,153,0.25)}
-        .receipt-divider{margin:16px 18px 0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,166,35,0.15),transparent)}
-        .receipt-danger-row{padding:14px 18px 0;display:flex;align-items:flex-start;gap:10px}
+        .receipt-divider{display:none}
+        .receipt-danger-row{display:none}
         .receipt-danger-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
         .receipt-danger-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-3);font-weight:600;margin-bottom:3px}
         .receipt-danger-val{font-size:0.84rem;color:#f87171;font-weight:600;line-height:1.4}
-        .receipt-tags-section{padding:16px 18px 0}
-        .receipt-tags-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-3);font-weight:600;margin-bottom:10px}
+        .receipt-tags-section{padding:12px 18px 0;flex-shrink:0}
+        .receipt-tags-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-3);font-weight:600;margin-bottom:7px}
         .receipt-tags-wrap{display:flex;flex-wrap:wrap;gap:7px}
         .receipt-tag{padding:5px 13px;border-radius:40px;font-size:0.75rem;font-weight:700;letter-spacing:0.3px;animation:tag-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
         .receipt-tag:nth-child(1){animation-delay:0.08s}.receipt-tag:nth-child(2){animation-delay:0.16s}.receipt-tag:nth-child(3){animation-delay:0.24s}.receipt-tag:nth-child(4){animation-delay:0.32s}.receipt-tag:nth-child(5){animation-delay:0.40s}
@@ -314,12 +314,12 @@
         .tag-nightwatch{background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.18);color:#94a3b8}
         .tag-investor{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.28);color:var(--gold)}
         .tag-default{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-2)}
-        .receipt-metaphor{margin:16px 18px 0;padding:16px 18px;background:linear-gradient(135deg,rgba(245,166,35,0.07) 0%,rgba(245,166,35,0.025) 100%);border:1px solid rgba(245,166,35,0.18);border-left:3px solid rgba(245,166,35,0.6);border-radius:0 14px 14px 0;position:relative;overflow:hidden}
+        .receipt-metaphor{margin:10px 18px 0;padding:12px 16px;background:linear-gradient(135deg,rgba(245,166,35,0.07) 0%,rgba(245,166,35,0.025) 100%);border:1px solid rgba(245,166,35,0.18);border-left:3px solid rgba(245,166,35,0.6);border-radius:0 14px 14px 0;position:relative;overflow:hidden;flex-shrink:0}
         .receipt-metaphor::before{content:'"';position:absolute;top:-10px;left:8px;font-size:4.5rem;font-family:Georgia,serif;color:rgba(245,166,35,0.08);line-height:1}
-        .receipt-metaphor-text{font-size:0.88rem;line-height:1.75;color:rgba(212,168,75,0.9);font-style:italic;position:relative;z-index:1}
-        .receipt-summary{margin:14px 18px 0;padding:12px 14px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:12px;font-size:0.78rem;color:var(--text-2);line-height:1.6}
-        .receipt-cta-wrap{padding:20px 18px 0;display:flex;flex-direction:column;gap:10px}
-        .receipt-cta-btn{width:100%;background:linear-gradient(135deg,rgba(245,166,35,0.2) 0%,rgba(245,166,35,0.1) 100%);border:1px solid rgba(245,166,35,0.45);border-radius:16px;padding:15px 20px;color:var(--gold);font-size:1rem;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 24px rgba(245,166,35,0.1)}
+        .receipt-metaphor-text{font-size:0.85rem;line-height:1.55;color:rgba(212,168,75,0.9);font-style:italic;position:relative;z-index:1}
+        .receipt-summary{display:none}
+        .receipt-cta-wrap{padding:12px 18px 0;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+        .receipt-cta-btn{width:100%;background:linear-gradient(135deg,rgba(245,166,35,0.2) 0%,rgba(245,166,35,0.1) 100%);border:1px solid rgba(245,166,35,0.45);border-radius:16px;padding:13px 20px;color:var(--gold);font-size:0.95rem;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 24px rgba(245,166,35,0.1)}
         .receipt-cta-btn:active{transform:scale(0.98)}
         .receipt-cta-btn:hover{background:linear-gradient(135deg,rgba(245,166,35,0.3) 0%,rgba(245,166,35,0.16) 100%);border-color:rgba(245,166,35,0.7)}
 
@@ -458,23 +458,13 @@
             <div class="receipt-player-name" id="receiptPlayerName">— — —</div>
             <div class="receipt-group-tag" id="receiptGroupTag">— —</div>
         </div>
-        <div class="receipt-stats-row">
-            <div class="receipt-stat"><div class="receipt-stat-label">最高 R币</div><div class="receipt-stat-val gold" id="receiptMaxRbc">—</div></div>
-            <div class="receipt-stat"><div class="receipt-stat-label">最低 R币</div><div class="receipt-stat-val blue" id="receiptMinRbc">—</div></div>
-            <div class="receipt-stat"><div class="receipt-stat-label">持股数</div><div class="receipt-stat-val green" id="receiptShares">—</div></div>
-        </div>
-        <div class="receipt-divider"></div>
-        <div class="receipt-danger-row">
-            <div class="receipt-danger-icon">⚡</div>
-            <div><div class="receipt-danger-label">最危险时刻</div><div class="receipt-danger-val" id="receiptDangerTime">—</div></div>
-        </div>
-        <div class="receipt-divider"></div>
+
         <div class="receipt-tags-section">
             <div class="receipt-tags-label">🏷 行为标签</div>
             <div class="receipt-tags-wrap" id="receiptTagsWrap"></div>
         </div>
         <div class="receipt-metaphor"><div class="receipt-metaphor-text" id="receiptMetaphor">—</div></div>
-        <div class="receipt-summary" id="receiptSummary" style="display:none;"></div>
+
         <div class="receipt-cta-wrap">
             <button class="receipt-cta-btn" id="receiptDismissBtn">我已阅读 · 继续前行 ✦</button>
         </div>
@@ -624,14 +614,8 @@
         const p = playerData;
         document.getElementById('receiptPlayerName').textContent = p ? p.name : (rec.player_name || '—');
         document.getElementById('receiptGroupTag').textContent = p ? `组别 · ${p.group_name}` : '—';
-        document.getElementById('receiptMaxRbc').textContent = rec.max_rbc ?? '—';
-        document.getElementById('receiptMinRbc').textContent = rec.min_rbc ?? '—';
-        document.getElementById('receiptShares').textContent = p ? (p.stock ?? 0) : '—';
-        document.getElementById('receiptDangerTime').textContent = rec.most_dangerous_time || '游戏全程安全';
         document.getElementById('receiptMetaphor').textContent = rec.metaphor || '你的故事值得被记住。';
-        const summaryEl = document.getElementById('receiptSummary');
-        if (rec.summary_text) { summaryEl.textContent = rec.summary_text; summaryEl.style.display = 'block'; }
-        else { summaryEl.style.display = 'none'; }
+
         const wrap = document.getElementById('receiptTagsWrap');
         wrap.innerHTML = '';
         const tags = Array.isArray(rec.behavior_tags) ? rec.behavior_tags : [];
