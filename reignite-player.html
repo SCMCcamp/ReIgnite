@@ -269,13 +269,13 @@
         .go-bar-top{top:0;height:60px} .go-bar-bottom{bottom:0;height:60px}
 
         /* LIFE RECEIPT POPUP */
-        #receiptOverlay{position:fixed;inset:0;top:80px;z-index:99998;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;opacity:0;transition:opacity 0.45s ease}
+        #receiptOverlay{position:fixed;top:100px;left:0;right:0;bottom:0;z-index:99998;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;opacity:0;transition:opacity 0.45s ease}
         #receiptOverlay.visible{pointer-events:all;opacity:1}
-        .receipt-backdrop{position:absolute;inset:0;background:rgba(4,8,18,0.82);backdrop-filter:blur(10px) saturate(0.35);-webkit-backdrop-filter:blur(10px) saturate(0.35)}
+        .receipt-backdrop{position:fixed;inset:0;background:rgba(4,8,18,0.82);backdrop-filter:blur(10px) saturate(0.35);-webkit-backdrop-filter:blur(10px) saturate(0.35)}
         .receipt-glow-1{position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,0.12) 0%,transparent 70%);top:10%;left:-60px;pointer-events:none;animation:receipt-glow-drift 6s ease-in-out infinite alternate}
         .receipt-glow-2{position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%);top:25%;right:-40px;pointer-events:none;animation:receipt-glow-drift 8s ease-in-out infinite alternate-reverse}
         @keyframes receipt-glow-drift{0%{transform:translateY(0)}100%{transform:translateY(30px)}}
-        .receipt-sheet{position:relative;z-index:1;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px 28px 0 0;background:linear-gradient(168deg,#0e1524 0%,#111a2e 35%,#0a0f1c 100%);border:1px solid rgba(245,166,35,0.22);border-bottom:none;box-shadow:0 -12px 80px rgba(0,0,0,0.9),0 0 0 1px rgba(245,166,35,0.06),inset 0 1px 0 rgba(245,166,35,0.18);transform:translateY(100%);transition:transform 0.58s cubic-bezier(0.16,1,0.3,1);padding-bottom:max(32px,env(safe-area-inset-bottom))}
+        .receipt-sheet{position:relative;z-index:1;width:100%;max-width:500px;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px 28px 0 0;background:linear-gradient(168deg,#0e1524 0%,#111a2e 35%,#0a0f1c 100%);border:1px solid rgba(245,166,35,0.22);border-bottom:none;box-shadow:0 -12px 80px rgba(0,0,0,0.9),0 0 0 1px rgba(245,166,35,0.06),inset 0 1px 0 rgba(245,166,35,0.18);transform:translateY(100%);transition:transform 0.58s cubic-bezier(0.16,1,0.3,1);padding-bottom:max(32px,env(safe-area-inset-bottom))}
         #receiptOverlay.visible .receipt-sheet{transform:translateY(0)}
         .receipt-sheet::before{content:'';position:absolute;top:0;left:15%;right:15%;height:2px;background:linear-gradient(90deg,transparent,rgba(245,166,35,0.7),rgba(255,200,80,0.9),rgba(245,166,35,0.7),transparent);border-radius:2px;animation:receipt-line-shimmer 3s ease-in-out infinite}
         @keyframes receipt-line-shimmer{0%,100%{opacity:0.7}50%{opacity:1;box-shadow:0 0 12px rgba(245,166,35,0.4)}}
@@ -458,13 +458,22 @@
             <div class="receipt-player-name" id="receiptPlayerName">— — —</div>
             <div class="receipt-group-tag" id="receiptGroupTag">— —</div>
         </div>
-
+        <div class="receipt-stats-row">
+            <div class="receipt-stat"><div class="receipt-stat-label">最高 R币</div><div class="receipt-stat-val gold" id="receiptMaxRbc">—</div></div>
+            <div class="receipt-stat"><div class="receipt-stat-label">最低 R币</div><div class="receipt-stat-val blue" id="receiptMinRbc">—</div></div>
+            <div class="receipt-stat"><div class="receipt-stat-label">持股数</div><div class="receipt-stat-val green" id="receiptShares">—</div></div>
+        </div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-danger-row">
+            <div class="receipt-danger-icon">⚡</div>
+            <div><div class="receipt-danger-label">最危险时刻</div><div class="receipt-danger-val" id="receiptDangerTime">—</div></div>
+        </div>
+        <div class="receipt-divider"></div>
         <div class="receipt-tags-section">
             <div class="receipt-tags-label">🏷 行为标签</div>
             <div class="receipt-tags-wrap" id="receiptTagsWrap"></div>
         </div>
         <div class="receipt-metaphor"><div class="receipt-metaphor-text" id="receiptMetaphor">—</div></div>
-
         <div class="receipt-cta-wrap">
             <button class="receipt-cta-btn" id="receiptDismissBtn">我已阅读 · 继续前行 ✦</button>
         </div>
@@ -614,8 +623,11 @@
         const p = playerData;
         document.getElementById('receiptPlayerName').textContent = p ? p.name : (rec.player_name || '—');
         document.getElementById('receiptGroupTag').textContent = p ? `组别 · ${p.group_name}` : '—';
+        document.getElementById('receiptMaxRbc').textContent = rec.max_rbc ?? '—';
+        document.getElementById('receiptMinRbc').textContent = rec.min_rbc ?? '—';
+        document.getElementById('receiptShares').textContent = p ? (p.stock ?? 0) : '—';
+        document.getElementById('receiptDangerTime').textContent = rec.most_dangerous_time || '游戏全程安全';
         document.getElementById('receiptMetaphor').textContent = rec.metaphor || '你的故事值得被记住。';
-
         const wrap = document.getElementById('receiptTagsWrap');
         wrap.innerHTML = '';
         const tags = Array.isArray(rec.behavior_tags) ? rec.behavior_tags : [];
@@ -623,10 +635,12 @@
         else { tags.forEach(tag => { const span = document.createElement('span'); span.className = `receipt-tag ${TAG_CLASSES[tag] || 'tag-default'}`; span.textContent = tag; wrap.appendChild(span); }); }
         document.getElementById('receiptOverlay').classList.add('visible');
         document.getElementById('receiptSheet').scrollTop = 0;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function hideReceiptPopup() {
         document.getElementById('receiptOverlay').classList.remove('visible');
+        if (lastSeenReceiptId) sessionStorage.setItem(`receipt_seen_${lastSeenReceiptId}`, '1');
     }
 
     document.getElementById('receiptDismissBtn').addEventListener('click', hideReceiptPopup);
@@ -667,8 +681,9 @@
         const { data } = await sb.from('player_receipts').select('*').eq('player_id', p.id).order('id', { ascending: false }).limit(1);
         if (!data?.length) return;
         const rec = data[0];
+        if (sessionStorage.getItem(`receipt_seen_${rec.id}`)) return;
         lastSeenReceiptId = rec.id;
-        setTimeout(() => showReceiptPopup(rec, p), 400);
+        setTimeout(() => showReceiptPopup(rec, p), 1000);
     }
 
     /* ── DOTS ── */
