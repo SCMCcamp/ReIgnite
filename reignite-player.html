@@ -173,30 +173,30 @@
         @keyframes bar-pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
         /* Stats Grid — 3 cols */
-        .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+        .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
         @media(min-width:400px){.stats-grid{gap:14px}}
-        .stat-box{border-radius:20px;padding:20px 12px 18px;text-align:center;background:linear-gradient(135deg,rgba(255,255,255,0.07) 0%,rgba(255,255,255,0.03) 100%);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border:1px solid rgba(255,255,255,0.1);box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),inset 0 -1px 0 rgba(0,0,0,0.1),0 4px 16px rgba(0,0,0,0.18)}
-        @media(min-width:400px){.stat-box{padding:22px 16px 20px}}
-        @media(min-width:520px){.stat-box{padding:26px 20px 22px;border-radius:24px}}
+        .stat-box{border-radius:20px;padding:24px 12px 22px;text-align:center;background:linear-gradient(135deg,rgba(255,255,255,0.07) 0%,rgba(255,255,255,0.03) 100%);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border:1px solid rgba(255,255,255,0.1);box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),inset 0 -1px 0 rgba(0,0,0,0.1),0 4px 16px rgba(0,0,0,0.18)}
+        @media(min-width:400px){.stat-box{padding:26px 16px 24px}}
+        @media(min-width:520px){.stat-box{padding:30px 20px 26px;border-radius:24px}}
         [data-theme="light"] .stat-box{background:linear-gradient(135deg,rgba(255,255,255,0.7) 0%,rgba(255,255,255,0.45) 100%);border:1px solid rgba(255,255,255,0.75);box-shadow:inset 0 1px 0 rgba(255,255,255,0.95),0 4px 16px rgba(0,0,0,0.06)}
-        .stat-label{font-size:0.8rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-2);margin-bottom:12px;font-weight:700}
+        .stat-label{font-size:0.8rem;text-transform:uppercase;letter-spacing:1.4px;color:var(--text-2);margin-bottom:14px;font-weight:700}
         @media(min-width:400px){.stat-label{font-size:0.85rem;letter-spacing:1.4px}}
         @media(min-width:520px){.stat-label{font-size:0.9rem;letter-spacing:1.6px;margin-bottom:14px}}
-        .stat-value{font-family:'Rajdhani',sans-serif;font-size:3.8rem;font-weight:700;line-height:1;color:var(--text-1)}
-        @media(min-width:380px){.stat-value{font-size:4.2rem}}
-        @media(min-width:520px){.stat-value{font-size:4.8rem}}
+        .stat-value{font-family:'Rajdhani',sans-serif;font-size:4.2rem;font-weight:700;line-height:1;color:var(--text-1)}
+        @media(min-width:380px){.stat-value{font-size:4.6rem}}
+        @media(min-width:520px){.stat-value{font-size:5.2rem}}
         .stat-value.rbc-value{color:var(--gold)}
         .stat-value.rbc-danger{color:#ff4444!important;text-shadow:0 0 16px rgba(255,50,50,0.7),0 0 32px rgba(255,0,0,0.4);animation:rbc-danger-pulse 1s ease-in-out infinite}
         @keyframes rbc-danger-pulse{0%,100%{text-shadow:0 0 12px rgba(255,50,50,0.6),0 0 24px rgba(255,0,0,0.3);color:#ff4444}50%{text-shadow:0 0 28px rgba(255,80,80,0.9),0 0 50px rgba(255,0,0,0.6);color:#ff2222}}
         .stat-box.rbc-box-danger{border-color:rgba(255,60,60,0.5)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 24px rgba(255,50,50,0.25),0 4px 16px rgba(0,0,0,0.2)!important;animation:rbc-box-pulse 1s ease-in-out infinite}
         @keyframes rbc-box-pulse{0%,100%{border-color:rgba(255,60,60,0.4)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 18px rgba(255,50,50,0.2)!important}50%{border-color:rgba(255,60,60,0.8)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 36px rgba(255,50,50,0.45)!important}}
-        .color-orb-wrap{display:flex;justify-content:center;margin-bottom:10px}
-        .color-orb{width:56px;height:56px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.18)}
-        @media(min-width:400px){.color-orb{width:64px;height:64px}}
-        @media(min-width:520px){.color-orb{width:72px;height:72px}}
-        .skull-orb{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;line-height:1;animation:skull-pulse 3s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(80,90,100,0.6))}
-        @media(min-width:400px){.skull-orb{width:64px;height:64px;font-size:2.8rem}}
-        @media(min-width:520px){.skull-orb{width:72px;height:72px;font-size:3.2rem}}
+        .color-orb-wrap{display:flex;justify-content:center;margin-bottom:14px}
+        .color-orb{width:64px;height:64px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.18)}
+        @media(min-width:400px){.color-orb{width:72px;height:72px}}
+        @media(min-width:520px){.color-orb{width:80px;height:80px}}
+        .skull-orb{width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;line-height:1;animation:skull-pulse 3s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(80,90,100,0.6))}
+        @media(min-width:400px){.skull-orb{width:72px;height:72px;font-size:3.2rem}}
+        @media(min-width:520px){.skull-orb{width:80px;height:80px;font-size:3.6rem}}
         @keyframes skull-pulse{0%,100%{opacity:0.7;transform:scale(1);filter:drop-shadow(0 0 6px rgba(80,90,100,0.5))}50%{opacity:1;transform:scale(1.08);filter:drop-shadow(0 0 14px rgba(80,90,100,0.8))}}
         @keyframes hb-green{0%{transform:scale(1);box-shadow:0 0 8px rgba(76,175,80,0.4)}8%{transform:scale(1.22);box-shadow:0 0 20px rgba(76,175,80,0.85)}16%{transform:scale(1.05)}24%{transform:scale(1.18);box-shadow:0 0 17px rgba(76,175,80,0.7)}40%,100%{transform:scale(1);box-shadow:0 0 8px rgba(76,175,80,0.4)}}
         @keyframes hb-yellow{0%{transform:scale(1);box-shadow:0 0 8px rgba(255,193,7,0.4)}10%{transform:scale(1.17)}30%{transform:scale(1.13)}48%,100%{transform:scale(1)}}
@@ -269,19 +269,21 @@
         .go-bar-top{top:0;height:60px} .go-bar-bottom{bottom:0;height:60px}
 
         /* LIFE RECEIPT POPUP */
-        #receiptOverlay{position:fixed;top:20px;left:0;right:0;bottom:0;z-index:99998;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;opacity:0;transition:opacity 0.45s ease}
+        #receiptOverlay{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px;pointer-events:none;opacity:0;transition:opacity 0.45s ease}
         #receiptOverlay.visible{pointer-events:all;opacity:1}
         .receipt-backdrop{position:fixed;inset:0;background:rgba(4,8,18,0.82);backdrop-filter:blur(10px) saturate(0.35);-webkit-backdrop-filter:blur(10px) saturate(0.35)}
         .receipt-glow-1{position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,0.12) 0%,transparent 70%);top:10%;left:-60px;pointer-events:none;animation:receipt-glow-drift 6s ease-in-out infinite alternate}
         .receipt-glow-2{position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%);top:25%;right:-40px;pointer-events:none;animation:receipt-glow-drift 8s ease-in-out infinite alternate-reverse}
         @keyframes receipt-glow-drift{0%{transform:translateY(0)}100%{transform:translateY(30px)}}
-        .receipt-sheet{position:relative;z-index:1;width:100%;max-width:500px;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:28px 28px 0 0;background:linear-gradient(168deg,#0e1524 0%,#111a2e 35%,#0a0f1c 100%);border:1px solid rgba(245,166,35,0.22);border-bottom:none;box-shadow:0 -12px 80px rgba(0,0,0,0.9),0 0 0 1px rgba(245,166,35,0.06),inset 0 1px 0 rgba(245,166,35,0.18);transform:translateY(100%);transition:transform 0.58s cubic-bezier(0.16,1,0.3,1);padding-bottom:max(32px,env(safe-area-inset-bottom))}
-        #receiptOverlay.visible .receipt-sheet{transform:translateY(0)}
-        .receipt-sheet::before{content:'';position:absolute;top:0;left:15%;right:15%;height:2px;background:linear-gradient(90deg,transparent,rgba(245,166,35,0.7),rgba(255,200,80,0.9),rgba(245,166,35,0.7),transparent);border-radius:2px;animation:receipt-line-shimmer 3s ease-in-out infinite}
+        .receipt-sheet{position:relative;z-index:1;width:100%;max-width:460px;max-height:88vh;border-radius:24px;background:linear-gradient(168deg,#0e1524 0%,#111a2e 35%,#0a0f1c 100%);border:1px solid rgba(245,166,35,0.22);box-shadow:0 0 0 1px rgba(245,166,35,0.06),0 24px 80px rgba(0,0,0,0.95),inset 0 1px 0 rgba(245,166,35,0.18);transform:translateY(48px) scale(0.97);opacity:0;transition:transform 0.5s cubic-bezier(0.16,1,0.3,1),opacity 0.4s ease;display:flex;flex-direction:column;overflow:hidden}
+        #receiptOverlay.visible .receipt-sheet{transform:translateY(0) scale(1);opacity:1}
+        .receipt-sheet::before{content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,rgba(245,166,35,0.7),rgba(255,200,80,0.9),rgba(245,166,35,0.7),transparent);border-radius:2px;z-index:2;animation:receipt-line-shimmer 3s ease-in-out infinite}
         @keyframes receipt-line-shimmer{0%,100%{opacity:0.7}50%{opacity:1;box-shadow:0 0 12px rgba(245,166,35,0.4)}}
-        .receipt-handle{display:flex;justify-content:center;padding:14px 0 6px}
+        .receipt-handle{display:none}
+        .receipt-scroll-body{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0}
+
         .receipt-handle-bar{width:36px;height:4px;border-radius:4px;background:rgba(245,166,35,0.2)}
-        .receipt-header{padding:6px 24px 18px;text-align:center;border-bottom:1px solid rgba(245,166,35,0.1)}
+        .receipt-header{padding:16px 24px 14px;text-align:center;border-bottom:1px solid rgba(245,166,35,0.1);flex-shrink:0}
         .receipt-header-icon{font-size:2.6rem;display:block;margin-bottom:6px;animation:receipt-icon-float 4s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(245,166,35,0.35))}
         @keyframes receipt-icon-float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-7px) rotate(4deg)}}
         .receipt-eyebrow{font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,166,35,0.5);font-weight:600;margin-bottom:3px}
@@ -301,7 +303,7 @@
         .receipt-danger-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
         .receipt-danger-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-3);font-weight:600;margin-bottom:3px}
         .receipt-danger-val{font-size:0.84rem;color:#f87171;font-weight:600;line-height:1.4}
-        .receipt-tags-section{padding:16px 18px 0}
+        .receipt-tags-section{padding:12px 18px 0}
         .receipt-tags-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-3);font-weight:600;margin-bottom:10px}
         .receipt-tags-wrap{display:flex;flex-wrap:wrap;gap:7px}
         .receipt-tag{padding:5px 13px;border-radius:40px;font-size:0.75rem;font-weight:700;letter-spacing:0.3px;animation:tag-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
@@ -314,11 +316,11 @@
         .tag-nightwatch{background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.18);color:#94a3b8}
         .tag-investor{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.28);color:var(--gold)}
         .tag-default{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-2)}
-        .receipt-metaphor{margin:16px 18px 0;padding:16px 18px;background:linear-gradient(135deg,rgba(245,166,35,0.07) 0%,rgba(245,166,35,0.025) 100%);border:1px solid rgba(245,166,35,0.18);border-left:3px solid rgba(245,166,35,0.6);border-radius:0 14px 14px 0;position:relative;overflow:hidden}
+        .receipt-metaphor{margin:10px 18px 0;padding:12px 16px;background:linear-gradient(135deg,rgba(245,166,35,0.07) 0%,rgba(245,166,35,0.025) 100%);border:1px solid rgba(245,166,35,0.18);border-left:3px solid rgba(245,166,35,0.6);border-radius:0 14px 14px 0;position:relative;overflow:hidden}
         .receipt-metaphor::before{content:'"';position:absolute;top:-10px;left:8px;font-size:4.5rem;font-family:Georgia,serif;color:rgba(245,166,35,0.08);line-height:1}
         .receipt-metaphor-text{font-size:0.88rem;line-height:1.75;color:rgba(212,168,75,0.9);font-style:italic;position:relative;z-index:1}
         .receipt-summary{display:none!important}
-        .receipt-cta-wrap{padding:20px 18px 0;display:flex;flex-direction:column;gap:10px}
+        .receipt-cta-wrap{padding:14px 18px 16px;display:flex;flex-direction:column;gap:10px;flex-shrink:0;border-top:1px solid rgba(245,166,35,0.08)}
         .receipt-cta-btn{width:100%;background:linear-gradient(135deg,rgba(245,166,35,0.2) 0%,rgba(245,166,35,0.1) 100%);border:1px solid rgba(245,166,35,0.45);border-radius:16px;padding:15px 20px;color:var(--gold);font-size:1rem;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 24px rgba(245,166,35,0.1)}
         .receipt-cta-btn:active{transform:scale(0.98)}
         .receipt-cta-btn:hover{background:linear-gradient(135deg,rgba(245,166,35,0.3) 0%,rgba(245,166,35,0.16) 100%);border-color:rgba(245,166,35,0.7)}
@@ -458,6 +460,7 @@
             <div class="receipt-player-name" id="receiptPlayerName">— — —</div>
             <div class="receipt-group-tag" id="receiptGroupTag">— —</div>
         </div>
+        <div class="receipt-scroll-body">
         <div class="receipt-stats-row">
             <div class="receipt-stat"><div class="receipt-stat-label">最高 R币</div><div class="receipt-stat-val gold" id="receiptMaxRbc">—</div></div>
             <div class="receipt-stat"><div class="receipt-stat-label">最低 R币</div><div class="receipt-stat-val blue" id="receiptMinRbc">—</div></div>
@@ -474,6 +477,7 @@
             <div class="receipt-tags-wrap" id="receiptTagsWrap"></div>
         </div>
         <div class="receipt-metaphor"><div class="receipt-metaphor-text" id="receiptMetaphor">—</div></div>
+        </div><!-- end scroll body -->
         <div class="receipt-cta-wrap">
             <button class="receipt-cta-btn" id="receiptDismissBtn">我已阅读 · 继续前行 ✦</button>
         </div>
@@ -607,7 +611,6 @@
         document.getElementById('goPlayerTag').textContent = `${groupName} · ${playerName}`;
         document.getElementById('gameOverOverlay').classList.add('visible');
         gameOverShown = true;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function hideGameOverOverlay() { document.getElementById('gameOverOverlay').classList.remove('visible'); }
     document.getElementById('goDismissBtn').addEventListener('click', hideGameOverOverlay);
@@ -635,7 +638,6 @@
         else { tags.forEach(tag => { const span = document.createElement('span'); span.className = `receipt-tag ${TAG_CLASSES[tag] || 'tag-default'}`; span.textContent = tag; wrap.appendChild(span); }); }
         document.getElementById('receiptOverlay').classList.add('visible');
         document.getElementById('receiptSheet').scrollTop = 0;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function hideReceiptPopup() {
@@ -652,12 +654,12 @@
         sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
         sheet.addEventListener('touchmove', e => {
             const dy = e.touches[0].clientY - startY;
-            if (dy > 0 && sheet.scrollTop === 0) sheet.style.transform = `translateY(${Math.min(dy * 0.45, 100)}px)`;
+            if (dy > 20) sheet.style.transform = `translateY(${Math.min(dy * 0.4, 80)}px) scale(${Math.max(0.97, 1 - dy * 0.0003)})`;
         }, { passive: true });
         sheet.addEventListener('touchend', e => {
             const dy = e.changedTouches[0].clientY - startY;
             sheet.style.transform = '';
-            if (dy > 70 && sheet.scrollTop === 0) hideReceiptPopup();
+            if (dy > 60) hideReceiptPopup();
         });
     })();
 
@@ -683,7 +685,7 @@
         const rec = data[0];
         if (sessionStorage.getItem(`receipt_seen_${rec.id}`)) return;
         lastSeenReceiptId = rec.id;
-        setTimeout(() => showReceiptPopup(rec, p), 1000);
+        setTimeout(() => showReceiptPopup(rec, p), 400);
     }
 
     /* ── DOTS ── */
@@ -851,7 +853,7 @@
                     <div class="stat-box">
                         <div class="stat-label">生命颜色</div>
                         ${orbHtml}
-                        <div style="font-size:0.78rem;color:var(--text-2);margin-top:8px;letter-spacing:0.8px;font-weight:700;">${colorLabel[col]||''}</div>
+                        <div style="font-size:0.82rem;color:var(--text-2);margin-top:10px;letter-spacing:0.8px;font-weight:700;">${colorLabel[col]||''}</div>
                     </div>
                     <div class="${rbcBoxClass}">
                         <div class="stat-label">R 币</div>
