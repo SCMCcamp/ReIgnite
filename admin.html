@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RE:Ignite | 中控端</title>
+    <title>RE:Ignite | 中控端（股票评分版）</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,7 +22,7 @@
             z-index: 0;
         }
         .container { max-width: 1600px; margin: 0 auto; position: relative; z-index: 1; }
-        
+
         .glass-card {
             background: rgba(255,255,255,0.85);
             backdrop-filter: blur(16px) saturate(1.5);
@@ -30,7 +30,7 @@
             border-radius: 28px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.05);
         }
-        
+
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
         .logo { display: flex; align-items: baseline; gap: 6px; }
         .logo-text { font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; color: #111827; }
@@ -40,23 +40,23 @@
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
         .btn { background: white; border: 1px solid rgba(0,0,0,0.1); padding: 6px 16px; border-radius: 40px; cursor: pointer; color: #111827; font-weight: 500; font-size: 0.85rem; }
         .btn-primary { background: #e8501a; border: none; color: white; }
-        
+
         .panels { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 28px; }
         .panel { flex: 1; padding: 20px 24px; }
         .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .panel-title { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; border-left: 3px solid #e8501a; padding-left: 12px; }
         .toggle-history-btn { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 0.7rem; padding: 4px 12px; border-radius: 40px; }
         .toggle-history-btn:hover { background: #e5e7eb; color: #111827; }
-        
+
         .input-area { margin-bottom: 16px; }
         .quick-group { display: flex; gap: 8px; margin-bottom: 10px; }
         .quick-btn { background: #f3f4f6; border: none; padding: 5px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
         input, select { background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 48px; padding: 10px 14px; font-size: 0.85rem; width: 100%; margin-bottom: 10px; }
-        
+
         .latest-item { background: rgba(0,0,0,0.03); border-radius: 20px; padding: 10px 14px; margin-top: 16px; border-left: 3px solid #e8501a; }
         .latest-content { font-size: 0.85rem; word-break: break-word; }
         .latest-time { font-size: 0.6rem; color: #6b7280; text-align: right; margin-top: 6px; }
-        
+
         .history-list { max-height: 0; overflow-y: auto; transition: max-height 0.3s ease; }
         .history-list.open { max-height: 300px; margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 12px; }
         .history-item { font-size: 0.75rem; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
@@ -64,19 +64,19 @@
         .history-time { font-size: 0.6rem; color: #6b7280; margin-left: 12px; white-space: nowrap; }
         .del-small { color: #dc2626; font-size: 0.65rem; cursor: pointer; margin-left: 8px; opacity: 0.7; }
         .del-small:hover { opacity: 1; text-decoration: underline; }
-        
+
         .collapsible-header { padding: 14px 24px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
         .collapsible-content { padding: 0 24px 20px 24px; display: none; }
         .collapsible-content.show { display: block; }
-        
+
         .filter-bar { background: white; border-radius: 60px; padding: 10px 20px; margin: 20px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; border: 1px solid rgba(0,0,0,0.08); }
         .group-chip { padding: 5px 16px; border-radius: 40px; background: #f3f4f6; cursor: pointer; font-size: 0.8rem; }
         .group-chip.active { background: #e8501a; color: white; }
-        
+
         .stats-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
         .stat-card { background: white; border-radius: 20px; padding: 10px 16px; text-align: center; flex: 1; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); font-size: 0.8rem; }
         .stat-card.active-filter { background: rgba(232,80,26,0.1); border-color: #e8501a; }
-        
+
         .table-wrapper { overflow-x: auto; margin-top: 20px; padding: 0 0 20px 0; }
         table { width: 100%; border-collapse: collapse; min-width: 1300px; }
         th, td { padding: 10px 6px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 0.78rem; }
@@ -84,7 +84,7 @@
         .warning-row { background: rgba(220,38,38,0.08); }
         .detail-btn { background: none; border: 1px solid #d1d5db; border-radius: 20px; padding: 4px 10px; cursor: pointer; font-size: 0.7rem; color: #4b5563; }
         .detail-btn:hover { background: #e5e7eb; }
-        
+
         .color-selector { display: flex; gap: 6px; justify-content: center; }
         .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
         .dot-green { background: #4caf50; }
@@ -93,13 +93,13 @@
         .dot-red { background: #f44336; }
         .dot-black { background: #2c3e2f; }
         .active-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 3px currentColor; }
-        
+
         .rbc-control, .loan-control, .stock-control { display: flex; gap: 6px; justify-content: center; align-items: center; }
         .rbc-btn, .loan-btn, .stock-btn { background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 40px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
         .loan-btn { background: #e0e7ff; color: #1e3a8a; }
         .stock-btn { background: #d1fae5; color: #065f46; }
         .behavior-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #e8501a; }
-        
+
         .tax-config {
             margin-top: 12px;
             padding: 12px;
@@ -127,7 +127,7 @@
             font-size: 0.85rem;
             border-left: 4px solid #22c55e;
         }
-        
+
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -172,19 +172,32 @@
         .log-detail { flex: 1; color: #4b5563; word-break: break-word; }
         .undo-btn { background: none; border: 1px solid #d1d5db; border-radius: 20px; padding: 2px 10px; cursor: pointer; font-size: 0.65rem; color: #dc2626; }
         .undo-btn:hover { background: #fee2e2; }
-        
+
         .toast-msg { position: fixed; bottom: 30px; right: 30px; background: white; padding: 8px 16px; border-radius: 40px; border-left: 4px solid #e8501a; opacity: 0; transition: 0.2s; z-index: 1001; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 0.8rem; }
 
-        .tag.workaholic { background: #fee2e2; color: #b91c1c; }
-        .tag.consumer { background: #fed7aa; color: #9a3412; }
-        .tag.adventurer { background: #fef9c3; color: #854d0e; }
-        .tag.helper { background: #d1fae5; color: #065f46; }
-        .tag.investor { background: #fef9c3; color: #854d0e; }
-        .tag.reborn { background: #d1fae5; color: #065f46; }
-        .tag.companion { background: #e0e7ff; color: #1e3a8a; }
-        .tag.prudent { background: #e0e7ff; color: #1e3a8a; }
-        .tag.observer { background: #e5e7eb; color: #374151; }
-        
+        /* Tag base style */
+        .tag { background: #f3f4f6; padding: 2px 10px; border-radius: 40px; font-size: 0.7rem; font-weight: 500; }
+
+        /* Tier 1 — spiritual & story arc */
+        .tag-reborn    { background: #dcfce7; color: #166534; }
+        .tag-survivor  { background: #fef9c3; color: #713f12; }
+        .tag-debtor    { background: #fee2e2; color: #991b1b; }
+
+        /* Tier 2 — manual identity tags */
+        .tag-workaholic  { background: #fee2e2; color: #b91c1c; }
+        .tag-consumer    { background: #fed7aa; color: #9a3412; }
+        .tag-adventurer  { background: #fef9c3; color: #854d0e; }
+        .tag-helper      { background: #d1fae5; color: #065f46; }
+
+        /* Tier 3 — investor tiers (based on stock score) */
+        .tag-stock-master  { background: #ede9fe; color: #5b21b6; }
+        .tag-investor      { background: #dbeafe; color: #1e3a8a; }
+        .tag-stock-newbie  { background: #e5e7eb; color: #374151; }
+
+        /* Tier 4 — wealth signals */
+        .tag-cash-king  { background: #ecfdf5; color: #064e3b; }
+        .tag-big-earner { background: #fef3c7; color: #92400e; }
+
         .receipt-grid {
             display: flex;
             flex-direction: column;
@@ -214,13 +227,6 @@
             gap: 6px;
             flex-wrap: wrap;
             margin: 8px 0;
-        }
-        .tag {
-            background: #f3f4f6;
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 500;
         }
         .receipt-meta {
             font-size: 0.7rem;
@@ -256,7 +262,7 @@
         <div class="logo">
             <div class="logo-text">RE:Ignite</div>
             <span class="logo-pipe">|</span>
-            <div class="badge">中控端</div>
+            <div class="badge">中控端 · 股票评分版</div>
             <div class="status-pill"><span class="status-dot"></span>实时在线</div>
         </div>
         <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
@@ -334,9 +340,9 @@
                 <span id="receiptStatus" style="font-size:0.75rem; color:#6b7280;"></span>
             </div>
             <div id="receiptPreviewArea" class="receipt-grid">
-                <div style="text-align:center; color:#9ca3af; padding:20px;">点击“生成所有玩家回执单预览”查看内容</div>
+                <div style="text-align:center; color:#9ca3af; padding:20px;">点击"生成所有玩家回执单预览"查看内容</div>
             </div>
-            <div style="font-size:0.7rem; margin-top: 8px; color:#6b7280;">💡 标签说明：站1=工作狂、站2=消费者、站3=冒险者、站4=帮助者（手动打勾）；其他标签自动分析</div>
+            <div style="font-size:0.7rem; margin-top: 8px; color:#6b7280;">💡 标签说明：站1=工作狂、站2=消费者、站3=冒险家、站4=帮助者（手动打勾）；投资标签基于「交易次数+持股数」自动评定；其他标签自动分析</div>
         </div>
     </div>
 
@@ -350,7 +356,7 @@
             <thead>
                 <tr>
                     <th>#</th><th>玩家</th><th>组</th><th>颜色</th><th>R币</th><th>贷款</th><th>股票</th>
-                    <th>站1<br>工作狂</th><th>站2<br>消费者</th><th>站3<br>冒险者</th><th>站4<br>帮助者</th>
+                    <th>站1<br>工作狂</th><th>站2<br>消费者</th><th>站3<br>冒险家</th><th>站4<br>帮助者</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -374,57 +380,129 @@
     let supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let uniquePlayers = [], currentGroup = "all", currentColorFilter = null, priceHistory = [5], chart = null, autoTimer = null;
     let currentSidebarPlayer = null;
-    
+
     // 税收配置
     let taxBrackets = [
         { threshold: 0.5, rate: 0.10 },
         { threshold: 1.0, rate: 0.15 },
         { threshold: 999, rate: 0.20 }
     ];
-    
-    // ========= 标签分析函数 =========
-    function analyzeTags(player, logs) {
+
+    // ========= 股票评分核心函数 =========
+    // 获取单个玩家的 stock_change 总次数（买卖合并）
+    async function getStockTradesCount(playerId) {
+        const { data, error } = await supabase
+            .from('player_logs')
+            .select('id')
+            .eq('player_id', playerId)
+            .eq('action_type', 'stock_change');
+        if (error) return 0;
+        return data.length;
+    }
+
+    // 批量获取所有玩家的交易次数（用于生成回执单时避免N+1查询）
+    async function getAllStockTradesCounts() {
+        const { data, error } = await supabase
+            .from('player_logs')
+            .select('player_id')
+            .eq('action_type', 'stock_change');
+        if (error) return {};
+        const counts = {};
+        for (const log of data) {
+            counts[log.player_id] = (counts[log.player_id] || 0) + 1;
+        }
+        return counts;
+    }
+
+    // 根据评分获取投资标签
+    function getInvestorTagByScore(score) {
+        if (score >= 10) return { label: '股市达人', class: 'tag-stock-master' };
+        if (score >= 5) return { label: '投资者', class: 'tag-investor' };
+        if (score >= 2) return { label: '股市小白', class: 'tag-stock-newbie' };
+        return null;
+    }
+
+    // ========= 标签系统（整合股票评分） =========
+    const TAG_CLASSES = {
+        '重生者':   'tag-reborn',
+        '幸存者':   'tag-survivor',
+        '负债者':   'tag-debtor',
+        '工作狂':   'tag-workaholic',
+        '消费者':   'tag-consumer',
+        '冒险家':   'tag-adventurer',
+        '帮助者':   'tag-helper',
+        '股市达人': 'tag-stock-master',
+        '投资者':   'tag-investor',
+        '股市小白': 'tag-stock-newbie',
+        '现金者':   'tag-cash-king',
+        '暴发户':   'tag-big-earner'
+    };
+
+    function makeTag(label) {
+        return { label, class: TAG_CLASSES[label] || '' };
+    }
+
+    // analyzeTags 现在接收可选的 tradesCount 参数（如果已预取则传入，否则函数内部会查询）
+    async function analyzeTags(player, logs, precomputedTradesCount = null) {
         let tags = [];
-        
-        // 手动标记的四个标签（对应站1~站4的打勾）
-        if (player.is_workaholic === true) tags.push({ type: 'workaholic', label: '工作狂', class: 'workaholic' });
-        if (player.is_consumer === true) tags.push({ type: 'consumer', label: '消费者', class: 'consumer' });
-        if (player.is_adventurer === true) tags.push({ type: 'adventurer', label: '冒险者', class: 'adventurer' });
-        if (player.is_helper === true) tags.push({ type: 'helper', label: '帮助者', class: 'helper' });
-        
-        // 自动分析标签
-        if ((player.stock || 0) >= 5) tags.push({ type: 'investor', label: '投资者', class: 'investor' });
-        const hasReborn = logs.some(log => 
+
+        // Tier 2 — manual identity tags (站1~站4)
+        if (player.is_workaholic === true) tags.push(makeTag('工作狂'));
+        if (player.is_consumer === true)   tags.push(makeTag('消费者'));
+        if (player.is_adventurer === true) tags.push(makeTag('冒险家'));
+        if (player.is_helper === true)     tags.push(makeTag('帮助者'));
+
+        // Tier 1 — 重生者
+        const hasReborn = logs.some(log =>
             (log.detail && (log.detail.includes('修复者') || log.detail.includes('放弃所有R币'))) ||
             (log.action_type === 'rbc_change' && parseInt(log.old_value) > 0 && parseInt(log.new_value) === 0 && log.detail && log.detail.includes('修复'))
         );
-        if (hasReborn) tags.push({ type: 'reborn', label: '重生者', class: 'reborn' });
-        if (player.is_companion === true || logs.some(log => log.detail && log.detail.includes('团契'))) {
-            tags.push({ type: 'companion', label: '同行者', class: 'companion' });
+        if (hasReborn) tags.push(makeTag('重生者'));
+
+        // Tier 1 — 幸存者
+        const colorLogs = logs
+            .filter(l => l.action_type === 'color_change')
+            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        let hadDanger = false, recoveredAfterDanger = false;
+        for (const cl of colorLogs) {
+            if (cl.new_value === 'red' || cl.new_value === 'black') hadDanger = true;
+            if (hadDanger && cl.new_value === 'green') recoveredAfterDanger = true;
         }
-        if (player.is_adventurer === false) tags.push({ type: 'prudent', label: '审慎者', class: 'prudent' });
-        if (player.is_workaholic === true && player.is_consumer === false && player.is_adventurer === false && player.is_helper === false) {
-            tags.push({ type: 'observer', label: '观察者', class: 'observer' });
+        if (hadDanger && (recoveredAfterDanger || player.color === 'green')) tags.push(makeTag('幸存者'));
+
+        // Tier 1 — 负债者
+        if ((player.loan || 0) > 0) tags.push(makeTag('负债者'));
+
+        // Tier 3 — 投资标签（基于评分 = 交易次数 + 当前持股数）
+        let tradesCount = precomputedTradesCount;
+        if (tradesCount === null || tradesCount === undefined) {
+            tradesCount = await getStockTradesCount(player.id);
         }
-        
+        const stockScore = tradesCount + (player.stock || 0);
+        const investorTag = getInvestorTagByScore(stockScore);
+        if (investorTag) tags.push(investorTag);
+
+        // Tier 4 — 现金者: R币 > 80
+        if (player.rbc > 80) tags.push(makeTag('现金者'));
+
+        // Tier 4 — 暴发户: 单次R币增加 > 50
+        const bigEarner = logs.some(log =>
+            log.action_type === 'rbc_change' &&
+            (parseInt(log.new_value) - parseInt(log.old_value)) > 50
+        );
+        if (bigEarner) tags.push(makeTag('暴发户'));
+
         // 去重
-        const unique = [];
-        const map = new Map();
-        for(let t of tags) {
-            if(!map.has(t.label)) {
-                map.set(t.label, t);
-                unique.push(t);
-            }
-        }
-        return unique;
+        const seen = new Set();
+        return tags.filter(t => seen.has(t.label) ? false : seen.add(t.label));
     }
-    
+
     async function fetchPlayerLogs(playerId) {
         const { data } = await supabase.from('player_logs').select('*').eq('player_id', playerId).order('created_at', { ascending: true });
         return data || [];
     }
-    
-    async function generateReceiptForPlayer(player) {
+
+    async function generateReceiptForPlayer(player, precomputedTradesCount = null) {
         const logs = await fetchPlayerLogs(player.id);
         let maxRbc = player.rbc, minRbc = player.rbc;
         logs.forEach(log => {
@@ -446,15 +524,18 @@
             }
         }
         if(!dangerousTime) dangerousTime = '无严重危险记录';
-        const tags = analyzeTags(player, logs);
+        const tags = await analyzeTags(player, logs, precomputedTradesCount);
         let metaphor = '';
-        if(tags.some(t=>t.label==='重生者')) metaphor = '你曾归于零，如今重新站立。每一次放下，都是更深的拥有。';
+        if(tags.some(t=>t.label==='重生者'))   metaphor = '你曾归于零，如今重新站立。每一次放下，都是更深的拥有。';
+        else if(tags.some(t=>t.label==='幸存者')) metaphor = '你跌入深谷，又爬了出来。这条路，你比谁都清楚它的重量。';
         else if(tags.some(t=>t.label==='工作狂')) metaphor = '你奔跑得太快了，别忘了，灵魂也需要休息。';
         else if(tags.some(t=>t.label==='消费者')) metaphor = '在消费与娱乐中，你找到了快乐，也看见了代价。';
-        else if(tags.some(t=>t.label==='冒险者')) metaphor = '敢于掷出骰子的人，运气和勇气同样闪耀。';
+        else if(tags.some(t=>t.label==='冒险家')) metaphor = '敢于掷出骰子的人，运气和勇气同样闪耀。';
         else if(tags.some(t=>t.label==='帮助者')) metaphor = '你伸出手的那一刻，世界变得温柔了一点。';
-        else if(tags.some(t=>t.label==='观察者')) metaphor = '你选择先看再行动，清醒是一种力量。';
-        else if(tags.some(t=>t.label==='审慎者')) metaphor = '你绕开了喧嚣，守护了自己的节奏。';
+        else if(tags.some(t=>t.label==='股市达人')) metaphor = '数字在你手中流转，你学会了让钱为你工作。';
+        else if(tags.some(t=>t.label==='负债者'))  metaphor = '你借了明天的资源活今天，这本身就是一种勇气与风险。';
+        else if(tags.some(t=>t.label==='现金者'))  metaphor = '终点时你口袋最满，但你知道，最值钱的从来不是数字。';
+        else if(tags.some(t=>t.label==='暴发户'))  metaphor = '命运有时候会突然笑着扔给你一大袋钱，你接住了。';
         else metaphor = '你的故事还在继续，R币归零，但经历永存。';
         return {
             playerId: player.id,
@@ -466,20 +547,23 @@
             metaphor: metaphor
         };
     }
-    
+
     async function generateAllReceiptsPreview() {
         const statusSpan = document.getElementById('receiptStatus');
         statusSpan.innerText = '正在分析日志，请稍候...';
+        // 批量预取所有玩家的交易次数
+        const tradesCountMap = await getAllStockTradesCounts();
         const receipts = [];
         for(let p of uniquePlayers) {
-            const receipt = await generateReceiptForPlayer(p);
+            const tradesCount = tradesCountMap[p.id] || 0;
+            const receipt = await generateReceiptForPlayer(p, tradesCount);
             receipts.push(receipt);
         }
         window.generatedReceipts = receipts;
         displayReceiptsPreview(receipts);
         statusSpan.innerText = `✅ 已生成 ${receipts.length} 位玩家的回执单预览`;
     }
-    
+
     function displayReceiptsPreview(receipts) {
         const container = document.getElementById('receiptPreviewArea');
         if(!container) return;
@@ -498,49 +582,45 @@
                 <div class="badge-group">
                     ${r.tags.map(t => `<span class="tag ${t.class}">${t.label}</span>`).join('')}
                 </div>
-                <div class="metaphor">✨ “${r.metaphor}”</div>
+                <div class="metaphor">✨ "${r.metaphor}"</div>
             </div>
         `).join('');
     }
-    
-async function publishAllReceipts() {
-    if(!window.generatedReceipts || window.generatedReceipts.length === 0) { 
-        showToast('请先生成回执单预览', true); 
-        return; 
-    }
-    
-    const statusSpan = document.getElementById('receiptStatus');
-    const originalText = statusSpan.innerText;
-    statusSpan.innerHTML = '⏳ 正在发布到数据库...';
-    statusSpan.style.color = '#e8501a';
-    
-    let successCount = 0;
-    for(let receipt of window.generatedReceipts) {
-        const { error } = await supabase.from('player_receipts').upsert({
-            player_id: receipt.playerId,
-            max_rbc: receipt.maxRbc,
-            min_rbc: receipt.minRbc,
-            most_dangerous_time: receipt.dangerousTime,
-            behavior_tags: receipt.tags.map(t=>t.label),
-            metaphor: receipt.metaphor,
-            summary_text: `最高R币:${receipt.maxRbc} 最低R币:${receipt.minRbc} 标签:${receipt.tags.map(t=>t.label).join(',')}`
-        }, { onConflict: 'player_id' });
-        if(!error) successCount++;
-    }
-    
-    // 发布成功后保持显示“已发布”，不再恢复成“已生成预览”
-    if (successCount === window.generatedReceipts.length) {
-        statusSpan.innerHTML = `✅ 已成功发布 ${successCount} 位玩家的回执单到数据库`;
-        statusSpan.style.color = '#10b981';
-    } else {
-        statusSpan.innerHTML = `⚠️ 发布完成：成功 ${successCount} / ${window.generatedReceipts.length}`;
+
+    async function publishAllReceipts() {
+        if(!window.generatedReceipts || window.generatedReceipts.length === 0) {
+            showToast('请先生成回执单预览', true);
+            return;
+        }
+        const statusSpan = document.getElementById('receiptStatus');
+        const originalText = statusSpan.innerText;
+        statusSpan.innerHTML = '⏳ 正在发布到数据库...';
         statusSpan.style.color = '#e8501a';
+
+        let successCount = 0;
+        for(let receipt of window.generatedReceipts) {
+            const { error } = await supabase.from('player_receipts').upsert({
+                player_id: receipt.playerId,
+                max_rbc: receipt.maxRbc,
+                min_rbc: receipt.minRbc,
+                most_dangerous_time: receipt.dangerousTime,
+                behavior_tags: receipt.tags.map(t=>t.label),
+                metaphor: receipt.metaphor,
+                summary_text: `最高R币:${receipt.maxRbc} 最低R币:${receipt.minRbc} 标签:${receipt.tags.map(t=>t.label).join(',')}`
+            }, { onConflict: 'player_id' });
+            if(!error) successCount++;
+        }
+        if (successCount === window.generatedReceipts.length) {
+            statusSpan.innerHTML = `✅ 已成功发布 ${successCount} 位玩家的回执单到数据库`;
+            statusSpan.style.color = '#10b981';
+        } else {
+            statusSpan.innerHTML = `⚠️ 发布完成：成功 ${successCount} / ${window.generatedReceipts.length}`;
+            statusSpan.style.color = '#e8501a';
+        }
+        showToast(`📤 已发布 ${successCount}/${window.generatedReceipts.length} 位玩家`, false);
     }
-    
-    showToast(`📤 已发布 ${successCount}/${window.generatedReceipts.length} 位玩家`, false);
-}
-    
-    // ========= 核心管理函数 =========
+
+    // ========= 核心管理函数（保留原有，未作改动） =========
     function loadTaxConfig() {
         const saved = localStorage.getItem('reignite_tax_brackets');
         if(saved) {
@@ -708,7 +788,7 @@ async function publishAllReceipts() {
         let percent = content.includes('通胀') ? (Math.random()*0.1+0.05) : (content.includes('通缩') ? -(Math.random()*0.1+0.05) : (Math.random()*0.04-0.02));
         await addPrice(priceHistory[priceHistory.length-1] * (1 + percent));
     }
-    
+
     async function loadPlayers() {
         const { data, error } = await supabase.from('players').select('*').order('id');
         if(error) { console.error(error); showToast('加载失败', true); return; }
@@ -729,14 +809,14 @@ async function publishAllReceipts() {
             if (updated) openSidebar(updated);
         }
     }
-    
+
     async function updatePlayer(id, updates, actionType, oldVal, newVal, detail) {
         await supabase.from('players').update(updates).eq('id', id);
         await supabase.from('player_logs').insert([{ player_id: id, action_type: actionType, old_value: String(oldVal), new_value: String(newVal), detail: detail || '' }]);
         await loadPlayers();
         showToast('已同步');
     }
-    
+
     window.changeRbc = (p, d) => { const newRbc = Math.max(0, p.rbc + d); updatePlayer(p.id, { rbc: newRbc }, 'rbc_change', p.rbc, newRbc, `手动调整 ${d>0?'+'+d:d} R币`); };
     window.adjustLoan = (p, delta) => { const newLoan = Math.max(0, (p.loan || 0) + delta); updatePlayer(p.id, { loan: newLoan }, 'loan_change', p.loan || 0, newLoan, `贷款${delta>0 ? '发放' : '还款'} ${Math.abs(delta)} R币，总额 ${newLoan}`); };
     window.adjustStock = (p, delta) => { const newStock = Math.max(0, (p.stock || 0) + delta); updatePlayer(p.id, { stock: newStock }, 'stock_change', p.stock || 0, newStock, `股票${delta>0 ? '买入' : '卖出'} ${Math.abs(delta)} 股，持仓 ${newStock}`); };
@@ -747,7 +827,7 @@ async function publishAllReceipts() {
         showToast(`${p.name} ${field} ${checked ? '已标记' : '已取消'}`);
     };
     window.setColor = (p, c) => { const colorNameMap = { green:'绿', yellow:'黄', orange:'橙', red:'红', black:'黑' }; const oldColorName = colorNameMap[p.color] || p.color; const newColorName = colorNameMap[c] || c; updatePlayer(p.id, { color: c }, 'color_change', p.color, c, `生命颜色变更: ${oldColorName} → ${newColorName}`); };
-    
+
     let newsHistory = [], economyHistory = [];
     async function loadNewsHistory() { const { data } = await supabase.from('news').select('*').order('id', { ascending: false }).limit(10); if(data) { newsHistory = data; if(data[0]) { document.getElementById('newsLatestContent').innerText = data[0].content; document.getElementById('newsLatestTime').innerText = data[0].time; } else { document.getElementById('newsLatestContent').innerText = '暂无快报'; document.getElementById('newsLatestTime').innerText = ''; } renderHistory('news'); } }
     async function loadEconomyHistory() { const { data } = await supabase.from('economy_status').select('*').order('id', { ascending: false }).limit(10); if(data) { economyHistory = data; if(data[0]) { document.getElementById('economyLatestContent').innerText = data[0].content; document.getElementById('economyLatestTime').innerText = data[0].time; } else { document.getElementById('economyLatestContent').innerText = '暂无经济动态'; document.getElementById('economyLatestTime').innerText = ''; } renderHistory('economy'); } }
@@ -777,13 +857,13 @@ async function publishAllReceipts() {
     }
     async function publishEconomy(content) { if(!content) return; await supabase.from('economy_status').insert([{ content, time: new Date().toLocaleTimeString() }]); await adjustByEconomy(content); document.getElementById('economyInput').value=''; loadEconomyHistory(); }
     const presetMap = { normal:"正常经济 · 甜品原价 · R币获取正常", inflation:"通胀来袭！超市甜品价格上涨2R币，R币获取减半", deflation:"通缩来临！超市甜品降价2R币，R币获取翻倍" };
-    
+
     async function resetAll() {
         if(!confirm('重置所有玩家？将清空进度、颜色变绿、R币=5、贷款=0、股票=0、清除所有行为标签，并删除所有玩家日志！')) return;
         for(let p of uniquePlayers) {
             await supabase.from('player_logs').delete().eq('player_id', p.id);
-            await supabase.from('players').update({ 
-                color: 'green', rbc: 5, loan: 0, stock: 0, 
+            await supabase.from('players').update({
+                color: 'green', rbc: 5, loan: 0, stock: 0,
                 is_workaholic: false, is_consumer: false, is_adventurer: false, is_helper: false, is_companion: false
             }).eq('id', p.id);
         }
@@ -791,7 +871,7 @@ async function publishAllReceipts() {
         if (currentSidebarPlayer) closeSidebar();
         showToast(`✅ 重置完成！所有玩家已重置`);
     }
-    
+
     function renderStats() {
         const stats = { total: uniquePlayers.length, green:0, yellow:0, orange:0, red:0, black:0, warn:0 };
         for(let p of uniquePlayers) { stats[p.color]++; if(p.rbc<5) stats.warn++; }
@@ -812,7 +892,7 @@ async function publishAllReceipts() {
         }
         return f;
     }
-    
+
     function renderUI() {
         renderStats();
         const groups = [...new Set(uniquePlayers.map(p=>p.group_name))];
@@ -841,41 +921,41 @@ async function publishAllReceipts() {
             loanDiv.querySelectorAll('button')[0].onclick = () => window.adjustLoan(p, -20);
             loanDiv.querySelectorAll('button')[1].onclick = () => window.adjustLoan(p, 20);
             loanCell.appendChild(loanDiv);
-            // 股票
+            // 股票（股数操作）
             const stockCell = row.insertCell(6); const stockDiv = document.createElement('div'); stockDiv.className = 'stock-control';
             stockDiv.innerHTML = `<button class="stock-btn">-1</button><span>${p.stock || 0}</span><button class="stock-btn">+1</button>`;
             stockDiv.querySelectorAll('button')[0].onclick = () => window.adjustStock(p, -1);
             stockDiv.querySelectorAll('button')[1].onclick = () => window.adjustStock(p, 1);
             stockCell.appendChild(stockDiv);
-            
+
             // 行为标签（站1~站4）
             const workCell = row.insertCell(7);
             const workCheck = document.createElement('input'); workCheck.type = 'checkbox'; workCheck.className = 'behavior-checkbox'; workCheck.checked = p.is_workaholic === true;
             workCheck.addEventListener('change', () => window.toggleBehavior(p, 'is_workaholic', workCheck.checked));
             workCell.appendChild(workCheck);
-            
+
             const consumerCell = row.insertCell(8);
             const consumerCheck = document.createElement('input'); consumerCheck.type = 'checkbox'; consumerCheck.className = 'behavior-checkbox'; consumerCheck.checked = p.is_consumer === true;
             consumerCheck.addEventListener('change', () => window.toggleBehavior(p, 'is_consumer', consumerCheck.checked));
             consumerCell.appendChild(consumerCheck);
-            
+
             const adventurerCell = row.insertCell(9);
             const adventurerCheck = document.createElement('input'); adventurerCheck.type = 'checkbox'; adventurerCheck.className = 'behavior-checkbox'; adventurerCheck.checked = p.is_adventurer === true;
             adventurerCheck.addEventListener('change', () => window.toggleBehavior(p, 'is_adventurer', adventurerCheck.checked));
             adventurerCell.appendChild(adventurerCheck);
-            
+
             const helperCell = row.insertCell(10);
             const helperCheck = document.createElement('input'); helperCheck.type = 'checkbox'; helperCheck.className = 'behavior-checkbox'; helperCheck.checked = p.is_helper === true;
             helperCheck.addEventListener('change', () => window.toggleBehavior(p, 'is_helper', helperCheck.checked));
             helperCell.appendChild(helperCheck);
-            
+
             const detailCell = row.insertCell(11);
             const detailBtn = document.createElement('button'); detailBtn.innerText = '详情'; detailBtn.className = 'detail-btn'; detailBtn.onclick = () => openSidebar(p);
             detailCell.appendChild(detailBtn);
         });
         updateTaxPreview();
     }
-    
+
     async function openSidebar(player) {
         currentSidebarPlayer = player;
         const { data: logs } = await supabase.from('player_logs').select('*').eq('player_id', player.id).order('created_at', { ascending: false }).limit(50);
@@ -931,7 +1011,7 @@ async function publishAllReceipts() {
     }
     function closeSidebar() { document.getElementById('playerSidebar').classList.remove('open'); currentSidebarPlayer = null; }
     document.getElementById('closeSidebarBtn').onclick = closeSidebar;
-    
+
     function startAutoAdjust() { if(autoTimer) clearInterval(autoTimer); autoTimer = setInterval(randomFluctuation, 30*60*1000); }
     function setupRealtime() {
         supabase.channel('players-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers()).subscribe();
@@ -941,7 +1021,7 @@ async function publishAllReceipts() {
             if(payload.new.price && priceHistory[priceHistory.length-1] !== payload.new.price) { priceHistory.push(payload.new.price); renderChart(); }
         }).subscribe();
     }
-    
+
     // 事件绑定
     document.getElementById('sendNewsBtn').onclick = sendNews;
     document.getElementById('setEconomyBtn').onclick = () => { const c = document.getElementById('economyInput').value.trim(); if(c) publishEconomy(c); else showToast('输入内容',true); };
@@ -962,7 +1042,7 @@ async function publishAllReceipts() {
     document.getElementById('generateAllReceiptsBtn').onclick = generateAllReceiptsPreview;
     document.getElementById('publishAllReceiptsBtn').onclick = publishAllReceipts;
     document.querySelectorAll('.quick-btn').forEach(btn => btn.onclick = () => { document.getElementById('economyInput').value = presetMap[btn.getAttribute('data-preset')]; });
-    
+
     // 折叠区域
     document.querySelectorAll('.toggle-history-btn').forEach(btn => {
         const target = btn.getAttribute('data-target');
@@ -976,10 +1056,10 @@ async function publishAllReceipts() {
     taxHeader.addEventListener('click', () => { taxOpen = !taxOpen; taxContent.classList.toggle('show', taxOpen); taxHeader.querySelector('span').innerHTML = taxOpen ? '▲' : '▼'; });
     const receiptHeader = document.getElementById('receiptHeader'), receiptContent = document.getElementById('receiptContent'); let receiptOpen = false;
     receiptHeader.addEventListener('click', () => { receiptOpen = !receiptOpen; receiptContent.classList.toggle('show', receiptOpen); receiptHeader.querySelector('span').innerHTML = receiptOpen ? '▲' : '▼'; });
-    
+
     function showToast(msg, isErr) { const toast = document.getElementById('toastMsg'); toast.innerText = msg; toast.style.opacity = 1; setTimeout(()=>toast.style.opacity=0, 2000); }
     window.showToast = showToast;
-    
+
     loadTaxConfig();
     renderTaxConfigUI();
     initPrice(); loadPlayers(); loadNewsHistory(); loadEconomyHistory(); startAutoAdjust(); setupRealtime();
