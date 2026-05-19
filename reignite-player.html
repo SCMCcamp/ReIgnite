@@ -309,13 +309,26 @@
         .receipt-tag{padding:5px 13px;border-radius:40px;font-size:0.75rem;font-weight:700;letter-spacing:0.3px;animation:tag-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
         .receipt-tag:nth-child(1){animation-delay:0.08s}.receipt-tag:nth-child(2){animation-delay:0.16s}.receipt-tag:nth-child(3){animation-delay:0.24s}.receipt-tag:nth-child(4){animation-delay:0.32s}.receipt-tag:nth-child(5){animation-delay:0.40s}
         @keyframes tag-pop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+        /* Tier 1 — spiritual & story arc */
+        .tag-reborn    {background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.28);color:#34d399}
+        .tag-survivor  {background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.28);color:#fbbf24}
+        .tag-debtor    {background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.28);color:#f87171}
+        /* Tier 2 — manual identity tags */
         .tag-workaholic{background:rgba(239,68,68,0.13);border:1px solid rgba(239,68,68,0.3);color:#f87171}
-        .tag-reborn{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.28);color:#34d399}
+        .tag-consumer  {background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.28);color:#fb923c}
         .tag-adventurer{background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.28);color:#fb923c}
-        .tag-companion{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.28);color:#60a5fa}
+        .tag-helper    {background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.28);color:#34d399}
+        /* Tier 3 — investor tiers */
+        .tag-stock-master{background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);color:#a78bfa}
+        .tag-investor    {background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.28);color:var(--gold)}
+        .tag-stock-newbie{background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.18);color:#94a3b8}
+        /* Tier 4 — wealth signals */
+        .tag-cash-king {background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:#6ee7b7}
+        .tag-big-earner{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:#fcd34d}
+        /* misc */
+        .tag-companion {background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.28);color:#60a5fa}
         .tag-nightwatch{background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.18);color:#94a3b8}
-        .tag-investor{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.28);color:var(--gold)}
-        .tag-default{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-2)}
+        .tag-default   {background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-2)}
         .receipt-metaphor{margin:10px 18px 0;padding:12px 16px;background:linear-gradient(135deg,rgba(245,166,35,0.07) 0%,rgba(245,166,35,0.025) 100%);border:1px solid rgba(245,166,35,0.18);border-left:3px solid rgba(245,166,35,0.6);border-radius:0 14px 14px 0;position:relative;overflow:hidden}
         .receipt-metaphor::before{content:'"';position:absolute;top:-10px;left:8px;font-size:4.5rem;font-family:Georgia,serif;color:rgba(245,166,35,0.08);line-height:1}
         .receipt-metaphor-text{font-size:0.88rem;line-height:1.75;color:rgba(212,168,75,0.9);font-style:italic;position:relative;z-index:1}
@@ -619,8 +632,14 @@
     });
 
     /* ── LIFE RECEIPT POPUP ── */
-    let lastSeenReceiptId = null;
-    const TAG_CLASSES = { '工作狂':'tag-workaholic','重生者':'tag-reborn','冒险家':'tag-adventurer','同行者':'tag-companion','守夜人':'tag-nightwatch','投资者':'tag-investor' };
+    let lastSeenReceiptTime = null;
+    const TAG_CLASSES = {
+        '重生者':'tag-reborn', '幸存者':'tag-survivor', '负债者':'tag-debtor',
+        '工作狂':'tag-workaholic', '消费者':'tag-consumer', '冒险家':'tag-adventurer', '帮助者':'tag-helper',
+        '股市达人':'tag-stock-master', '投资者':'tag-investor', '股市小白':'tag-stock-newbie',
+        '现金者':'tag-cash-king', '暴发户':'tag-big-earner',
+        '同行者':'tag-companion', '守夜人':'tag-nightwatch'
+    };
 
     function showReceiptPopup(rec, playerData) {
         const p = playerData;
@@ -642,7 +661,7 @@
 
     function hideReceiptPopup() {
         document.getElementById('receiptOverlay').classList.remove('visible');
-        if (lastSeenReceiptId) sessionStorage.setItem(`receipt_seen_${lastSeenReceiptId}`, '1');
+        if (lastSeenReceiptTime) sessionStorage.setItem(`receipt_seen_${lastSeenReceiptTime}`, '1');
     }
 
     document.getElementById('receiptDismissBtn').addEventListener('click', hideReceiptPopup);
@@ -668,10 +687,11 @@
             .on('postgres_changes', { event: '*', schema: 'public', table: 'player_receipts' }, payload => {
                 if (!currentPlayer || !payload.new) return;
                 const rec = payload.new;
-                if (rec.id === lastSeenReceiptId) return;
+                const recTime = rec.updated_at || rec.created_at;
+                if (recTime && recTime === lastSeenReceiptTime) return;
                 const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
                 if (!p || rec.player_id !== p.id) return;
-                lastSeenReceiptId = rec.id;
+                lastSeenReceiptTime = recTime;
                 setTimeout(() => showReceiptPopup(rec, p), 300);
             }).subscribe();
     }
@@ -680,11 +700,12 @@
         if (!currentPlayer) return;
         const p = allPlayers.find(x => x.name === currentPlayer.name && x.group_name === currentPlayer.group_name);
         if (!p) return;
-        const { data } = await sb.from('player_receipts').select('*').eq('player_id', p.id).order('id', { ascending: false }).limit(1);
+        const { data } = await sb.from('player_receipts').select('*').eq('player_id', p.id).order('updated_at', { ascending: false }).limit(1);
         if (!data?.length) return;
         const rec = data[0];
-        if (sessionStorage.getItem(`receipt_seen_${rec.id}`)) return;
-        lastSeenReceiptId = rec.id;
+        const recTime = rec.updated_at || rec.created_at;
+        if (sessionStorage.getItem(`receipt_seen_${recTime}`)) return;
+        lastSeenReceiptTime = recTime;
         setTimeout(() => showReceiptPopup(rec, p), 400);
     }
 
