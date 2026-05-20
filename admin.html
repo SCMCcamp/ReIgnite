@@ -262,7 +262,7 @@
         <div class="logo">
             <div class="logo-text">RE:Ignite</div>
             <span class="logo-pipe">|</span>
-            <div class="badge">中控端 · 股票评分版</div>
+            <div class="badge">中控端</div>
             <div class="status-pill"><span class="status-dot"></span>实时在线</div>
         </div>
         <div><button class="btn" id="resetAllBtn">🔄 重置所有</button></div>
@@ -442,24 +442,17 @@
         return { label, class: TAG_CLASSES[label] || '' };
     }
 
-    // analyzeTags 现在接收可选的 tradesCount 参数（如果已预取则传入，否则函数内部会查询）
     async function analyzeTags(player, logs, precomputedTradesCount = null) {
         let tags = [];
 
-        // Tier 2 — manual identity tags (站1~站4)
-        if (player.is_workaholic === true) tags.push(makeTag('工作狂'));
-        if (player.is_consumer === true)   tags.push(makeTag('消费者'));
-        if (player.is_adventurer === true) tags.push(makeTag('冒险家'));
-        if (player.is_helper === true)     tags.push(makeTag('帮助者'));
-
-        // Tier 1 — 重生者
+        // P1 — 重生者
         const hasReborn = logs.some(log =>
             (log.detail && (log.detail.includes('修复者') || log.detail.includes('放弃所有R币'))) ||
             (log.action_type === 'rbc_change' && parseInt(log.old_value) > 0 && parseInt(log.new_value) === 0 && log.detail && log.detail.includes('修复'))
         );
         if (hasReborn) tags.push(makeTag('重生者'));
 
-        // Tier 1 — 幸存者
+        // P2 — 幸存者
         const colorLogs = logs
             .filter(l => l.action_type === 'color_change')
             .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
@@ -470,10 +463,16 @@
         }
         if (hadDanger && (recoveredAfterDanger || player.color === 'green')) tags.push(makeTag('幸存者'));
 
-        // Tier 1 — 负债者
+        // P3 — 负债者
         if ((player.loan || 0) > 0) tags.push(makeTag('负债者'));
 
-        // Tier 3 — 投资标签（基于评分 = 交易次数 + 当前持股数）
+        // P3 — 工作狂
+        if (player.is_workaholic === true) tags.push(makeTag('工作狂'));
+
+        // P3 — 帮助者
+        if (player.is_helper === true) tags.push(makeTag('帮助者'));
+
+        // P4 — 投资标签（基于评分 = 交易次数 + 当前持股数）
         let tradesCount = precomputedTradesCount;
         if (tradesCount === null || tradesCount === undefined) {
             tradesCount = await getStockTradesCount(player.id);
@@ -482,10 +481,16 @@
         const investorTag = getInvestorTagByScore(stockScore);
         if (investorTag) tags.push(investorTag);
 
-        // Tier 4 — 现金者: R币 > 80
+        // P5 — 消费者
+        if (player.is_consumer === true) tags.push(makeTag('消费者'));
+
+        // P5 — 冒险家
+        if (player.is_adventurer === true) tags.push(makeTag('冒险家'));
+
+        // P5 — 现金者: R币 > 80
         if (player.rbc > 80) tags.push(makeTag('现金者'));
 
-        // Tier 4 — 暴发户: 单次R币增加 > 50
+        // P5 — 暴发户: 单次R币增加 > 50
         const bigEarner = logs.some(log =>
             log.action_type === 'rbc_change' &&
             (parseInt(log.new_value) - parseInt(log.old_value)) > 50
@@ -551,14 +556,10 @@
     async function generateAllReceiptsPreview() {
         const statusSpan = document.getElementById('receiptStatus');
         statusSpan.innerText = '正在分析日志，请稍候...';
-        // 批量预取所有玩家的交易次数
         const tradesCountMap = await getAllStockTradesCounts();
-        const receipts = [];
-        for(let p of uniquePlayers) {
-            const tradesCount = tradesCountMap[p.id] || 0;
-            const receipt = await generateReceiptForPlayer(p, tradesCount);
-            receipts.push(receipt);
-        }
+        const receipts = await Promise.all(
+            uniquePlayers.map(p => generateReceiptForPlayer(p, tradesCountMap[p.id] || 0))
+        );
         window.generatedReceipts = receipts;
         displayReceiptsPreview(receipts);
         statusSpan.innerText = `✅ 已生成 ${receipts.length} 位玩家的回执单预览`;
@@ -597,9 +598,8 @@
         statusSpan.innerHTML = '⏳ 正在发布到数据库...';
         statusSpan.style.color = '#e8501a';
 
-        let successCount = 0;
-        for(let receipt of window.generatedReceipts) {
-            const { error } = await supabase.from('player_receipts').upsert({
+        const results = await Promise.all(window.generatedReceipts.map(receipt =>
+            supabase.from('player_receipts').upsert({
                 player_id: receipt.playerId,
                 max_rbc: receipt.maxRbc,
                 min_rbc: receipt.minRbc,
@@ -607,9 +607,9 @@
                 behavior_tags: receipt.tags.map(t=>t.label),
                 metaphor: receipt.metaphor,
                 summary_text: `最高R币:${receipt.maxRbc} 最低R币:${receipt.minRbc} 标签:${receipt.tags.map(t=>t.label).join(',')}`
-            }, { onConflict: 'player_id' });
-            if(!error) successCount++;
-        }
+            }, { onConflict: 'player_id' })
+        ));
+        const successCount = results.filter(r => !r.error).length;
         if (successCount === window.generatedReceipts.length) {
             statusSpan.innerHTML = `✅ 已成功发布 ${successCount} 位玩家的回执单到数据库`;
             statusSpan.style.color = '#10b981';
@@ -618,6 +618,15 @@
             statusSpan.style.color = '#e8501a';
         }
         showToast(`📤 已发布 ${successCount}/${window.generatedReceipts.length} 位玩家`, false);
+
+        // Broadcast to all player clients to refresh their receipt
+        if (successCount > 0) {
+            await supabase.channel('receipts-broadcast').send({
+                type: 'broadcast',
+                event: 'receipts_updated',
+                payload: { publishedAt: new Date().toISOString(), count: successCount }
+            });
+        }
     }
 
     // ========= 核心管理函数（保留原有，未作改动） =========
