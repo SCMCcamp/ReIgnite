@@ -238,7 +238,7 @@
         @keyframes skull-drift{0%,100%{transform:translateY(0) scale(1);opacity:0.6}50%{transform:translateY(-3px) scale(1.1);opacity:1}}
 
         /* GAME OVER fullscreen */
-        #gameOverOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 0.6s ease}
+        #gameOverOverlay{position:fixed;top:0;left:0;right:0;bottom:0;height:100vh;height:100dvh;z-index:99999;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 0.6s ease}
         #gameOverOverlay.visible{pointer-events:all;opacity:1}
         .go-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px) saturate(0.3);-webkit-backdrop-filter:blur(6px) saturate(0.3)}
         .go-backdrop::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 6px);pointer-events:none}
@@ -448,9 +448,9 @@
     <div class="go-content">
         <div class="go-line-top"></div>
         <div class="go-skulls">
-            <span class="go-skull-side">💀</span>
-            <span class="go-skull-large">💀</span>
-            <span class="go-skull-side">💀</span>
+            <span class="go-skull-side"><svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="28" rx="22" ry="22" fill="#6b7280"/><rect x="14" y="44" width="36" height="10" rx="4" fill="#6b7280"/><rect x="20" y="48" width="8" height="6" rx="2" fill="#1a1a2e"/><rect x="36" y="48" width="8" height="6" rx="2" fill="#1a1a2e"/><ellipse cx="23" cy="28" rx="6" ry="7" fill="#1a1a2e"/><ellipse cx="41" cy="28" rx="6" ry="7" fill="#1a1a2e"/><ellipse cx="32" cy="36" rx="3" ry="4" fill="#1a1a2e"/></svg></span>
+            <span class="go-skull-large"><svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="28" rx="22" ry="22" fill="#9ca3af"/><rect x="14" y="44" width="36" height="10" rx="4" fill="#9ca3af"/><rect x="20" y="48" width="8" height="6" rx="2" fill="#1a1a2e"/><rect x="36" y="48" width="8" height="6" rx="2" fill="#1a1a2e"/><ellipse cx="23" cy="28" rx="6" ry="7" fill="#1a1a2e"/><ellipse cx="41" cy="28" rx="6" ry="7" fill="#1a1a2e"/><ellipse cx="32" cy="36" rx="3" ry="4" fill="#1a1a2e"/></svg></span>
+            <span class="go-skull-side"><svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="28" rx="22" ry="22" fill="#6b7280"/><rect x="14" y="44" width="36" height="10" rx="4" fill="#6b7280"/><rect x="20" y="48" width="8" height="6" rx="2" fill="#1a1a2e"/><rect x="36" y="48" width="8" height="6" rx="2" fill="#1a1a2e"/><ellipse cx="23" cy="28" rx="6" ry="7" fill="#1a1a2e"/><ellipse cx="41" cy="28" rx="6" ry="7" fill="#1a1a2e"/><ellipse cx="32" cy="36" rx="3" ry="4" fill="#1a1a2e"/></svg></span>
         </div>
         <div class="go-title">GAME OVER</div>
         <div class="go-divider"></div>
@@ -959,7 +959,6 @@
             prevPlayerColor = p ? p.color : null;
             if (p && p.color === 'black') { renderPlayerView(); showGameOverOverlay(p.name, p.group_name); }
             else renderPlayerView();
-            setTimeout(checkExistingReceipt, 900);
         };
     }
 
@@ -995,7 +994,6 @@
                 prevPlayerColor = p ? p.color : null;
                 renderPlayerView();
                 if (p && p.color === 'black') setTimeout(() => showGameOverOverlay(p.name, p.group_name), 600);
-                setTimeout(checkExistingReceipt, 1500);
             }
         }, 200);
     } else {
