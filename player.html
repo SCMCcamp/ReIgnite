@@ -963,9 +963,31 @@
     }
 
     /* ── CHIMES ── */
+    let _audioCtx = null;
+    let _audioUnlocked = false;
+
+    function _unlockAudio() {
+        if (_audioUnlocked) return;
+        try {
+            if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            // iOS requires playing a silent buffer inside the gesture to fully unlock
+            const buf = _audioCtx.createBuffer(1, 1, 22050);
+            const src = _audioCtx.createBufferSource();
+            src.buffer = buf;
+            src.connect(_audioCtx.destination);
+            src.start(0);
+            _audioCtx.resume().then(() => { _audioUnlocked = true; });
+        } catch(e) {}
+    }
+    document.addEventListener('touchstart', _unlockAudio, { passive: true });
+    document.addEventListener('touchend',   _unlockAudio, { passive: true });
+    document.addEventListener('mousedown',  _unlockAudio, { passive: true });
+
     function _chime(notes) {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!_audioCtx) return; // not yet unlocked
+            if (_audioCtx.state === 'suspended') _audioCtx.resume();
+            const ctx = _audioCtx;
             notes.forEach(([freq, start, dur, vol = 0.4]) => {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -978,23 +1000,23 @@
                 osc.start(ctx.currentTime + start);
                 osc.stop(ctx.currentTime + start + dur);
             });
-        } catch(e) {}
+        } catch(e) { console.warn('Chime error:', e); }
     }
 
     // 快报: bright 3-note ascending (C→E→G) — breaking news
     function playNewsChime() {
         _chime([
-            [523, 0.00, 0.18],   // C5
-            [659, 0.16, 0.18],   // E5
-            [784, 0.32, 0.35],   // G5 — holds longer
+            [523, 0.00, 0.18],
+            [659, 0.16, 0.18],
+            [784, 0.32, 0.35],
         ]);
     }
 
-    // 经济状态: warm 2-note descending coin-drop (A→E)
+    // 经济状态: warm 2-note coin-drop (A5→C#5)
     function playEconomyChime() {
         _chime([
-            [880, 0.00, 0.12, 0.35],  // A5 — short tap
-            [550, 0.10, 0.40, 0.28],  // C#5 — warm settle
+            [880, 0.00, 0.12, 0.35],
+            [550, 0.10, 0.40, 0.28],
         ]);
     }
 
