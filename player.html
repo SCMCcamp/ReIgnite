@@ -962,11 +962,47 @@
         };
     }
 
+    /* ── CHIMES ── */
+    function _chime(notes) {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            notes.forEach(([freq, start, dur, vol = 0.4]) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0, ctx.currentTime + start);
+                gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+                osc.start(ctx.currentTime + start);
+                osc.stop(ctx.currentTime + start + dur);
+            });
+        } catch(e) {}
+    }
+
+    // 快报: bright 3-note ascending (C→E→G) — breaking news
+    function playNewsChime() {
+        _chime([
+            [523, 0.00, 0.18],   // C5
+            [659, 0.16, 0.18],   // E5
+            [784, 0.32, 0.35],   // G5 — holds longer
+        ]);
+    }
+
+    // 经济状态: warm 2-note descending coin-drop (A→E)
+    function playEconomyChime() {
+        _chime([
+            [880, 0.00, 0.12, 0.35],  // A5 — short tap
+            [550, 0.10, 0.40, 0.28],  // C#5 — warm settle
+        ]);
+    }
+
     /* ── REALTIME ── */
     function setupRealtime() {
         sb.channel('players-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadPlayers()).subscribe();
-        sb.channel('news-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => loadLatestNews()).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'news' }, () => loadLatestNews()).subscribe();
-        sb.channel('economy-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy()).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy()).subscribe();
+        sb.channel('news-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'news' }, () => { playNewsChime(); loadLatestNews(); }).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'news' }, () => loadLatestNews()).subscribe();
+        sb.channel('economy-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'economy_status' }, () => { playEconomyChime(); loadLatestEconomy(); }).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'economy_status' }, () => loadLatestEconomy()).subscribe();
         subscribeStockPrice();
         subscribeReceipts();
         const broadcastChannel = sb.channel('receipts-broadcast');
