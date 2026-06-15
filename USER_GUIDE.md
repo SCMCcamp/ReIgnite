@@ -2,14 +2,19 @@
 
 This guide explains how to use the four HTML pages in this repository during a RE:Ignite event.
 
+Related documents:
+
+- [Project README](./README.md)
+- [RE:Ignite 说明白手册 PDF](./Re_Ignite_说明白手册.pdf)
+
 ## Pages
 
 | File | Main user | Purpose |
 | --- | --- | --- |
-| `admin.html` | Game director / control team | Manage all players, broadcasts, economy, stock price, tax, logs, and end-game receipts |
-| `player.html` | Players | View personal status, R coins, life color, messages, stock value, and end-game receipt |
-| `supermarket.html` | Supermarket NPC | Record purchases, R coin changes, and RE:Set stock transactions |
-| `game.html` | Entertainment NPC | Record gambling, entertainment R coin changes, and loans |
+| [`admin.html`](./admin.html) | Game director / control team | Manage all players, broadcasts, economy, stock price, tax, logs, and end-game receipts |
+| [`player.html`](./player.html) | Players | View personal status, R coins, life color, messages, stock value, and end-game receipt |
+| [`supermarket.html`](./supermarket.html) | Supermarket NPC | Record purchases, R coin changes, and RE:Set stock transactions |
+| [`game.html`](./game.html) | Entertainment NPC | Record gambling, entertainment R coin changes, and loans |
 
 ## Before The Event
 
@@ -44,9 +49,7 @@ This guide explains how to use the four HTML pages in this repository during a R
 
 Open:
 
-```text
-admin.html
-```
+[`admin.html`](./admin.html)
 
 The admin page is the control center for the whole event.
 
@@ -174,9 +177,7 @@ Do not use it during live gameplay unless the whole event is being restarted.
 
 Open:
 
-```text
-player.html
-```
+[`player.html`](./player.html)
 
 Players use this page to view their own live game status.
 
@@ -252,9 +253,7 @@ Players can close it by tapping the confirmation button or the backdrop.
 
 Open:
 
-```text
-supermarket.html
-```
+[`supermarket.html`](./supermarket.html)
 
 Use this page at the supermarket station.
 
@@ -311,9 +310,7 @@ The operation is logged to `player_logs`.
 
 Open:
 
-```text
-game.html
-```
+[`game.html`](./game.html)
 
 Use this page at the entertainment station.
 
